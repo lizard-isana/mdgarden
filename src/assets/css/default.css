@@ -1,0 +1,436 @@
+@charset "UTF-8";
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100;400;700;800&display=swap");
+/* A Modern CSS Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body, h1, h2, h3, h4, p, figure, blockquote, dl, dd {
+  margin: 0;
+}
+
+ul[role=list], ol[role=list] {
+  list-style: none;
+}
+
+html:focus-within {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  text-rendering: optimizeLegibility;
+  line-height: 1.5;
+}
+
+a:not([class]) {
+  -webkit-text-decoration-skip: ink;
+          text-decoration-skip-ink: auto;
+}
+
+img, picture {
+  max-width: 100%;
+  display: block;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+md-garden {
+  background: white;
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Hiragino Kaku Gothic Pro", "Yu Gothic", "YuGothic", "Meiryo", system-ui, sans-serif;
+  font-weight: 300;
+  font-kerning: auto;
+  font-variant-ligatures: none;
+  letter-spacing: 0.25px;
+  line-height: 1.75em;
+  letter-spacing: 0.03rem;
+  color: #3f3c3c;
+}
+md-garden > section {
+  padding: 60px 20px;
+  max-width: 900px;
+  width: 100%;
+  margin: auto;
+}
+md-garden > section p {
+  margin-bottom: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+md-garden > section a {
+  color: #6699cc;
+}
+md-garden > section a:link {
+  color: #6699cc;
+  text-decoration: underline;
+}
+md-garden > section a:visited {
+  text-decoration: underline;
+  color: #778899;
+}
+md-garden > section a:active {
+  text-decoration: underline;
+  color: #6699cc;
+}
+md-garden > section a:hover {
+  text-decoration: underline;
+  color: #6699cc;
+}
+md-garden > section h1, md-garden > section h2, md-garden > section h3, md-garden > section h4, md-garden > section h5 {
+  margin: 3rem 0 1.38rem;
+  font-family: "Noto Sans JP", sans-serif;
+  font-weight: 100;
+  line-height: 1.3;
+}
+md-garden > section h1 {
+  margin-top: 0;
+  font-size: 2.488rem;
+}
+md-garden > section h2 {
+  font-size: 1.85rem;
+  border-bottom: 1px solid #bbb;
+  line-height: 1.5;
+}
+md-garden > section h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  border-bottom: #bbb 1px dashed;
+  margin-bottom: 0.5rem;
+}
+md-garden > section h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+md-garden > section h5 {
+  font-size: 1.2rem;
+}
+md-garden > section small, md-garden > section .text_small {
+  font-size: 0.833rem;
+}
+md-garden > section pre {
+  font-weight: 300;
+  border-radius: 3px;
+  line-height: 1.65em;
+  margin: 1em;
+  width: 100%;
+}
+md-garden > section pre.mermaid {
+  background-color: initial;
+}
+md-garden > section sup, md-garden > section sub {
+  vertical-align: baseline;
+  position: relative;
+  top: -0.4em;
+}
+md-garden > section sub {
+  top: 0.4em;
+}
+md-garden > section blockquote {
+  position: relative;
+  border-left: none;
+  padding: 2rem 0 2rem 2rem;
+  margin-bottom: 0;
+}
+md-garden > section blockquote:before {
+  content: "”";
+  position: absolute;
+  top: 60px;
+  left: 0;
+  font-size: 10rem;
+  opacity: 0.1;
+  font-family: "Times New Roman", Times;
+  transform: scaleY(110%);
+}
+md-garden > section blockquote:after {
+  content: no-close-quote;
+}
+md-garden > section hr {
+  line-height: 1em;
+  position: relative;
+  outline: 0;
+  border: 0;
+  color: #333;
+  text-align: center;
+  height: 1.75em;
+  -webkit-user-select: text;
+     -moz-user-select: text;
+          user-select: text;
+  margin: 1rem auto;
+}
+md-garden > section hr:after {
+  content: "*";
+  position: relative;
+  display: inline-block;
+  -webkit-user-select: text;
+     -moz-user-select: text;
+          user-select: text;
+  color: #bbb;
+  padding: 0 0.5em;
+  line-height: 1.75em;
+}
+md-garden > section ul {
+  padding-left: 2rem;
+}
+md-garden > section ul li {
+  position: relative;
+  list-style: none;
+  margin-top: 0.3rem;
+  text-indent: -0.8rem;
+}
+md-garden > section ul li::before {
+  content: "";
+  display: inline-block;
+  vertical-align: 2px;
+  position: relative;
+  margin-right: 0.5rem;
+  width: 6px;
+  height: 6px;
+  background-color: #bbb;
+  border-radius: 10px;
+}
+md-garden > section ul li > ul {
+  padding-left: 2rem;
+}
+md-garden > section ul li > ul > li::before {
+  border: 1px solid #bbb;
+  background-color: initial;
+}
+md-garden > section ul li > ul > li > ul > li::before {
+  width: 4px;
+  height: 4px;
+  background-color: #bbb;
+  vertical-align: 3px;
+}
+md-garden > section ul.contains-task-list {
+  margin-left: -1em;
+}
+md-garden > section ul.contains-task-list li::before {
+  content: none;
+}
+md-garden > section ol li {
+  margin-top: 0.3rem;
+}
+md-garden > section .math {
+  margin-bottom: 1rem;
+}
+
+md-garden table {
+  border-collapse: collapse;
+  margin-bottom: 1em;
+  width: 100%;
+}
+md-garden table th, md-garden table td {
+  border-bottom: 1px solid #bbb;
+  padding: 10px 20px;
+}
+md-garden table tbody tr {
+  background-color: #fff;
+}
+md-garden table tbody tr:nth-child(even) {
+  background-color: #ddd;
+}
+md-garden table tbody tr:last-child td {
+  border-bottom: 1px solid #333;
+}
+md-garden table thead th {
+  background-color: #333;
+  color: #fff;
+  border-bottom: none;
+}
+
+md-garden .footnotes {
+  font-size: 0.75rem;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 60px;
+}
+md-garden .footnotes-list {
+  padding-top: 5px;
+  min-width: 50%;
+  border-top: 1px solid #bbb;
+}
+md-garden .footnotes-list p {
+  margin-bottom: 0;
+}
+md-garden .footnotes-sep {
+  display: none;
+}
+
+md-garden code {
+  border-radius: 3px;
+  padding: 0 3px;
+  white-space: pre-wrap;
+  overflow: auto;
+  line-height: 1.5;
+}
+md-garden code:not(.hljs) {
+  background-color: rgba(0, 0, 0, 0.075);
+  display: inline;
+}
+md-garden p code {
+  display: inline-block;
+  margin: 1px;
+  padding: 0 2px;
+  background-color: #f3f3f3;
+}
+md-garden pre:not(.code) {
+  padding: 1em;
+  margin: 0;
+  margin-bottom: 1rem;
+  border: 1px #CCC solid;
+  background-color: #f6f8fa;
+}
+md-garden pre:not(.code) > code {
+  background: transparent;
+  font-size: 0.875rem;
+}
+md-garden pre.code {
+  margin: 0;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+md-garden pre.code > code {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: block;
+}
+md-garden pre.code > code[class*=language] {
+  display: block;
+  position: relative;
+  word-break: break-word;
+  white-space: break-spaces;
+  overflow: scroll;
+}
+md-garden pre.code > code table {
+  display: table;
+  border: 1px solid #bbb;
+  width: 100%;
+  font-size: 0.875rem;
+  margin-bottom: 0;
+}
+md-garden pre.code > code table td, md-garden pre.code > code table th, md-garden pre.code > code table tr {
+  padding: 3px !important;
+  border: none !important;
+  vertical-align: top;
+  background-color: transparent;
+}
+p md-garden pre {
+  display: inline-block;
+  margin: 1px;
+  padding: 0 2px;
+  background-color: #f3f3f3;
+}
+md-garden {
+  /* highlight.js */
+}
+md-garden .highlight {
+  margin-bottom: 16px;
+}
+md-garden .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+md-garden .hljs-ln-numbers {
+  border-right: 1px solid #ccc;
+  color: #bbb;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+}
+md-garden .hljs-ln-n {
+  width: 2em;
+}
+md-garden .hljs-ln-code {
+  width: 100%;
+}
+
+md-garden .toc {
+  display: inline-block;
+  border: 1px solid #a2a9b1;
+  padding: 5px;
+  margin: 1em 0;
+  width: 50%;
+  font-size: 0.85em;
+  line-height: 1.5em;
+  word-break: normal;
+}
+@media (max-width: 768px) {
+  md-garden .toc {
+    width: 100%;
+  }
+}
+md-garden .toc h2 {
+  font-size: 1.2em;
+  font-weight: 500;
+  margin: 0 0.5em;
+  border-bottom: none;
+  cursor: pointer;
+}
+md-garden .toc h2:after {
+  content: " [hide]";
+  display: inline-flex;
+  align-items: center;
+  margin-left: 10px;
+  font-weight: 200;
+  font-size: 0.85em;
+  color: #bbb;
+}
+md-garden .toc ul {
+  list-style-position: outside;
+  list-style-type: none;
+  counter-reset: toc;
+  margin: 0.5em auto;
+  padding-left: 0.5em;
+}
+md-garden .toc ul li {
+  margin: 0 auto;
+  display: table-row;
+  counter-increment: toc;
+  text-indent: initial;
+}
+md-garden .toc ul li:before {
+  padding-right: 0.25em;
+  display: table-cell;
+  content: counters(toc, ".") ".";
+  vertical-align: initial;
+  background-color: initial;
+  border: initial;
+}
+md-garden .toc ul li:after {
+  content: none;
+}
+md-garden .toc.close h2:after {
+  content: " [show]";
+}
+md-garden .toc.close ul {
+  display: none;
+}
+
+/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbImRlZmF1bHQuY3NzIiwiLi4vc2Nzcy9fYmFzZS5zY3NzIiwiLi4vc2Nzcy9fcmVzZXQuc2NzcyIsIi4uL3Njc3MvX3RhYmxlLnNjc3MiLCIuLi9zY3NzL19mb290bm90ZXMuc2NzcyIsIi4uL3Njc3MvX2NvZGUuc2NzcyIsIi4uL3Njc3MvX3RvYy5zY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLGdCQUFnQjtBQ0FSLHNHQUFBO0FDQU4sdUJBQUE7QUFDQTtFQUFxQixzQkFBQTtBRkl2Qjs7QUVKNkM7RUFBMkMsU0FBQTtBRlF4Rjs7QUVSaUc7RUFBZ0MsZ0JBQUE7QUZZakk7O0FFWmlKO0VBQWtCLHVCQUFBO0FGZ0JuSzs7QUVoQjBMO0VBQUssaUJBQUE7RUFBaUIsa0NBQUE7RUFBa0MsZ0JBQUE7QUZzQmxQOztBRXRCa1E7RUFBZSxpQ0FBQTtVQUFBLDhCQUFBO0FGMEJqUjs7QUUxQitTO0VBQVksZUFBQTtFQUFlLGNBQUE7QUYrQjFVOztBRS9Cd1Y7RUFBNkIsYUFBQTtBRm1Dclg7O0FFbkNrWTtFQUFzQztJQUFrQixxQkFBQTtFRndDeGI7RUV4QzZjO0lBQXFCLHFDQUFBO0lBQW9DLHVDQUFBO0lBQXVDLHNDQUFBO0lBQXFDLGdDQUFBO0VGOENsbEI7QUFDRjtBQ3hDQTs7O0VBR0Usc0JBQUE7QUQwQ0Y7O0FDdkNBO0VBQ0UsZUFBQTtFQUNBLHVCQUFBO0FEMENGOztBQ3ZDQTtFQUNFLGlCQUFBO0VBQ0EscUpBQUE7RUFDQSxnQkFBQTtFQUNBLGtCQUFBO0VBQ0EsNEJBQUE7RUFDQSxzQkFBQTtFQUNBLG1CQUFBO0VBQ0EsdUJBQUE7RUFDQSxjQUFBO0FEMENGO0FDeENBO0VBQ0Usa0JBQUE7RUFDQSxnQkFBQTtFQUNBLFdBQUE7RUFDQSxZQUFBO0FEMENGO0FDeENFO0VBQ0UsbUJBQUE7RUFDQSxnQkFBQTtFQUNBLHVCQUFBO0FEMENKO0FDdENFO0VBQ0UsY0FBQTtBRHdDSjtBQ3ZDSTtFQUNFLGNBQUE7RUFDQSwwQkFBQTtBRHlDTjtB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 */

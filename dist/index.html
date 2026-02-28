@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MDGarden - A lightweight, portable, markdown-based wiki engine</title>
+  <link rel="stylesheet" href="./assets/css/default.css">
+  <script type="module" src="./assets/js/mdgarden.js"></script>
+</head>
+<body>
+<main>
+  <md-garden id="main" src="./index.md"></md-garden>
+</main>
+
+<footer>
+  <md-garden id="footer" data-html="true"></md-garden>
+</footer>
+
+<template data-target="footer">
+Powered by [MDGarden](https://github.com/lizard-isana/mdgarden) &copy; Isana Kashiwai{.footer}
+<style>
+.footer{
+  text-align:right;
+  color:#bbb;
+  font-size:10px;
+  padding: 5px;
+}
+.footer a{
+  color:#bbb;
+  text-decoration:none;
+}
+.footer a:hover{
+  text-decoration:underline;
+}
+</style>
+</template>
+</body>
+</html>

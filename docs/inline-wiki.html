@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MDGarden Inline Wiki</title>
+  <link rel="stylesheet" href="./assets/css/default.css">
+  <script src="./assets/js/mdgarden.min.js"></script>
+</head>
+<body>
+<main>
+  <md-garden
+    id="wiki"
+    data-inline-spa="true"
+    data-inline-default-page="home"
+    data-plugins="toc">
+  </md-garden>
+</main>
+
+<template data-target="wiki">
+読み込み中...
+</template>
+
+<template data-page="home">
+## Home
+このページは、`inline mode` + `data-inline-spa="true"` で動く最小Wikiデモです。
+
+### このデモで分かること
+- `template[data-page]` の切り替えで疑似ページ遷移できる
+- `[Link](?page=...)` のリンクがページ内遷移として処理される
+- ブラウザの戻る/進むでページ状態を行き来できる
+- 追加のJavaScriptを書かずに動かせる
+
+### Menu
+- [Getting Started](?page=getting-started)
+- [Feature Notes](?page=feature-notes)
+- [FAQ](?page=faq)
+</template>
+
+<template data-page="getting-started">
+# Getting Started
+`md-garden` と `template` だけで動く最小構成です。
+
+```html
+<md-garden
+  id="wiki"
+  data-inline-spa="true"
+  data-inline-default-page="home">
+</md-garden>
+
+<template data-target="wiki">Loading...</template>
+
+<template data-page="home"># Home</template>
+```
+
+ページを増やすときは `template[data-page="..."]` を追加し、`?page=...` のリンクを張るだけです。
+
+- [Home](?page=home)
+- [Feature Notes](?page=feature-notes)
+- [FAQ](?page=faq)
+</template>
+
+<template data-page="feature-notes">
+## Feature Notes
+### このサンプルで使っている主な設定:
+- `data-inline-spa="true"`: inline wiki ルーティングを有効化
+- `data-inline-default-page="home"`: 初期ページを指定
+- `data-plugins="toc"`: 目次のみを有効化
+
+### 拡張したい場合:
+- `MDGarden.wiki.setPage("faq", { updateUrl: true })`
+- `MDGarden.wiki.setMarkdown("# Runtime content")`
+
+### Menu
+- [Home](?page=home)
+- [Getting Started](?page=getting-started)
+- [FAQ](?page=faq)
+</template>
+
+<template data-page="faq">
+# FAQ
+Q. JavaScriptは必要ですか？  
+A. この最小サンプルでは不要です。
+
+Q. ファイルを直接開いても動きますか？  
+A. はい。inline modeなので `file://` でも動作します。
+
+### Menu
+- [Home](?page=home)
+- [Feature Notes](?page=feature-notes)
+- [Getting Started](?page=getting-started)
+</template>
+</body>
+</html>
