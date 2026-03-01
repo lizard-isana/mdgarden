@@ -1,4 +1,5 @@
-# Markdown Viewer Component
+# MD Garden
+
 Markdownをレンダリングして要素内に表示する Web Component です。HTMLファイルにライブラリをリンクしてタグを書き込むだけで動作します。
 
 Markdownのレンダリングには [Markdown-It](https://github.com/markdown-it/markdown-it) を使用しています。
