@@ -11,9 +11,20 @@
 </head>
 <body>
 <mdg-author viewer-id="main" file-name="sitemap.json" auto-hide="true"></mdg-author>
-<main>
-  <!-- <mdg-auto-indexer-page-list viewer-id="main" sort-key="lastModified" sort-order="desc"></mdg-auto-indexer-page-list> -->
 
+<header>
+  <md-garden
+    id="header"
+    src="header.md"
+    data-link-target="main"
+    data-html="true"
+    data-sanitize="false"
+    data-execute-script="true"
+    data-plugins="toc",
+    data-highlight-style="github"
+    ></md-garden>
+</header>
+<main>
   <md-garden
     src="index.md"
     id="main"

@@ -9,7 +9,7 @@
   "author_mode": {
     "enabled": true,
     "deploy": [
-      "https://www.lizard-tail.com/isana/log/"
+      "https://lizard-isana.github.io/mdgarden/"
     ],
     "auto_indexer": {
       "enabled": true,

@@ -29,6 +29,7 @@ const KEY_SCHEMA_VERSION = "schemaVersion";
 const KEY_REVISION = "revision";
 const KEY_LAST_SAVED_AT = "lastSavedAt";
 const KEY_FILE_HANDLE = "fileHandle";
+const KEY_RUNTIME_OVERRIDE = "runtimeOverride";
 const KEY_DIRTY = "dirty";
 const KEY_LAST_ERROR = "lastError";
 const AUTO_INDEXER_AUTHOR_PANEL_TAG = "mdg-author";
@@ -56,6 +57,16 @@ const boolFrom = (value, fallback = false) => {
     return false;
   }
   return fallback;
+};
+
+const optionalBoolFrom = (value) => {
+  if (value === true || value === "true") {
+    return true;
+  }
+  if (value === false || value === "false") {
+    return false;
+  }
+  return undefined;
 };
 
 const nowIso = () => {
@@ -143,6 +154,168 @@ const resolveAuthorModeSettings = (viewerOption) => {
       : (authorMode && isObject(authorMode.inline_export)
         ? authorMode.inline_export
         : (isObject(option.offline_export) ? option.offline_export : option.inline_export))
+  };
+};
+
+const normalizeRuntimeOverrideOption = (rawOption) => {
+  const option = isObject(rawOption) ? rawOption : {};
+  const localEditor = isObject(option.local_editor) ? option.local_editor : {};
+  const offlineExport = isObject(option.offline_export)
+    ? option.offline_export
+    : (isObject(option.inline_export) ? option.inline_export : {});
+  const autoIndexer = isObject(option.auto_indexer) ? option.auto_indexer : {};
+  const fileNameValue = toTrimmedString(offlineExport.file_name || offlineExport.fileName, "");
+  const queryParamValue = toTrimmedString(offlineExport.query_param || offlineExport.queryParam, "");
+  const defaultPageValue = toTrimmedString(offlineExport.default_page || offlineExport.defaultPage, "");
+  const viewerIdValue = toTrimmedString(offlineExport.viewer_id || offlineExport.viewerId, "");
+  return {
+    auto_indexer: {
+      strict: optionalBoolFrom(autoIndexer.strict)
+    },
+    local_editor: {
+      enabled: optionalBoolFrom(localEditor.enabled),
+      auto_reload: optionalBoolFrom(
+        localEditor.auto_reload !== undefined
+          ? localEditor.auto_reload
+          : (localEditor.autoReload !== undefined
+            ? localEditor.autoReload
+            : (localEditor.reload_after_save !== undefined ? localEditor.reload_after_save : localEditor.reloadAfterSave))
+      )
+    },
+    offline_export: {
+      enabled: optionalBoolFrom(offlineExport.enabled),
+      file_name: fileNameValue || undefined,
+      query_param: queryParamValue || undefined,
+      default_page: defaultPageValue || undefined,
+      viewer_id: viewerIdValue || undefined
+    }
+  };
+};
+
+const hasRuntimeOverrideValue = (option) => {
+  const normalized = normalizeRuntimeOverrideOption(option);
+  const autoIndexer = normalized.auto_indexer || {};
+  const localEditor = normalized.local_editor || {};
+  const offlineExport = normalized.offline_export || {};
+  return autoIndexer.strict !== undefined ||
+    localEditor.enabled !== undefined ||
+    localEditor.auto_reload !== undefined ||
+    offlineExport.enabled !== undefined ||
+    !!offlineExport.file_name ||
+    !!offlineExport.query_param ||
+    !!offlineExport.default_page ||
+    !!offlineExport.viewer_id;
+};
+
+const buildEffectiveRuntimeSettings = (runtime) => {
+  return {
+    auto_indexer: {
+      strict: runtime.option && runtime.option.strict === true
+    },
+    local_editor: {
+      enabled: runtime.localEditorOption && runtime.localEditorOption.enabled === true,
+      auto_reload: runtime.localEditorOption && runtime.localEditorOption.autoReload === true
+    },
+    offline_export: {
+      enabled: runtime.inlineExportOption && runtime.inlineExportOption.enabled === true,
+      file_name: runtime.inlineExportOption && runtime.inlineExportOption.fileName ? runtime.inlineExportOption.fileName : "offline-wiki.html",
+      query_param: runtime.inlineExportOption && runtime.inlineExportOption.queryParam ? runtime.inlineExportOption.queryParam : "page",
+      default_page: runtime.inlineExportOption && runtime.inlineExportOption.defaultPage ? runtime.inlineExportOption.defaultPage : "",
+      viewer_id: runtime.inlineExportOption && runtime.inlineExportOption.viewerId ? runtime.inlineExportOption.viewerId : ""
+    }
+  };
+};
+
+const buildRuntimeSettingsState = (runtime) => {
+  const override = normalizeRuntimeOverrideOption(runtime ? runtime.runtimeOverrideOption : null);
+  return {
+    hasOverride: hasRuntimeOverrideValue(override),
+    effective: runtime ? buildEffectiveRuntimeSettings(runtime) : null,
+    override: override
+  };
+};
+
+const applyRuntimeOverrideOption = (runtime) => {
+  if (!runtime) {
+    return;
+  }
+  const baseOption = isObject(runtime.baseAutoIndexerOption) ? runtime.baseAutoIndexerOption : normalizeAutoIndexerOption({}, "main");
+  const baseLocalEditor = isObject(runtime.baseLocalEditorOption) ? runtime.baseLocalEditorOption : normalizeLocalEditorOption({});
+  const baseOfflineExport = isObject(runtime.baseInlineExportOption) ? runtime.baseInlineExportOption : normalizeInlineExportOption({});
+  const override = normalizeRuntimeOverrideOption(runtime.runtimeOverrideOption);
+
+  runtime.option = {
+    ...baseOption
+  };
+  runtime.localEditorOption = {
+    ...baseLocalEditor
+  };
+  runtime.inlineExportOption = {
+    ...baseOfflineExport
+  };
+
+  if (override.auto_indexer.strict !== undefined) {
+    runtime.option.strict = override.auto_indexer.strict === true;
+  }
+  if (override.local_editor.enabled !== undefined) {
+    runtime.localEditorOption.enabled = override.local_editor.enabled === true;
+  }
+  if (override.local_editor.auto_reload !== undefined) {
+    const autoReload = override.local_editor.auto_reload === true;
+    runtime.localEditorOption.autoReload = autoReload;
+    runtime.localEditorOption.reloadAfterSave = autoReload;
+  }
+  if (override.offline_export.enabled !== undefined) {
+    runtime.inlineExportOption.enabled = override.offline_export.enabled === true;
+  }
+  if (override.offline_export.file_name !== undefined) {
+    runtime.inlineExportOption.fileName = toTrimmedString(override.offline_export.file_name, runtime.inlineExportOption.fileName) || runtime.inlineExportOption.fileName;
+  }
+  if (override.offline_export.query_param !== undefined) {
+    runtime.inlineExportOption.queryParam = normalizeInlineExportQueryParam(override.offline_export.query_param);
+  }
+  if (override.offline_export.default_page !== undefined) {
+    runtime.inlineExportOption.defaultPage = toTrimmedString(override.offline_export.default_page, "");
+  }
+  if (override.offline_export.viewer_id !== undefined) {
+    runtime.inlineExportOption.viewerId = toTrimmedString(override.offline_export.viewer_id, "");
+  }
+
+  if (runtime.authorModeEnabled !== true) {
+    runtime.option.enabled = false;
+    runtime.localEditorOption.enabled = false;
+    runtime.inlineExportOption.enabled = false;
+  }
+};
+
+const snapshotRuntimeBaseOption = (runtime) => {
+  if (!runtime) {
+    return {
+      authorModeEnabled: false,
+      option: normalizeAutoIndexerOption({}, "main"),
+      localEditorOption: normalizeLocalEditorOption({}),
+      inlineExportOption: normalizeInlineExportOption({}),
+      deployEntriesJson: "[]"
+    };
+  }
+  return {
+    authorModeEnabled: runtime.authorModeEnabled === true,
+    option: {
+      ...(isObject(runtime.baseAutoIndexerOption)
+        ? runtime.baseAutoIndexerOption
+        : normalizeAutoIndexerOption({}, "main"))
+    },
+    localEditorOption: {
+      ...(isObject(runtime.baseLocalEditorOption)
+        ? runtime.baseLocalEditorOption
+        : normalizeLocalEditorOption({}))
+    },
+    inlineExportOption: {
+      ...(isObject(runtime.baseInlineExportOption)
+        ? runtime.baseInlineExportOption
+        : normalizeInlineExportOption({}))
+    },
+    deployEntriesJson: JSON.stringify(runtime.deployConfig && runtime.deployConfig.entries ? runtime.deployConfig.entries : [])
   };
 };
 
@@ -708,6 +881,7 @@ const buildRuntimeStateDetail = (runtime) => {
   const localEditorReady = runtime && runtime.localEditorReady === true;
   const inlineExportEnabled = runtime && runtime.inlineExportOption && runtime.inlineExportOption.enabled === true;
   const inlineExportReady = runtime && runtime.inlineExportReady === true;
+  const runtimeSettings = buildRuntimeSettingsState(runtime);
   const currentMarkdownPath = runtime ? toTrimmedString(runtime.currentMarkdownPath, "") : "";
   return {
     mode: runtime && runtime.mode ? runtime.mode : RUNTIME_MODES.READER,
@@ -720,6 +894,7 @@ const buildRuntimeStateDetail = (runtime) => {
     localEditorReady: localEditorReady,
     inlineExportEnabled: inlineExportEnabled,
     inlineExportReady: inlineExportReady,
+    runtimeSettings: runtimeSettings,
     currentMarkdownPath: currentMarkdownPath
   };
 };
@@ -771,6 +946,8 @@ const defineAutoIndexerAuthorPanelElement = () => {
       this.onEditorSaveClick = this.onEditorSaveClick.bind(this);
       this.onEditorCloseClick = this.onEditorCloseClick.bind(this);
       this.onSettingsClick = this.onSettingsClick.bind(this);
+      this.onSettingsApplyClick = this.onSettingsApplyClick.bind(this);
+      this.onSettingsResetClick = this.onSettingsResetClick.bind(this);
       this.onGlobalStateChange = this.onGlobalStateChange.bind(this);
       this.onboardingNoticeShown = false;
       this.postInitializePendingSave = false;
@@ -811,6 +988,12 @@ const defineAutoIndexerAuthorPanelElement = () => {
       }
       if (this.settingsButton) {
         this.settingsButton.removeEventListener("click", this.onSettingsClick);
+      }
+      if (this.settingsApplyButton) {
+        this.settingsApplyButton.removeEventListener("click", this.onSettingsApplyClick);
+      }
+      if (this.settingsResetButton) {
+        this.settingsResetButton.removeEventListener("click", this.onSettingsResetClick);
       }
       window.removeEventListener(AUTO_INDEXER_STATE_EVENT, this.onGlobalStateChange);
       if (this.rootObserver) {
@@ -861,12 +1044,34 @@ const defineAutoIndexerAuthorPanelElement = () => {
       this.editButton = this.shadowRoot.querySelector('[data-action="edit"]');
       this.settingsButton = this.shadowRoot.querySelector('[data-action="settings"]');
       this.settingsDetails = this.shadowRoot.querySelector('[data-part="settings-details"]');
+      this.settingsStrictInput = this.shadowRoot.querySelector('[data-field="auto-indexer-strict"]');
+      this.settingsLocalEditorEnabledInput = this.shadowRoot.querySelector('[data-field="local-editor-enabled"]');
+      this.settingsLocalEditorAutoReloadInput = this.shadowRoot.querySelector('[data-field="local-editor-auto-reload"]');
+      this.settingsExportEnabledInput = this.shadowRoot.querySelector('[data-field="export-enabled"]');
+      this.settingsExportFileNameInput = this.shadowRoot.querySelector('[data-field="export-file-name"]');
+      this.settingsExportQueryParamInput = this.shadowRoot.querySelector('[data-field="export-query-param"]');
+      this.settingsExportDefaultPageInput = this.shadowRoot.querySelector('[data-field="export-default-page"]');
+      this.settingsExportViewerIdInput = this.shadowRoot.querySelector('[data-field="export-viewer-id"]');
+      this.settingsApplyButton = this.shadowRoot.querySelector('[data-action="settings-apply"]');
+      this.settingsResetButton = this.shadowRoot.querySelector('[data-action="settings-reset"]');
       this.setupHintElement = this.shadowRoot.querySelector('[data-part="setup-hint"]');
       this.editorPanelElement = this.shadowRoot.querySelector('[data-part="editor-panel"]');
       this.editorPathElement = this.shadowRoot.querySelector('[data-part="editor-path"]');
       this.editorTextarea = this.shadowRoot.querySelector('[data-part="editor-textarea"]');
       this.editorSaveButton = this.shadowRoot.querySelector('[data-action="editor-save"]');
       this.editorCloseButton = this.shadowRoot.querySelector('[data-action="editor-close"]');
+      this.runtimeSettingFields = [
+        this.settingsStrictInput,
+        this.settingsLocalEditorEnabledInput,
+        this.settingsLocalEditorAutoReloadInput,
+        this.settingsExportEnabledInput,
+        this.settingsExportFileNameInput,
+        this.settingsExportQueryParamInput,
+        this.settingsExportDefaultPageInput,
+        this.settingsExportViewerIdInput,
+        this.settingsApplyButton,
+        this.settingsResetButton
+      ].filter(Boolean);
     }
 
     bindEvents() {
@@ -878,6 +1083,8 @@ const defineAutoIndexerAuthorPanelElement = () => {
       this.editorSaveButton.addEventListener("click", this.onEditorSaveClick);
       this.editorCloseButton.addEventListener("click", this.onEditorCloseClick);
       this.settingsButton.addEventListener("click", this.onSettingsClick);
+      this.settingsApplyButton.addEventListener("click", this.onSettingsApplyClick);
+      this.settingsResetButton.addEventListener("click", this.onSettingsResetClick);
       window.addEventListener(AUTO_INDEXER_STATE_EVENT, this.onGlobalStateChange);
       const root = getDocumentRoot();
       if (root && typeof MutationObserver === "function") {
@@ -916,6 +1123,74 @@ const defineAutoIndexerAuthorPanelElement = () => {
       return state;
     }
 
+    setRuntimeSettingsControlsEnabled(enabled) {
+      const allowed = enabled === true;
+      if (!Array.isArray(this.runtimeSettingFields)) {
+        return;
+      }
+      this.runtimeSettingFields.forEach((field) => {
+        field.disabled = !allowed;
+      });
+    }
+
+    applyRuntimeSettingsForm(state) {
+      const runtimeSettings = state && isObject(state.runtimeSettings) ? state.runtimeSettings : null;
+      const effective = runtimeSettings && isObject(runtimeSettings.effective) ? runtimeSettings.effective : null;
+      if (!effective) {
+        return;
+      }
+      const autoIndexer = isObject(effective.auto_indexer) ? effective.auto_indexer : {};
+      const localEditor = isObject(effective.local_editor) ? effective.local_editor : {};
+      const offlineExport = isObject(effective.offline_export) ? effective.offline_export : {};
+      if (this.settingsStrictInput) {
+        this.settingsStrictInput.checked = autoIndexer.strict === true;
+      }
+      if (this.settingsLocalEditorEnabledInput) {
+        this.settingsLocalEditorEnabledInput.checked = localEditor.enabled === true;
+      }
+      if (this.settingsLocalEditorAutoReloadInput) {
+        this.settingsLocalEditorAutoReloadInput.checked = localEditor.auto_reload === true;
+      }
+      if (this.settingsExportEnabledInput) {
+        this.settingsExportEnabledInput.checked = offlineExport.enabled === true;
+      }
+      if (this.settingsExportFileNameInput) {
+        this.settingsExportFileNameInput.value = toTrimmedString(offlineExport.file_name, "offline-wiki.html") || "offline-wiki.html";
+      }
+      if (this.settingsExportQueryParamInput) {
+        this.settingsExportQueryParamInput.value = toTrimmedString(offlineExport.query_param, "page") || "page";
+      }
+      if (this.settingsExportDefaultPageInput) {
+        this.settingsExportDefaultPageInput.value = toTrimmedString(offlineExport.default_page, "");
+      }
+      if (this.settingsExportViewerIdInput) {
+        this.settingsExportViewerIdInput.value = toTrimmedString(offlineExport.viewer_id, "");
+      }
+    }
+
+    collectRuntimeSettingsForm() {
+      const fileName = toTrimmedString(this.settingsExportFileNameInput ? this.settingsExportFileNameInput.value : "", "");
+      const queryParam = toTrimmedString(this.settingsExportQueryParamInput ? this.settingsExportQueryParamInput.value : "", "");
+      const defaultPage = toTrimmedString(this.settingsExportDefaultPageInput ? this.settingsExportDefaultPageInput.value : "", "");
+      const viewerId = toTrimmedString(this.settingsExportViewerIdInput ? this.settingsExportViewerIdInput.value : "", "");
+      return {
+        auto_indexer: {
+          strict: this.settingsStrictInput ? this.settingsStrictInput.checked === true : undefined
+        },
+        local_editor: {
+          enabled: this.settingsLocalEditorEnabledInput ? this.settingsLocalEditorEnabledInput.checked === true : undefined,
+          auto_reload: this.settingsLocalEditorAutoReloadInput ? this.settingsLocalEditorAutoReloadInput.checked === true : undefined
+        },
+        offline_export: {
+          enabled: this.settingsExportEnabledInput ? this.settingsExportEnabledInput.checked === true : undefined,
+          file_name: fileName || undefined,
+          query_param: queryParam || undefined,
+          default_page: defaultPage || undefined,
+          viewer_id: viewerId || undefined
+        }
+      };
+    }
+
     isOnboardingActive(state) {
       return false;
     }
@@ -933,6 +1208,10 @@ const defineAutoIndexerAuthorPanelElement = () => {
       const localEditorReady = safeState.localEditorReady === true;
       const inlineExportEnabled = safeState.inlineExportEnabled === true;
       const inlineExportReady = safeState.inlineExportReady === true;
+      const runtimeSettings = safeState.runtimeSettings && isObject(safeState.runtimeSettings)
+        ? safeState.runtimeSettings
+        : null;
+      const hasRuntimeOverride = runtimeSettings && runtimeSettings.hasOverride === true;
       const currentMarkdownPath = toTrimmedString(safeState.currentMarkdownPath, "");
       const keepVisibleForEditor = isAuthor && localEditorEnabled;
       const hiddenByAutoHide = this.isAutoHideEnabled() && !dirty && startupState === STARTUP_STATES.NORMAL && !keepVisibleForEditor;
@@ -946,6 +1225,8 @@ const defineAutoIndexerAuthorPanelElement = () => {
       this.editButton.hidden = !(isAuthor && localEditorEnabled);
       this.editButton.disabled = !(isAuthor && localEditorEnabled && localEditorReady);
       this.editButton.title = localEditorReady ? "" : "編集はローカル AUTHOR_MODE かつ File System Access API 対応ブラウザで利用できます。";
+      this.applyRuntimeSettingsForm(safeState);
+      this.setRuntimeSettingsControlsEnabled(isAuthor);
       this.saveButton.title = "";
       this.initializeButton.hidden = true;
       this.initializeButton.disabled = true;
@@ -970,6 +1251,9 @@ const defineAutoIndexerAuthorPanelElement = () => {
       }
       if (shortError) {
         parts.push(`error: ${shortError}`);
+      }
+      if (hasRuntimeOverride) {
+        parts.push("runtime:override");
       }
       this.metaElement.textContent = parts.join(" | ");
       if (!(isAuthor && localEditorEnabled)) {
@@ -1182,6 +1466,44 @@ const defineAutoIndexerAuthorPanelElement = () => {
       this.settingsButton.setAttribute("aria-expanded", this.settingsDetails.open ? "true" : "false");
     }
 
+    async onSettingsApplyClick() {
+      const api = this.getApi();
+      if (!api || typeof api.setRuntimeSettings !== "function") {
+        this.writeError("runtime settings API is unavailable.");
+        return;
+      }
+      try {
+        const result = await api.setRuntimeSettings(this.collectRuntimeSettingsForm());
+        this.writeSetupHint("設定を保存しました（IndexedDB）。", "success");
+        this.writeStatus({
+          label: "setRuntimeSettings",
+          result: result
+        });
+        await this.renderStatus("after setRuntimeSettings");
+      } catch (error) {
+        this.writeError(error);
+      }
+    }
+
+    async onSettingsResetClick() {
+      const api = this.getApi();
+      if (!api || typeof api.resetRuntimeSettings !== "function") {
+        this.writeError("runtime settings API is unavailable.");
+        return;
+      }
+      try {
+        const result = await api.resetRuntimeSettings();
+        this.writeSetupHint("設定を初期値に戻しました。", "success");
+        this.writeStatus({
+          label: "resetRuntimeSettings",
+          result: result
+        });
+        await this.renderStatus("after resetRuntimeSettings");
+      } catch (error) {
+        this.writeError(error);
+      }
+    }
+
     onGlobalStateChange(event) {
       const detail = event && isObject(event.detail) ? event.detail : null;
       const state = detail || this.readDocumentState();
@@ -1246,8 +1568,58 @@ const defineAutoIndexerAuthorPanelElement = () => {
 .settings-actions {
   display: flex;
   gap: 6px;
+  margin-top: 6px;
   flex-wrap: wrap;
   align-items: center;
+}
+.runtime-settings {
+  margin-top: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  padding: 8px;
+  display: grid;
+  gap: 8px;
+}
+.runtime-settings-title {
+  margin: 0;
+  font-size: 11px;
+  color: #444;
+}
+.runtime-settings-grid {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+}
+.runtime-settings-group {
+  display: grid;
+  gap: 6px;
+}
+.runtime-settings-group-title {
+  margin: 0;
+  font-size: 11px;
+  color: #555;
+  font-weight: 600;
+}
+.runtime-settings-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #333;
+}
+.runtime-settings-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 4px 6px;
+  font-size: 11px;
+}
+.runtime-settings-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 .setup-hint {
   margin: 0;
@@ -1342,7 +1714,7 @@ button:disabled {
       <button type="button" data-action="edit">編集</button>
       <button type="button" data-action="export-inline">書き出し</button>
       <button type="button" data-action="save">SITEMAP保存</button>
-      <button type="button" data-action="settings">ステータス</button>
+      <button type="button" data-action="settings">設定</button>
     </div>
   </div>
   <section class="editor-panel" data-part="editor-panel" hidden>
@@ -1357,11 +1729,61 @@ button:disabled {
   </section>
   <details class="settings-details" data-part="settings-details">
     <summary class="settings-summary">設定</summary>
+    <section class="runtime-settings">
+      <p class="runtime-settings-title">ランタイム設定（IndexedDB上書き）</p>
+      <section class="runtime-settings-group">
+        <p class="runtime-settings-group-title">General</p>
+        <div class="runtime-settings-grid">
+          <label class="runtime-settings-item">
+            <input type="checkbox" data-field="auto-indexer-strict">
+            auto_indexer.strict
+          </label>
+          <label class="runtime-settings-item">
+            <input type="checkbox" data-field="local-editor-enabled">
+            local_editor.enabled
+          </label>
+          <label class="runtime-settings-item">
+            <input type="checkbox" data-field="local-editor-auto-reload">
+            local_editor.auto_reload
+          </label>
+          <label class="runtime-settings-item">
+            default_page
+            <input class="runtime-settings-input" type="text" data-field="export-default-page" placeholder="index.md">
+          </label>
+          <label class="runtime-settings-item">
+            viewer_id
+            <input class="runtime-settings-input" type="text" data-field="export-viewer-id" placeholder="main">
+          </label>
+        </div>
+      </section>
+      <section class="runtime-settings-group">
+        <p class="runtime-settings-group-title">Export</p>
+        <div class="runtime-settings-grid">
+          <label class="runtime-settings-item">
+            <input type="checkbox" data-field="export-enabled">
+            offline_export.enabled
+          </label>
+          <label class="runtime-settings-item">
+            file_name
+            <input class="runtime-settings-input" type="text" data-field="export-file-name" placeholder="offline-wiki.html">
+          </label>
+          <label class="runtime-settings-item">
+            query_param
+            <input class="runtime-settings-input" type="text" data-field="export-query-param" placeholder="page">
+          </label>
+        </div>
+      </section>
+      <div class="runtime-settings-actions">
+        <button type="button" data-action="settings-apply">設定を保存</button>
+        <button type="button" data-action="settings-reset">設定をリセット</button>
+      </div>
+    </section>
     <div class="settings-actions">
       <button type="button" data-action="refresh">ステータス更新</button>
       <button type="button" data-action="initialize">初期化</button>
       <p class="setup-hint" data-part="setup-hint" data-tone="muted" hidden></p>
     </div>
+    
     <details class="details">
       <summary>詳細ステータス</summary>
       <pre class="status" data-part="status">loading...</pre>
@@ -2457,6 +2879,10 @@ const syncRuntimeFromStorage = async (runtime) => {
   runtime.lastKnownRevision = toPositiveInt(await getStoreValue(runtime.db, "config", KEY_REVISION, 0), 0);
   runtime.dirty = boolFrom(await getStoreValue(runtime.db, "meta", KEY_DIRTY, false), false);
   runtime.lastError = toTrimmedString(await getStoreValue(runtime.db, "meta", KEY_LAST_ERROR, ""), "");
+  runtime.runtimeOverrideOption = normalizeRuntimeOverrideOption(
+    await getStoreValue(runtime.db, "config", KEY_RUNTIME_OVERRIDE, null)
+  );
+  applyRuntimeOverrideOption(runtime);
   if (!isWritableFileHandle(runtime.fileHandle)) {
     let storedFileHandle = null;
     try {
@@ -2466,6 +2892,51 @@ const syncRuntimeFromStorage = async (runtime) => {
     }
     runtime.fileHandle = storedFileHandle;
   }
+};
+
+const persistRuntimeOverrideOption = async (runtime) => {
+  if (!runtime || !runtime.db) {
+    return;
+  }
+  const normalized = normalizeRuntimeOverrideOption(runtime.runtimeOverrideOption);
+  const storedValue = hasRuntimeOverrideValue(normalized) ? normalized : null;
+  await setStoreValues(runtime.db, "config", {
+    key: KEY_RUNTIME_OVERRIDE,
+    value: storedValue
+  });
+};
+
+const getRuntimeSettings = async (runtime) => {
+  if (!runtime) {
+    return buildRuntimeSettingsState(null);
+  }
+  if (runtime.db) {
+    await syncRuntimeFromStorage(runtime);
+    evaluateMode(runtime);
+  }
+  return buildRuntimeSettingsState(runtime);
+};
+
+const setRuntimeSettings = async (runtime, settings) => {
+  if (!runtime) {
+    throw new Error("Runtime is unavailable.");
+  }
+  runtime.runtimeOverrideOption = normalizeRuntimeOverrideOption(settings);
+  applyRuntimeOverrideOption(runtime);
+  await persistRuntimeOverrideOption(runtime);
+  evaluateMode(runtime);
+  return buildRuntimeSettingsState(runtime);
+};
+
+const resetRuntimeSettings = async (runtime) => {
+  if (!runtime) {
+    throw new Error("Runtime is unavailable.");
+  }
+  runtime.runtimeOverrideOption = normalizeRuntimeOverrideOption(null);
+  applyRuntimeOverrideOption(runtime);
+  await persistRuntimeOverrideOption(runtime);
+  evaluateMode(runtime);
+  return buildRuntimeSettingsState(runtime);
 };
 
 const importSitemapIntoCache = async (runtime, documentData) => {
@@ -3025,20 +3496,124 @@ const resolveInlineExportDefaultPage = (runtime, option = {}, pagePaths = []) =>
   return pages.length > 0 ? pages[0] : "";
 };
 
-const resolveInlineExportPlugins = (runtime) => {
-  const viewer = runtime && runtime.viewer ? runtime.viewer : null;
+const normalizeOfflineExportPlugins = (rawPlugins) => {
+  const source = toTrimmedString(rawPlugins, "");
+  if (!source) {
+    return "";
+  }
+  return source.split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .filter((item) => item !== "author-mode" && item !== "auto-indexer")
+    .join(",");
+};
+
+const resolveInlineExportPlugins = (viewer) => {
   if (!viewer || !viewer.getAttribute) {
     return "";
   }
-  const raw = toTrimmedString(viewer.getAttribute("data-plugins"), "");
-  if (!raw) {
-    return "";
+  return normalizeOfflineExportPlugins(viewer.getAttribute("data-plugins"));
+};
+
+const copyViewerAttributesForOfflineExport = (viewer) => {
+  const attrs = {};
+  if (!viewer || !viewer.attributes) {
+    return attrs;
   }
-  const filtered = raw.split(",")
-    .map((item) => item.trim())
-    .filter(Boolean)
-    .filter((item) => item !== "author-mode" && item !== "auto-indexer");
-  return filtered.join(",");
+  for (const attr of viewer.attributes) {
+    attrs[attr.name] = attr.value == null ? "" : String(attr.value);
+  }
+  return attrs;
+};
+
+const buildMdGardenTagHtml = (attrs) => {
+  const isValidAttrName = (name) => /^[a-zA-Z_:][a-zA-Z0-9:._-]*$/.test(String(name || ""));
+  const entries = Object.keys(attrs || {})
+    .filter((name) => toTrimmedString(name, "") !== "")
+    .filter((name) => isValidAttrName(name))
+    .sort((a, b) => a.localeCompare(b))
+    .map((name) => `    ${name}="${escapeHtmlAttribute(attrs[name])}"`);
+  return `<md-garden
+${entries.join("\n")}>
+</md-garden>`;
+};
+
+const isValidHtmlAttributeName = (name) => {
+  return /^[a-zA-Z_:][a-zA-Z0-9:._-]*$/.test(String(name || ""));
+};
+
+const applyViewerAttributesToElement = (element, attrs) => {
+  if (!element || !element.attributes) {
+    return;
+  }
+  while (element.attributes.length > 0) {
+    element.removeAttribute(element.attributes[0].name);
+  }
+  Object.keys(attrs || {})
+    .filter((name) => toTrimmedString(name, "") !== "")
+    .filter((name) => isValidHtmlAttributeName(name))
+    .sort((a, b) => a.localeCompare(b))
+    .forEach((name) => {
+      element.setAttribute(name, String(attrs[name] == null ? "" : attrs[name]));
+    });
+};
+
+const resolveViewerMarkdownSourcePath = (viewer, sourcePath) => {
+  const raw = toTrimmedString(sourcePath, "");
+  if (!raw) {
+    return {
+      normalizedPath: "",
+      sourcePath: ""
+    };
+  }
+  const normalizedPath = viewer && typeof viewer.ResolveMarkdownTarget === "function"
+    ? toTrimmedString(viewer.ResolveMarkdownTarget(raw, ""), raw) || raw
+    : raw;
+  const resolvedSourcePath = viewer && typeof viewer.ResolveIncludeFilePath === "function"
+    ? toTrimmedString(viewer.ResolveIncludeFilePath(normalizedPath), raw) || raw
+    : raw;
+  return {
+    normalizedPath: normalizedPath,
+    sourcePath: resolvedSourcePath
+  };
+};
+
+const collectAdditionalViewerTemplates = (viewerId, option = {}) => {
+  const includeUnscopedPages = option.includeUnscopedPages === true;
+  const blocks = [];
+  const seen = new Set();
+  const targetTemplates = document.querySelectorAll(`template[data-target="${viewerId}"]`);
+  targetTemplates.forEach((template) => {
+    const html = toTrimmedString(template.outerHTML, "");
+    if (!html || seen.has(html)) {
+      return;
+    }
+    seen.add(html);
+    blocks.push(html);
+  });
+
+  const scopedPages = document.querySelectorAll(`template[data-page][data-page-target="${viewerId}"]`);
+  scopedPages.forEach((template) => {
+    const html = toTrimmedString(template.outerHTML, "");
+    if (!html || seen.has(html)) {
+      return;
+    }
+    seen.add(html);
+    blocks.push(html);
+  });
+
+  if (includeUnscopedPages && scopedPages.length === 0) {
+    const unscopedPages = document.querySelectorAll("template[data-page]:not([data-page-target])");
+    unscopedPages.forEach((template) => {
+      const html = toTrimmedString(template.outerHTML, "");
+      if (!html || seen.has(html)) {
+        return;
+      }
+      seen.add(html);
+      blocks.push(html);
+    });
+  }
+  return blocks;
 };
 
 const collectInlineWikiExportPages = async (runtime, pagesObject, queryParam) => {
@@ -3067,13 +3642,13 @@ const collectInlineWikiExportPages = async (runtime, pagesObject, queryParam) =>
   return result;
 };
 
-const buildInlineWikiExportHtml = (runtime, pages, option = {}) => {
+const buildInlineWikiExportHtml = async (runtime, pages, pagesObject = null, option = {}) => {
   const viewer = runtime && runtime.viewer ? runtime.viewer : null;
   const viewerId = resolveInlineExportViewerId(runtime, option);
   const queryParam = resolveInlineExportQueryParam(runtime, option);
   const pagePaths = pages.map((page) => page.path);
   const defaultPage = resolveInlineExportDefaultPage(runtime, option, pagePaths);
-  const plugins = resolveInlineExportPlugins(runtime);
+  const primaryViewerPlugins = resolveInlineExportPlugins(viewer);
   const htmlEnabled = viewer && viewer.option ? viewer.option.html === true : true;
   const sanitizeEnabled = viewer && viewer.option ? viewer.option.sanitize !== false : false;
   const frontmatterEnabled = viewer && viewer.option ? viewer.option.frontmatter !== false : true;
@@ -3085,19 +3660,117 @@ ${escapeTemplateText(page.markdown)}
 </template>`;
   }).join("\n\n");
 
-  const attributes = [
-    `id="${escapeHtmlAttribute(viewerId)}"`,
-    `data-inline-spa="true"`,
-    `data-inline-spa-param="${escapeHtmlAttribute(queryParam)}"`,
-    `data-inline-default-page="${escapeHtmlAttribute(defaultPage)}"`,
-    `data-html="${htmlEnabled ? "true" : "false"}"`,
-    `data-sanitize="${sanitizeEnabled ? "true" : "false"}"`,
-    `data-frontmatter="${frontmatterEnabled ? "true" : "false"}"`,
-    `data-execute-script="${executeScriptEnabled ? "true" : "false"}"`
-  ];
-  if (plugins) {
-    attributes.push(`data-plugins="${escapeHtmlAttribute(plugins)}"`);
+  const allViewers = Array.from(document.querySelectorAll("md-garden"));
+  const layoutClone = document.body ? document.body.cloneNode(true) : null;
+  const clonedViewers = layoutClone ? Array.from(layoutClone.querySelectorAll("md-garden")) : [];
+  const extraTemplateBlocks = [];
+  const usedViewerIds = new Set([viewerId]);
+  const safePagesObject = isObject(pagesObject) ? pagesObject : {};
+
+  let generatedViewerIndex = 1;
+  for (let index = 0; index < allViewers.length; index += 1) {
+    const candidate = allViewers[index];
+    const cloneViewer = clonedViewers[index] || null;
+    if (!candidate || !cloneViewer) {
+      continue;
+    }
+    const isPrimaryViewer = candidate === viewer;
+    const attrs = copyViewerAttributesForOfflineExport(candidate);
+    delete attrs["data-status"];
+    let candidateId = toTrimmedString(attrs.id || candidate.id, "");
+    if (isPrimaryViewer) {
+      candidateId = viewerId;
+    }
+    if (!candidateId || (usedViewerIds.has(candidateId) && candidateId !== viewerId)) {
+      while (usedViewerIds.has(`viewer-${generatedViewerIndex}`)) {
+        generatedViewerIndex += 1;
+      }
+      candidateId = `viewer-${generatedViewerIndex}`;
+      generatedViewerIndex += 1;
+    }
+    attrs.id = candidateId;
+    if ("data-plugins" in attrs) {
+      const normalized = normalizeOfflineExportPlugins(attrs["data-plugins"]);
+      if (normalized) {
+        attrs["data-plugins"] = normalized;
+      } else {
+        delete attrs["data-plugins"];
+      }
+    }
+    if (isPrimaryViewer) {
+      delete attrs.src;
+      attrs["data-inline-spa"] = "true";
+      attrs["data-inline-spa-param"] = queryParam;
+      attrs["data-inline-default-page"] = defaultPage;
+      attrs["data-html"] = htmlEnabled ? "true" : "false";
+      attrs["data-sanitize"] = sanitizeEnabled ? "true" : "false";
+      attrs["data-frontmatter"] = frontmatterEnabled ? "true" : "false";
+      attrs["data-execute-script"] = executeScriptEnabled ? "true" : "false";
+      if (primaryViewerPlugins) {
+        attrs["data-plugins"] = primaryViewerPlugins;
+      } else {
+        delete attrs["data-plugins"];
+      }
+    } else {
+      const sourceAttr = toTrimmedString(attrs.src, "");
+      if (sourceAttr.toLowerCase().endsWith(".md")) {
+        try {
+          const resolved = resolveViewerMarkdownSourcePath(candidate, sourceAttr);
+          if (resolved.sourcePath) {
+            const response = await fetch(resolved.sourcePath, { cache: "no-store" });
+            if (response.ok) {
+              const rawMarkdown = await response.text();
+              const rewritten = rewriteMarkdownLinksForInlineWiki(
+                runtime,
+                rawMarkdown,
+                resolved.normalizedPath || sourceAttr,
+                queryParam,
+                safePagesObject
+              );
+              extraTemplateBlocks.push(`<template data-target="${escapeHtmlAttribute(candidateId)}">
+${escapeTemplateText(rewritten)}
+</template>`);
+              delete attrs.src;
+              attrs["data-spa"] = "false";
+              delete attrs["data-inline-spa"];
+              delete attrs["data-inline-spa-param"];
+              delete attrs["data-inline-default-page"];
+            }
+          }
+        } catch (error) {
+          // Fallback: keep src-based behavior when source fetch fails during export.
+        }
+      }
+    }
+    usedViewerIds.add(candidateId);
+    applyViewerAttributesToElement(cloneViewer, attrs);
+    const inlineSpaEnabled = boolFrom(attrs["data-inline-spa"], false);
+    const needsUnscopedPages = !attrs.src && inlineSpaEnabled;
+    const templates = collectAdditionalViewerTemplates(candidateId, {
+      includeUnscopedPages: needsUnscopedPages
+    });
+    templates.forEach((tpl) => {
+      extraTemplateBlocks.push(tpl);
+    });
   }
+
+  if (layoutClone) {
+    const authorPanels = layoutClone.querySelectorAll(AUTO_INDEXER_AUTHOR_PANEL_TAG);
+    authorPanels.forEach((panel) => panel.remove());
+    const existingTemplates = layoutClone.querySelectorAll("template[data-target], template[data-page]");
+    existingTemplates.forEach((template) => template.remove());
+  }
+
+  const templateSections = [
+    `<template data-target="${escapeHtmlAttribute(viewerId)}">Loading...</template>`,
+    templates
+  ];
+  if (extraTemplateBlocks.length > 0) {
+    templateSections.push(extraTemplateBlocks.join("\n\n"));
+  }
+  const bodyHtml = layoutClone
+    ? layoutClone.innerHTML.trim()
+    : allViewers.map((item) => buildMdGardenTagHtml(copyViewerAttributesForOfflineExport(item))).join("\n\n");
 
   return `<!DOCTYPE html>
 <html lang="ja">
@@ -3110,15 +3783,9 @@ ${escapeTemplateText(page.markdown)}
   <script src="./assets/js/mdgarden.min.js"></script>
 </head>
 <body>
-<main>
-  <md-garden
-    ${attributes.join("\n    ")}>
-  </md-garden>
-</main>
+${bodyHtml}
 
-<template data-target="${escapeHtmlAttribute(viewerId)}">Loading...</template>
-
-${templates}
+${templateSections.join("\n\n")}
 </body>
 </html>
 `;
@@ -3192,7 +3859,7 @@ const exportInlineWiki = async (runtime, option = {}) => {
     throw new Error("No sitemap pages were available for export.");
   }
 
-  const html = buildInlineWikiExportHtml(runtime, pages, option);
+  const html = await buildInlineWikiExportHtml(runtime, pages, sitemap.document.pages, option);
   const fileName = resolveInlineExportFileName(runtime, option);
   const method = await saveInlineWikiAsFile(html, fileName);
   const defaultPage = resolveInlineExportDefaultPage(runtime, option, pages.map((page) => page.path));
@@ -3411,6 +4078,7 @@ const getStatus = async (runtime) => {
   runtime.currentMarkdownPath = resolveCurrentMarkdownPath(runtime);
   runtime.localEditorReady = isLocalEditorAvailable(runtime);
   runtime.inlineExportReady = isInlineWikiExportAvailable(runtime);
+  const runtimeSettings = buildRuntimeSettingsState(runtime);
   if (!runtime.db) {
     return {
       enabled: runtime.option.enabled,
@@ -3428,7 +4096,8 @@ const getStatus = async (runtime) => {
       localEditorReady: runtime.localEditorReady === true,
       inlineExportEnabled: runtime.inlineExportOption && runtime.inlineExportOption.enabled === true,
       inlineExportReady: runtime.inlineExportReady === true,
-      currentMarkdownPath: runtime.currentMarkdownPath || ""
+      currentMarkdownPath: runtime.currentMarkdownPath || "",
+      runtimeSettings: runtimeSettings
     };
   }
   await syncRuntimeFromStorage(runtime);
@@ -3436,6 +4105,7 @@ const getStatus = async (runtime) => {
   runtime.currentMarkdownPath = resolveCurrentMarkdownPath(runtime);
   runtime.localEditorReady = isLocalEditorAvailable(runtime);
   runtime.inlineExportReady = isInlineWikiExportAvailable(runtime);
+  const syncedRuntimeSettings = buildRuntimeSettingsState(runtime);
   return {
     enabled: runtime.option.enabled,
     authorModeEnabled: runtime.authorModeEnabled === true,
@@ -3452,7 +4122,8 @@ const getStatus = async (runtime) => {
     localEditorReady: runtime.localEditorReady === true,
     inlineExportEnabled: runtime.inlineExportOption && runtime.inlineExportOption.enabled === true,
     inlineExportReady: runtime.inlineExportReady === true,
-    currentMarkdownPath: runtime.currentMarkdownPath || ""
+    currentMarkdownPath: runtime.currentMarkdownPath || "",
+    runtimeSettings: syncedRuntimeSettings
   };
 };
 
@@ -3464,6 +4135,9 @@ const bindPublicApi = (runtime) => {
   const hostApi = window.MDGarden[viewer.id];
   const api = {
     getStatus: () => getStatus(runtime),
+    getRuntimeSettings: () => getRuntimeSettings(runtime),
+    setRuntimeSettings: (settings) => setRuntimeSettings(runtime, settings),
+    resetRuntimeSettings: () => resetRuntimeSettings(runtime),
     getSitemap: (option = {}) => getSitemap(runtime, option),
     saveSitemap: (option = {}) => saveSitemap(runtime, option),
     initializeOwner: (passphrase) => initializeOwner(runtime, passphrase),
@@ -3482,15 +4156,12 @@ const bootstrap = async (runtime, viewer) => {
   runtime.viewer = viewer;
   const authorMode = resolveAuthorModeSettings(viewer.option || {});
   runtime.authorModeEnabled = authorMode.enabled === true;
-  runtime.option = normalizeAutoIndexerOption(authorMode.autoIndexerOption, viewer.id || "main");
-  runtime.localEditorOption = normalizeLocalEditorOption(authorMode.localEditorOption);
-  runtime.inlineExportOption = normalizeInlineExportOption(authorMode.inlineExportOption);
+  runtime.baseAutoIndexerOption = normalizeAutoIndexerOption(authorMode.autoIndexerOption, viewer.id || "main");
+  runtime.baseLocalEditorOption = normalizeLocalEditorOption(authorMode.localEditorOption);
+  runtime.baseInlineExportOption = normalizeInlineExportOption(authorMode.inlineExportOption);
   runtime.deployConfig = normalizeDeployEntries(authorMode.deploy);
-  if (runtime.authorModeEnabled !== true) {
-    runtime.option.enabled = false;
-    runtime.localEditorOption.enabled = false;
-    runtime.inlineExportOption.enabled = false;
-  }
+  runtime.runtimeOverrideOption = normalizeRuntimeOverrideOption(runtime.runtimeOverrideOption);
+  applyRuntimeOverrideOption(runtime);
   runtime.mode = RUNTIME_MODES.READER;
   runtime.startupState = STARTUP_STATES.NORMAL;
   runtime.initialized = true;
@@ -3635,9 +4306,13 @@ const createAuthorModePlugin = () => {
   defineAutoIndexerBacklinkListElement();
   const runtime = {
     viewer: null,
+    baseAutoIndexerOption: normalizeAutoIndexerOption({}, "main"),
+    baseLocalEditorOption: normalizeLocalEditorOption({}),
+    baseInlineExportOption: normalizeInlineExportOption({}),
     option: normalizeAutoIndexerOption({}, "main"),
     localEditorOption: normalizeLocalEditorOption({}),
     inlineExportOption: normalizeInlineExportOption({}),
+    runtimeOverrideOption: normalizeRuntimeOverrideOption(null),
     deployConfig: { valid: false, entries: [] },
     authorModeEnabled: true,
     initialized: false,
@@ -3671,23 +4346,24 @@ const createAuthorModePlugin = () => {
     const nextDeploy = normalizeDeployEntries(authorMode.deploy);
     const nextAuthorModeEnabled = authorMode.enabled === true;
     if (runtime.initialized) {
+      const baseSnapshot = snapshotRuntimeBaseOption(runtime);
       const sameOption =
-        runtime.authorModeEnabled === nextAuthorModeEnabled &&
-        runtime.option.enabled === nextOption.enabled &&
-        runtime.option.strict === nextOption.strict &&
-        runtime.option.mode === nextOption.mode &&
-        runtime.option.sitemapPath === nextOption.sitemapPath &&
-        runtime.option.dbName === nextOption.dbName &&
-        runtime.option.pbkdf2Iterations === nextOption.pbkdf2Iterations &&
-        runtime.localEditorOption.enabled === nextLocalEditorOption.enabled &&
-        runtime.localEditorOption.autoReload === nextLocalEditorOption.autoReload &&
-        runtime.localEditorOption.reloadAfterSave === nextLocalEditorOption.reloadAfterSave &&
-        runtime.inlineExportOption.enabled === nextInlineExportOption.enabled &&
-        runtime.inlineExportOption.fileName === nextInlineExportOption.fileName &&
-        runtime.inlineExportOption.queryParam === nextInlineExportOption.queryParam &&
-        runtime.inlineExportOption.defaultPage === nextInlineExportOption.defaultPage &&
-        runtime.inlineExportOption.viewerId === nextInlineExportOption.viewerId &&
-        JSON.stringify(runtime.deployConfig.entries || []) === JSON.stringify(nextDeploy.entries || []);
+        baseSnapshot.authorModeEnabled === nextAuthorModeEnabled &&
+        baseSnapshot.option.enabled === nextOption.enabled &&
+        baseSnapshot.option.strict === nextOption.strict &&
+        baseSnapshot.option.mode === nextOption.mode &&
+        baseSnapshot.option.sitemapPath === nextOption.sitemapPath &&
+        baseSnapshot.option.dbName === nextOption.dbName &&
+        baseSnapshot.option.pbkdf2Iterations === nextOption.pbkdf2Iterations &&
+        baseSnapshot.localEditorOption.enabled === nextLocalEditorOption.enabled &&
+        baseSnapshot.localEditorOption.autoReload === nextLocalEditorOption.autoReload &&
+        baseSnapshot.localEditorOption.reloadAfterSave === nextLocalEditorOption.reloadAfterSave &&
+        baseSnapshot.inlineExportOption.enabled === nextInlineExportOption.enabled &&
+        baseSnapshot.inlineExportOption.fileName === nextInlineExportOption.fileName &&
+        baseSnapshot.inlineExportOption.queryParam === nextInlineExportOption.queryParam &&
+        baseSnapshot.inlineExportOption.defaultPage === nextInlineExportOption.defaultPage &&
+        baseSnapshot.inlineExportOption.viewerId === nextInlineExportOption.viewerId &&
+        baseSnapshot.deployEntriesJson === JSON.stringify(nextDeploy.entries || []);
       if (sameOption) {
         return Promise.resolve();
       }

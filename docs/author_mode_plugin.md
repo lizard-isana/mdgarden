@@ -84,6 +84,20 @@ indexing: true
 `auto-hide="true"` でも、local editor が有効な `AUTHOR_MODE` では編集導線を維持するためパネルは表示されます。
 `<mdg-author auto-save="...">` の自動保存機能は廃止され、保存は常に手動実行です。
 
+設定パネル内の「ランタイム設定（IndexedDB上書き）」では、初期化後でも安全に反映できる項目のみ変更できます。
+
+- `auto_indexer.strict`
+- `local_editor.enabled`
+- `local_editor.auto_reload`
+- `offline_export.enabled`
+- `offline_export.file_name`
+- `offline_export.query_param`
+- `offline_export.default_page`
+- `offline_export.viewer_id`
+
+この上書き値は `IndexedDB`（`config.runtimeOverride`）に保存され、`config.json` / タグ属性より優先されます。
+ブラウザの IndexedDB を削除すると上書き設定も消えます。
+
 ## Local Editor のフロー
 
 1. `編集` ボタンを押す
@@ -121,6 +135,8 @@ indexing: true
 - `AUTHOR_MODE` かつ include モードでのみ利用可能
 - export対象は sitemap 準拠（`indexing: false` は除外）
 - アセット（画像/CSS/JS）は外部参照のまま（HTML内に同梱しない）
+- ページ内に複数 `md-garden` がある場合、主viewer（`mdg-author` の `viewer-id`）をOffline化しつつ、他viewerも同一HTMLへ同梱します
+- 追加viewerの `src=*.md` は export 時に template 展開されるため、`file://` でも表示できます（リンクは `?page=` 形式へ変換）
 
 `offline_export` の主なオプション:
 
@@ -150,6 +166,9 @@ indexing: true
 （後方互換として `MDGarden[viewerId].autoIndexer` も同一APIを参照可能）
 
 - `getStatus()`
+- `getRuntimeSettings()`
+- `setRuntimeSettings(settings)`
+- `resetRuntimeSettings()`
 - `getSitemap(option)`
 - `saveSitemap(option)`
 - `openLocalEditor()`
