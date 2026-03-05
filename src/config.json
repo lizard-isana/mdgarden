@@ -5,5 +5,21 @@
   "strict_root": false,
   "link_resolution": "relative",
   "allow_parent": true,
-  "query_path_mode": "split"
+  "query_path_mode": "split",
+  "author_mode": {
+    "enabled": false,
+    "deploy": [
+      "https://example.com/"
+    ],
+    "auto_indexer": {
+      "enabled": false,
+      "mode": "include-only",
+      "strict": true,
+      "sitemap_path": "sitemap.json"
+    },
+    "local_editor": {
+      "enabled": false,
+      "auto_reload": true
+    }
+  }
 }

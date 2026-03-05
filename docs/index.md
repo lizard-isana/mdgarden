@@ -1,3 +1,8 @@
+---
+title: "MDGarden"
+lastModified: "2026-03-05T03:00:00+09:00"
+indexing: true
+---
 
 # MDGarden 
 A lightweight, portable, markdown-based wiki engine that runs entirely in the browser.
@@ -8,6 +13,10 @@ A lightweight, portable, markdown-based wiki engine that runs entirely in the br
 
 ## Source
 https://github.com/lizard-isana/mdgarden
+
+- [Author Mode Plugin](author_mode_plugin.md)
+- [sub page](subpage.md)
+- [sub page 2](subpage2.md)
 
 ## License
 ©2026 Isana Kashiwai ([MIT license](https://github.com/lizard-isana/mdgarden/blob/main/LICENSE))

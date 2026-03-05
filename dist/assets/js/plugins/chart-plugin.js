@@ -3,6 +3,16 @@ const MERMAID_SCRIPT_URLS = [
   'https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.4.1/mermaid.min.js'
 ];
 
+const resolvePayloadRoot = (payload) => {
+  if (payload && payload.target && payload.target.nodeType === 1) {
+    return payload.target;
+  }
+  if (payload && payload.nodeType === 1) {
+    return payload;
+  }
+  return null;
+};
+
 const renderCharts = (root) => {
   if (!window.mermaid) {
     return;
@@ -60,8 +70,12 @@ const createChartPlugin = () => {
       if (event !== 'content_loaded' && event !== 'content_reloaded') {
         return;
       }
+      const root = resolvePayloadRoot(payload);
+      if (!root) {
+        return;
+      }
       await ensureAssets(ctx);
-      renderCharts(payload);
+      renderCharts(root);
     }
   };
 };

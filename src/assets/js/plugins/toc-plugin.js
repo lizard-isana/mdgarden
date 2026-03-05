@@ -8,6 +8,16 @@ const crc32 = (str) => {
   return ((crc ^ (-1)) >>> 0).toString(16);
 };
 
+const resolvePayloadRoot = (payload) => {
+  if (payload && payload.target && payload.target.nodeType === 1) {
+    return payload.target;
+  }
+  if (payload && payload.nodeType === 1) {
+    return payload;
+  }
+  return null;
+};
+
 const renderToc = (viewer, root) => {
   const container = root || viewer;
   const renderer = window.markdownit({
@@ -57,7 +67,8 @@ const createTocPlugin = () => {
       if (!viewer) {
         return;
       }
-      renderToc(viewer, payload);
+      const root = resolvePayloadRoot(payload);
+      renderToc(viewer, root);
     }
   };
 };

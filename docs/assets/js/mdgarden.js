@@ -752,6 +752,19 @@ class MarkdownViewer extends HTMLElement {
     window.MDGarden[this.id] = api;
   }
 
+  BuildPluginContext = (status = "") => {
+    const api = window.MDGarden && window.MDGarden[this.id] ? window.MDGarden[this.id] : {};
+    const frontmatter = api && api.meta && typeof api.meta === "object" ? api.meta : null;
+    return {
+      viewerId: this.id,
+      currentDocPath: this.viewerState.currentDocPath || null,
+      normalizedPath: this.viewerState.currentDocPath || null,
+      frontmatter: frontmatter,
+      mode: this.option.mode,
+      status: status || this.dataset.status || ""
+    };
+  }
+
   ResolveMarkdownTarget = (input, currentDocPath = "") => {
     if (typeof input !== 'string') {
       return null;
@@ -1162,9 +1175,13 @@ class MarkdownViewer extends HTMLElement {
       }
     }
 
+    if (window.MDGarden && window.MDGarden[this.id]) {
+      window.MDGarden[this.id].meta = null;
+    }
     EmitPluginEvent(this.id, PluginEvents.MARKDOWN_LOADED, {
       viewer: this,
-      target: mdgarden_content
+      target: mdgarden_content,
+      context: this.BuildPluginContext(PluginEvents.MARKDOWN_LOADED)
     });
 
     let html = this.renderer.render(markdown);
@@ -1202,15 +1219,22 @@ class MarkdownViewer extends HTMLElement {
     EmitHook(this.id, PluginEvents.CONTENT_RENDERED, {
       viewer: this,
       target: loading_target,
-      status: message
+      status: message,
+      context: this.BuildPluginContext(message)
     });
     EmitPluginEvent(this.id, PluginEvents.CONTENT_RENDERED, {
       viewer: this,
       target: loading_target,
-      status: message
+      status: message,
+      context: this.BuildPluginContext(message)
     });
+    const contentPayload = {
+      target: loading_target,
+      context: this.BuildPluginContext(message),
+      status: message
+    };
     EmitHook(this.id, message, loading_target);
-    EmitPluginEvent(this.id, message, loading_target);
+    EmitPluginEvent(this.id, message, contentPayload);
   }
 
   init = async () => {

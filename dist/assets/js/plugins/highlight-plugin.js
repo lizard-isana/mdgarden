@@ -6,6 +6,16 @@ const hasTokenMarkup = (codeElement) => {
   return codeElement.querySelector('[class*="hljs-"]:not(.hljs-ln-n):not(.hljs-ln-numbers):not(.hljs-ln-code)') != null;
 };
 
+const resolvePayloadRoot = (payload) => {
+  if (payload && payload.target && payload.target.nodeType === 1) {
+    return payload.target;
+  }
+  if (payload && payload.nodeType === 1) {
+    return payload;
+  }
+  return null;
+};
+
 const markCodeBlocks = (target) => {
   const code_array = target.querySelectorAll('code[class*="language"]');
   for (const codeElement of code_array) {
@@ -141,7 +151,11 @@ const createHighlightPlugin = (option = {}) => {
       if (!payload) {
         return;
       }
-      markCodeBlocks(payload);
+      const root = resolvePayloadRoot(payload);
+      if (!root) {
+        return;
+      }
+      markCodeBlocks(root);
     },
     onDispose: () => {
       if (resizeHandler) {

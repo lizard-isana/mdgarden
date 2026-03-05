@@ -5,5 +5,22 @@
   "strict_root": false,
   "link_resolution": "relative",
   "allow_parent": true,
-  "query_path_mode": "split"
+  "query_path_mode": "split",
+  "author_mode": {
+    "enabled": true,
+    "deploy": [
+      "https://www.lizard-tail.com/isana/log/"
+    ],
+    "auto_indexer": {
+      "enabled": true,
+      "mode": "include-only",
+      "strict": true,
+      "sitemap_path": "sitemap.json",
+      "db_prefix": "mdgarden_auto_indexer_docs"
+    },
+    "local_editor": {
+      "enabled": true,
+      "auto_reload": true
+    }
+  }
 }
