@@ -6,3 +6,8 @@ node_modules/
 
 # macos specific files
 .DS_Store
+
+memo/
+text/
+
+jorro

@@ -1,0 +1,36 @@
+{
+  "version": "1.0",
+  "ownerHash": "docs-owner-local-v1",
+  "salt": "ZG9jcy1vd25lci1zYWx0LXYx",
+  "lastUpdated": "2026-03-02T08:03:01.750Z",
+  "pages": {
+    "auto_indexer_plugin.md": {
+      "title": "auto-indexer-plugin 使い方ガイド",
+      "lastModified": "2026-03-01T12:00:00Z",
+      "indexing": true,
+      "links": [],
+      "backlinks": []
+    },
+    "index.md": {
+      "title": "MDGarden",
+      "lastModified": "2026-03-02T12:00:00Z",
+      "indexing": true,
+      "links": [],
+      "backlinks": []
+    },
+    "subpage.md": {
+      "title": "Sub Page",
+      "lastModified": "2026-03-02T12:00:00Z",
+      "indexing": true,
+      "links": [],
+      "backlinks": []
+    },
+    "subpage2.md": {
+      "title": "Sub Page 2",
+      "lastModified": "2026-03-02T12:00:00Z",
+      "indexing": true,
+      "links": [],
+      "backlinks": []
+    }
+  }
+}

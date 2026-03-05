@@ -11,6 +11,16 @@ const C3_SCRIPT_URLS = [
   'https://cdnjs.cloudflare.com/ajax/libs/c3/0.7.20/c3.min.js'
 ];
 
+const resolvePayloadRoot = (payload) => {
+  if (payload && payload.target && payload.target.nodeType === 1) {
+    return payload.target;
+  }
+  if (payload && payload.nodeType === 1) {
+    return payload;
+  }
+  return null;
+};
+
 const renderGraphs = (root) => {
   if (!window.c3) {
     return;
@@ -78,8 +88,12 @@ const createGraphPlugin = () => {
       if (event !== 'content_loaded' && event !== 'content_reloaded') {
         return;
       }
+      const root = resolvePayloadRoot(payload);
+      if (!root) {
+        return;
+      }
       await ensureAssets(ctx);
-      renderGraphs(payload);
+      renderGraphs(root);
     }
   };
 };

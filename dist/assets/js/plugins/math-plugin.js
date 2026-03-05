@@ -5,6 +5,16 @@ const MATHJAX_SCRIPT_URLS = [
   'https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js'
 ];
 
+const resolvePayloadRoot = (payload) => {
+  if (payload && payload.target && payload.target.nodeType === 1) {
+    return payload.target;
+  }
+  if (payload && payload.nodeType === 1) {
+    return payload;
+  }
+  return null;
+};
+
 const applyMathJaxDefaults = () => {
   window.MathJax = window.MathJax || {};
   window.MathJax.tex = window.MathJax.tex || {};
@@ -79,8 +89,12 @@ const createMathPlugin = () => {
       if (event !== 'content_loaded' && event !== 'content_reloaded') {
         return;
       }
+      const root = resolvePayloadRoot(payload);
+      if (!root) {
+        return;
+      }
       await ensureAssets(ctx);
-      await renderMath(payload);
+      await renderMath(root);
     }
   };
 };

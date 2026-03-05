@@ -10,8 +10,10 @@
 
 </head>
 <body>
-
+<mdg-author viewer-id="main" file-name="sitemap.json" auto-hide="true"></mdg-author>
 <main>
+  <!-- <mdg-auto-indexer-page-list viewer-id="main" sort-key="lastModified" sort-order="desc"></mdg-auto-indexer-page-list> -->
+
   <md-garden
     src="index.md"
     id="main"
@@ -21,8 +23,8 @@
     data-allowed-files="index.md,404.md"
     data-link-resolution="relative"
     data-allow-parent="true"
-    data-query-path-mode="split",
-    data-plugins="toc"
+    data-query-path-mode="split"
+    data-plugins="toc,author-mode,graph,chart,math,highlight"
     data-highlight-style="github"
     ></md-garden>
 </main>

@@ -2,6 +2,16 @@ const ParseBoolean = (value) => {
   return value === true || value === "true";
 };
 
+const resolvePayloadRoot = (payload) => {
+  if (payload && payload.target && payload.target.nodeType === 1) {
+    return payload.target;
+  }
+  if (payload && payload.nodeType === 1) {
+    return payload;
+  }
+  return null;
+};
+
 const createInlineSpaPlugin = () => {
   let popStateHandler = null;
   let clickHandler = null;
@@ -166,7 +176,11 @@ const createInlineSpaPlugin = () => {
       if (!isEnabled(viewer)) {
         return;
       }
-      rewriteInlineLinks(viewer, payload);
+      const root = resolvePayloadRoot(payload);
+      if (!root) {
+        return;
+      }
+      rewriteInlineLinks(viewer, root);
     },
     onDispose: () => {
       if (popStateHandler) {
