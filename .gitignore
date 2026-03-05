@@ -10,4 +10,5 @@ node_modules/
 memo/
 text/
 
-jorro.app
+jorro.app/
+jorro-config.json

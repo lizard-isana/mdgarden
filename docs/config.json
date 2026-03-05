@@ -21,6 +21,11 @@
     "local_editor": {
       "enabled": true,
       "auto_reload": true
+    },
+    "offline_export": {
+      "enabled": true,
+      "file_name": "offline-wiki.html",
+      "query_param": "page"
     }
   }
 }

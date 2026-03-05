@@ -2,23 +2,16 @@
   "version": "1.0",
   "ownerHash": "docs-owner-local-v1",
   "salt": "ZG9jcy1vd25lci1zYWx0LXYx",
-  "lastUpdated": "2026-03-04T18:37:50.638Z",
+  "lastUpdated": "2026-03-05T06:38:42.463Z",
   "pages": {
     "author_mode_plugin.md": {
       "title": "author mode",
-      "lastModified": "2026-03-05T13:00:00.000Z",
+      "lastModified": "2026-03-05T15:40:00.000Z",
       "indexing": true,
       "links": [],
       "backlinks": [
         "index.md"
       ]
-    },
-    "auto_indexer_plugin.md": {
-      "title": "auto-indexer-plugin 使い方ガイド",
-      "lastModified": "2026-03-01T12:00:00.000Z",
-      "indexing": true,
-      "links": [],
-      "backlinks": []
     },
     "index.md": {
       "title": "MDGarden",

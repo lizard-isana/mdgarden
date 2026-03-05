@@ -1066,6 +1066,20 @@ class MarkdownViewer extends HTMLElement {
       .replace(/&quot;/g, '\"')
       .replace(/&#039;/g, '\'')
   }
+
+  NormalizeInlineFrontmatterHead = (markdown) => {
+    if (typeof markdown !== "string") {
+      return markdown;
+    }
+    let source = markdown.replace(/^\uFEFF/, "");
+    if (this.option.frontmatter !== true) {
+      return source;
+    }
+    if (/^(?:\r?\n[\t ]*)+(?=---(?:\r?\n|$))/.test(source)) {
+      source = source.replace(/^(?:\r?\n[\t ]*)+(?=---(?:\r?\n|$))/, "");
+    }
+    return source;
+  }
   
   QueryDecoder = function () {
     const query = {};
@@ -1168,6 +1182,7 @@ class MarkdownViewer extends HTMLElement {
         markdown = md_element.innerHTML;
         markdown = markdown.replace(/(&gt;)/g, '>');
         markdown = markdown.replace(/(&lt;)/g, '<');
+        markdown = this.NormalizeInlineFrontmatterHead(markdown);
       }else{
         console.error("No markdown document is found.")
         await this.RenderNotFound(loading_target, `template[data-target="${this.id}"]`);

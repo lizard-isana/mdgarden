@@ -112,6 +112,17 @@ const normalizeLocalEditorOption = (rawOption) => {
   };
 };
 
+const normalizeInlineExportOption = (rawOption) => {
+  const option = isObject(rawOption) ? rawOption : {};
+  return {
+    enabled: boolFrom(option.enabled, true),
+    fileName: toTrimmedString(option.file_name || option.fileName, "offline-wiki.html") || "offline-wiki.html",
+    queryParam: toTrimmedString(option.query_param || option.queryParam, "page") || "page",
+    defaultPage: toTrimmedString(option.default_page || option.defaultPage, ""),
+    viewerId: toTrimmedString(option.viewer_id || option.viewerId, "")
+  };
+};
+
 const resolveAuthorModeSettings = (viewerOption) => {
   const option = isObject(viewerOption) ? viewerOption : {};
   const authorMode = isObject(option.author_mode) ? option.author_mode : null;
@@ -126,7 +137,12 @@ const resolveAuthorModeSettings = (viewerOption) => {
       : option.auto_indexer,
     localEditorOption: authorMode && isObject(authorMode.local_editor)
       ? authorMode.local_editor
-      : option.local_editor
+      : option.local_editor,
+    inlineExportOption: authorMode && isObject(authorMode.offline_export)
+      ? authorMode.offline_export
+      : (authorMode && isObject(authorMode.inline_export)
+        ? authorMode.inline_export
+        : (isObject(option.offline_export) ? option.offline_export : option.inline_export))
   };
 };
 
@@ -310,6 +326,358 @@ const sortStringArray = (items) => {
   return [...items].sort((a, b) => a.localeCompare(b));
 };
 
+const normalizeInlineExportQueryParam = (value) => {
+  if (typeof value !== "string") {
+    return "page";
+  }
+  const next = value.trim();
+  if (!next) {
+    return "page";
+  }
+  if (!/^[a-zA-Z0-9_-]+$/.test(next)) {
+    return "page";
+  }
+  return next;
+};
+
+const escapeHtmlAttribute = (value) => {
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+};
+
+const escapeTemplateText = (value) => {
+  return String(value == null ? "" : value).replace(/<\/template/gi, "<\\/template");
+};
+
+const toInlineWikiHref = (queryParam, normalizedPath) => {
+  return `?${queryParam}=${encodeURIComponent(normalizedPath)}`;
+};
+
+const parseMarkdownDestination = (rawDestination) => {
+  const raw = String(rawDestination == null ? "" : rawDestination).trim();
+  if (!raw) {
+    return null;
+  }
+  if (raw.startsWith("<")) {
+    const end = raw.indexOf(">");
+    if (end <= 1) {
+      return null;
+    }
+    return {
+      destination: raw.slice(1, end).trim(),
+      suffix: raw.slice(end + 1)
+    };
+  }
+  const matched = raw.match(/^(\S+)([\s\S]*)$/);
+  if (!matched) {
+    return null;
+  }
+  return {
+    destination: matched[1],
+    suffix: matched[2] || ""
+  };
+};
+
+const parseEmbedAttributes = (rawText) => {
+  const attrs = {};
+  const text = String(rawText == null ? "" : rawText);
+  const pattern = /([a-zA-Z0-9_-]+)\s*=\s*("([^"]*)"|'([^']*)'|([^\s"'}]+))/g;
+  let matched;
+  while ((matched = pattern.exec(text)) !== null) {
+    const key = String(matched[1] || "").trim();
+    if (!key) {
+      continue;
+    }
+    const value = matched[3] != null
+      ? matched[3]
+      : (matched[4] != null ? matched[4] : (matched[5] != null ? matched[5] : ""));
+    attrs[key] = value;
+  }
+  return attrs;
+};
+
+const parseSortKeys = (raw, fallback = []) => {
+  const source = toTrimmedString(raw, "");
+  if (!source) {
+    return fallback;
+  }
+  const keys = source.split(",").map((item) => item.trim()).filter(Boolean);
+  return keys.length > 0 ? keys : fallback;
+};
+
+const parseSortOrder = (raw, fallback = "desc") => {
+  const lowered = toTrimmedString(raw, fallback).toLowerCase();
+  return lowered === "asc" ? "asc" : "desc";
+};
+
+const parseSortType = (raw, fallback = "auto") => {
+  const lowered = toTrimmedString(raw, fallback).toLowerCase();
+  if (lowered === "date" || lowered === "number" || lowered === "string") {
+    return lowered;
+  }
+  return "auto";
+};
+
+const resolveSortOption = (attrs, defaults) => {
+  const safeDefaults = isObject(defaults) ? defaults : {};
+  const baseKeys = Array.isArray(safeDefaults.sortKeys) ? safeDefaults.sortKeys : [];
+  const baseOrder = toTrimmedString(safeDefaults.sortOrder, "desc") || "desc";
+  const baseType = toTrimmedString(safeDefaults.sortType, "auto") || "auto";
+  return {
+    sortKeys: parseSortKeys(attrs["sort-key"], baseKeys),
+    sortOrder: parseSortOrder(attrs["sort-order"], baseOrder),
+    sortType: parseSortType(attrs["sort-type"], baseType)
+  };
+};
+
+const resolveExportFieldValue = (record, path, pagePath) => {
+  if (path === "path" || path === "url") {
+    return pagePath;
+  }
+  const parts = String(path || "").split(".").map((item) => item.trim()).filter(Boolean);
+  let cursor = record;
+  for (const part of parts) {
+    if (!isObject(cursor) || !(part in cursor)) {
+      return undefined;
+    }
+    cursor = cursor[part];
+  }
+  return cursor;
+};
+
+const normalizeExportSortValue = (value, key, sortType) => {
+  if (Array.isArray(value)) {
+    return value.length > 0 ? String(value[0]) : "";
+  }
+  if (value == null) {
+    return "";
+  }
+  if (sortType === "number") {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : Number.NEGATIVE_INFINITY;
+  }
+  if (sortType === "date") {
+    const time = Date.parse(String(value));
+    return Number.isFinite(time) ? time : Number.NEGATIVE_INFINITY;
+  }
+  if (sortType === "string") {
+    return String(value);
+  }
+  const loweredKey = String(key || "").toLowerCase();
+  if (loweredKey.includes("date") || loweredKey.includes("modified") || loweredKey.endsWith("at")) {
+    const time = Date.parse(String(value));
+    if (Number.isFinite(time)) {
+      return time;
+    }
+  }
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  return String(value);
+};
+
+const compareExportSortValues = (left, right) => {
+  if (typeof left === "number" && typeof right === "number") {
+    if (left < right) {
+      return -1;
+    }
+    if (left > right) {
+      return 1;
+    }
+    return 0;
+  }
+  return String(left).localeCompare(String(right));
+};
+
+const sortExportEntries = (entries, sortOption) => {
+  const safeOption = isObject(sortOption) ? sortOption : {};
+  const sortKeys = Array.isArray(safeOption.sortKeys) && safeOption.sortKeys.length > 0
+    ? safeOption.sortKeys
+    : ["path"];
+  const sortOrder = parseSortOrder(safeOption.sortOrder, "desc");
+  const sortType = parseSortType(safeOption.sortType, "auto");
+  const direction = sortOrder === "asc" ? 1 : -1;
+  const copied = Array.isArray(entries) ? [...entries] : [];
+  copied.sort((a, b) => {
+    for (const key of sortKeys) {
+      const rawA = resolveExportFieldValue(a.record, key, a.path);
+      const rawB = resolveExportFieldValue(b.record, key, b.path);
+      const valueA = normalizeExportSortValue(rawA, key, sortType);
+      const valueB = normalizeExportSortValue(rawB, key, sortType);
+      const compared = compareExportSortValues(valueA, valueB);
+      if (compared !== 0) {
+        return compared * direction;
+      }
+    }
+    return a.path.localeCompare(b.path);
+  });
+  return copied;
+};
+
+const resolveBacklinkPathsForExport = (pagesObject, targetPath) => {
+  const pages = isObject(pagesObject) ? pagesObject : {};
+  const target = toTrimmedString(targetPath, "");
+  if (!target) {
+    return [];
+  }
+  const paths = new Set();
+  const targetRecord = isObject(pages[target]) ? pages[target] : null;
+  if (targetRecord && Array.isArray(targetRecord.backlinks)) {
+    targetRecord.backlinks.forEach((item) => {
+      const path = toTrimmedString(String(item || ""), "");
+      if (path && path !== target && isObject(pages[path])) {
+        paths.add(path);
+      }
+    });
+  }
+  Object.keys(pages).forEach((path) => {
+    if (path === target) {
+      return;
+    }
+    const record = isObject(pages[path]) ? pages[path] : {};
+    const links = Array.isArray(record.links) ? record.links : [];
+    if (links.indexOf(target) >= 0) {
+      paths.add(path);
+    }
+  });
+  return [...paths];
+};
+
+const renderInlineListEntries = (entries, queryParam, emptyLabel) => {
+  if (!Array.isArray(entries) || entries.length === 0) {
+    return `- ${emptyLabel}`;
+  }
+  return entries.map((entry) => {
+    const path = toTrimmedString(entry.path, "");
+    const record = isObject(entry.record) ? entry.record : {};
+    const title = toTrimmedString(record.title, "") || path;
+    return `- [${title}](${toInlineWikiHref(queryParam, path)})`;
+  }).join("\n");
+};
+
+const expandInlineWikiEmbedLine = (line, pagesObject, currentPath, queryParam) => {
+  const source = String(line == null ? "" : line);
+  const pageListMatched = source.match(/^\s*.*\{\.auto-indexer-page-list([^}]*)\}\s*$/);
+  if (pageListMatched) {
+    const attrs = parseEmbedAttributes(pageListMatched[1]);
+    const sortOption = resolveSortOption(attrs, {
+      sortKeys: ["lastModified"],
+      sortOrder: "desc",
+      sortType: "auto"
+    });
+    const pages = isObject(pagesObject) ? pagesObject : {};
+    const entries = sortExportEntries(
+      Object.keys(pages).map((path) => {
+        return {
+          path: path,
+          record: isObject(pages[path]) ? pages[path] : {}
+        };
+      }),
+      sortOption
+    );
+    return renderInlineListEntries(
+      entries,
+      queryParam,
+      toTrimmedString(attrs["empty-label"], "No pages in sitemap.")
+    );
+  }
+
+  const backlinksMatched = source.match(/^\s*.*\{\.auto-indexer-backlinks([^}]*)\}\s*$/);
+  if (backlinksMatched) {
+    const attrs = parseEmbedAttributes(backlinksMatched[1]);
+    const sortOption = resolveSortOption(attrs, {
+      sortKeys: ["lastModified", "path"],
+      sortOrder: "desc",
+      sortType: "auto"
+    });
+    const pages = isObject(pagesObject) ? pagesObject : {};
+    const targetPath = toTrimmedString(currentPath, "");
+    const backlinkPaths = resolveBacklinkPathsForExport(pages, targetPath);
+    const entries = sortExportEntries(
+      backlinkPaths.map((path) => {
+        return {
+          path: path,
+          record: isObject(pages[path]) ? pages[path] : {}
+        };
+      }),
+      sortOption
+    );
+    return renderInlineListEntries(
+      entries,
+      queryParam,
+      toTrimmedString(attrs["empty-label"], "No backlinks.")
+    );
+  }
+
+  return source;
+};
+
+const rewriteMarkdownLineForInlineWiki = (runtime, line, baseDocPath, queryParam) => {
+  const viewer = runtime && runtime.viewer ? runtime.viewer : null;
+  if (!viewer || typeof line !== "string" || line.length === 0) {
+    return line;
+  }
+
+  let rewritten = line.replace(/(!?\[[^\]]*\])\(([^)]+)\)/g, (full, label, rawDestination) => {
+    const parsed = parseMarkdownDestination(rawDestination);
+    if (!parsed || !parsed.destination) {
+      return full;
+    }
+    const normalized = normalizePathCandidate(viewer, parsed.destination, baseDocPath);
+    if (!normalized) {
+      return full;
+    }
+    const href = toInlineWikiHref(queryParam, normalized);
+    return `${label}(${href}${parsed.suffix})`;
+  });
+
+  rewritten = rewritten.replace(/(\bhref\s*=\s*)(["'])(.*?)\2/gi, (full, prefix, quote, href) => {
+    const normalized = normalizePathCandidate(viewer, href, baseDocPath);
+    if (!normalized) {
+      return full;
+    }
+    const inlineHref = toInlineWikiHref(queryParam, normalized);
+    return `${prefix}${quote}${inlineHref}${quote}`;
+  });
+
+  return rewritten;
+};
+
+const rewriteMarkdownLinksForInlineWiki = (runtime, markdown, baseDocPath, queryParam, pagesObject = null) => {
+  const source = String(markdown == null ? "" : markdown);
+  const lines = source.split("\n");
+  let inFence = false;
+  let fenceChar = "";
+  let fenceLength = 0;
+
+  const rewritten = lines.map((line) => {
+    const fenceMatched = line.match(/^\s*(```+|~~~+)/);
+    if (fenceMatched) {
+      const marker = fenceMatched[1];
+      const markerChar = marker.charAt(0);
+      const markerLength = marker.length;
+      if (!inFence) {
+        inFence = true;
+        fenceChar = markerChar;
+        fenceLength = markerLength;
+      } else if (fenceChar === markerChar && markerLength >= fenceLength) {
+        inFence = false;
+      }
+      return line;
+    }
+    if (inFence) {
+      return line;
+    }
+    const expanded = expandInlineWikiEmbedLine(line, pagesObject, baseDocPath, queryParam);
+    return rewriteMarkdownLineForInlineWiki(runtime, expanded, baseDocPath, queryParam);
+  });
+
+  return rewritten.join("\n");
+};
+
 const resolvePayloadRoot = (payload) => {
   if (isElementNode(payload)) {
     return payload;
@@ -338,6 +706,8 @@ const buildRuntimeStateDetail = (runtime) => {
   const canInitializeOwner = runtime && runtime.canInitializeOwner === true;
   const localEditorEnabled = runtime && runtime.localEditorOption && runtime.localEditorOption.enabled === true;
   const localEditorReady = runtime && runtime.localEditorReady === true;
+  const inlineExportEnabled = runtime && runtime.inlineExportOption && runtime.inlineExportOption.enabled === true;
+  const inlineExportReady = runtime && runtime.inlineExportReady === true;
   const currentMarkdownPath = runtime ? toTrimmedString(runtime.currentMarkdownPath, "") : "";
   return {
     mode: runtime && runtime.mode ? runtime.mode : RUNTIME_MODES.READER,
@@ -348,6 +718,8 @@ const buildRuntimeStateDetail = (runtime) => {
     lastError: runtime && runtime.lastError ? runtime.lastError : "",
     localEditorEnabled: localEditorEnabled,
     localEditorReady: localEditorReady,
+    inlineExportEnabled: inlineExportEnabled,
+    inlineExportReady: inlineExportReady,
     currentMarkdownPath: currentMarkdownPath
   };
 };
@@ -394,6 +766,7 @@ const defineAutoIndexerAuthorPanelElement = () => {
       this.onRefreshClick = this.onRefreshClick.bind(this);
       this.onInitializeClick = this.onInitializeClick.bind(this);
       this.onSaveClick = this.onSaveClick.bind(this);
+      this.onExportInlineClick = this.onExportInlineClick.bind(this);
       this.onEditClick = this.onEditClick.bind(this);
       this.onEditorSaveClick = this.onEditorSaveClick.bind(this);
       this.onEditorCloseClick = this.onEditorCloseClick.bind(this);
@@ -423,6 +796,9 @@ const defineAutoIndexerAuthorPanelElement = () => {
       }
       if (this.saveButton) {
         this.saveButton.removeEventListener("click", this.onSaveClick);
+      }
+      if (this.exportInlineButton) {
+        this.exportInlineButton.removeEventListener("click", this.onExportInlineClick);
       }
       if (this.editButton) {
         this.editButton.removeEventListener("click", this.onEditClick);
@@ -481,6 +857,7 @@ const defineAutoIndexerAuthorPanelElement = () => {
       this.refreshButton = this.shadowRoot.querySelector('[data-action="refresh"]');
       this.initializeButton = this.shadowRoot.querySelector('[data-action="initialize"]');
       this.saveButton = this.shadowRoot.querySelector('[data-action="save"]');
+      this.exportInlineButton = this.shadowRoot.querySelector('[data-action="export-inline"]');
       this.editButton = this.shadowRoot.querySelector('[data-action="edit"]');
       this.settingsButton = this.shadowRoot.querySelector('[data-action="settings"]');
       this.settingsDetails = this.shadowRoot.querySelector('[data-part="settings-details"]');
@@ -496,6 +873,7 @@ const defineAutoIndexerAuthorPanelElement = () => {
       this.refreshButton.addEventListener("click", this.onRefreshClick);
       this.initializeButton.addEventListener("click", this.onInitializeClick);
       this.saveButton.addEventListener("click", this.onSaveClick);
+      this.exportInlineButton.addEventListener("click", this.onExportInlineClick);
       this.editButton.addEventListener("click", this.onEditClick);
       this.editorSaveButton.addEventListener("click", this.onEditorSaveClick);
       this.editorCloseButton.addEventListener("click", this.onEditorCloseClick);
@@ -512,6 +890,8 @@ const defineAutoIndexerAuthorPanelElement = () => {
             "data-auto-indexer-dirty",
             "data-local-editor-enabled",
             "data-local-editor-ready",
+            "data-export-enabled",
+            "data-export-ready",
             "data-current-path"
           ]
         });
@@ -530,6 +910,8 @@ const defineAutoIndexerAuthorPanelElement = () => {
       state.dirty = root.dataset.autoIndexerDirty === "true";
       state.localEditorEnabled = root.dataset.localEditorEnabled === "true";
       state.localEditorReady = root.dataset.localEditorReady === "true";
+      state.inlineExportEnabled = root.dataset.exportEnabled === "true";
+      state.inlineExportReady = root.dataset.exportReady === "true";
       state.currentMarkdownPath = toTrimmedString(root.dataset.currentPath, "");
       return state;
     }
@@ -549,6 +931,8 @@ const defineAutoIndexerAuthorPanelElement = () => {
       const isAuthor = mode === RUNTIME_MODES.AUTHOR;
       const localEditorEnabled = safeState.localEditorEnabled === true;
       const localEditorReady = safeState.localEditorReady === true;
+      const inlineExportEnabled = safeState.inlineExportEnabled === true;
+      const inlineExportReady = safeState.inlineExportReady === true;
       const currentMarkdownPath = toTrimmedString(safeState.currentMarkdownPath, "");
       const keepVisibleForEditor = isAuthor && localEditorEnabled;
       const hiddenByAutoHide = this.isAutoHideEnabled() && !dirty && startupState === STARTUP_STATES.NORMAL && !keepVisibleForEditor;
@@ -556,6 +940,9 @@ const defineAutoIndexerAuthorPanelElement = () => {
       this.panelElement.style.display = visible ? "block" : "none";
       this.panelElement.dataset.mode = isAuthor ? RUNTIME_MODES.AUTHOR : RUNTIME_MODES.READER;
       this.saveButton.disabled = !(isAuthor && dirty);
+      this.exportInlineButton.hidden = !(isAuthor && inlineExportEnabled);
+      this.exportInlineButton.disabled = !(isAuthor && inlineExportEnabled && inlineExportReady);
+      this.exportInlineButton.title = inlineExportReady ? "" : "Offline Wiki export は include モードのローカル AUTHOR_MODE で利用できます。";
       this.editButton.hidden = !(isAuthor && localEditorEnabled);
       this.editButton.disabled = !(isAuthor && localEditorEnabled && localEditorReady);
       this.editButton.title = localEditorReady ? "" : "編集はローカル AUTHOR_MODE かつ File System Access API 対応ブラウザで利用できます。";
@@ -575,6 +962,11 @@ const defineAutoIndexerAuthorPanelElement = () => {
         parts.push("editor:off");
       } else if (!localEditorReady) {
         parts.push("editor:unavailable");
+      }
+      if (!inlineExportEnabled) {
+        parts.push("export:off");
+      } else if (!inlineExportReady) {
+        parts.push("export:unavailable");
       }
       if (shortError) {
         parts.push(`error: ${shortError}`);
@@ -737,6 +1129,28 @@ const defineAutoIndexerAuthorPanelElement = () => {
             path: result.path || ""
           }
         });
+      } catch (error) {
+        this.writeError(error);
+      }
+    }
+
+    async onExportInlineClick() {
+      const api = this.getApi();
+      const exportFn = api && typeof api.exportOfflineWiki === "function"
+        ? api.exportOfflineWiki
+        : (api && typeof api.exportInlineWiki === "function" ? api.exportInlineWiki : null);
+      if (!exportFn) {
+        this.writeError("offline export API is unavailable.");
+        return;
+      }
+      try {
+        const result = await exportFn();
+        this.writeSetupHint("", "muted");
+        this.writeStatus({
+          label: "exportOfflineWiki",
+          result: result
+        });
+        await this.renderStatus("after exportOfflineWiki");
       } catch (error) {
         this.writeError(error);
       }
@@ -926,7 +1340,8 @@ button:disabled {
     <p class="meta" data-part="meta"></p>
     <div class="actions">
       <button type="button" data-action="edit">編集</button>
-      <button type="button" data-action="save">sitemap保存</button>
+      <button type="button" data-action="export-inline">書き出し</button>
+      <button type="button" data-action="save">SITEMAP保存</button>
       <button type="button" data-action="settings">ステータス</button>
     </div>
   </div>
@@ -1919,6 +2334,7 @@ const applyDocumentState = (runtime) => {
   }
   runtime.currentMarkdownPath = resolveCurrentMarkdownPath(runtime);
   runtime.localEditorReady = isLocalEditorAvailable(runtime);
+  runtime.inlineExportReady = isInlineWikiExportAvailable(runtime);
   runtime.canInitializeOwner = canInitializeOwnerInCurrentEnvironment(runtime);
   root.dataset.autoIndexerMode = runtime.mode;
   root.dataset.autoIndexerState = runtime.startupState;
@@ -1930,6 +2346,10 @@ const applyDocumentState = (runtime) => {
   delete root.dataset.autoIndexerCurrentPath;
   root.dataset.localEditorEnabled = runtime.localEditorOption && runtime.localEditorOption.enabled ? "true" : "false";
   root.dataset.localEditorReady = runtime.localEditorReady ? "true" : "false";
+  delete root.dataset.inlineExportEnabled;
+  delete root.dataset.inlineExportReady;
+  root.dataset.exportEnabled = runtime.inlineExportOption && runtime.inlineExportOption.enabled ? "true" : "false";
+  root.dataset.exportReady = runtime.inlineExportReady ? "true" : "false";
   if (runtime.currentMarkdownPath) {
     root.dataset.currentPath = runtime.currentMarkdownPath;
   } else {
@@ -2135,6 +2555,29 @@ const isLocalEditorAvailable = (runtime, currentUrl = null) => {
     return false;
   }
   if (typeof window === "undefined" || typeof window.showSaveFilePicker !== "function") {
+    return false;
+  }
+  const url = currentUrl || safeParseUrl(typeof window !== "undefined" ? window.location.href : "");
+  if (!url || !isLocalEnvironment(url)) {
+    return false;
+  }
+  return true;
+};
+
+const isInlineWikiExportAvailable = (runtime, currentUrl = null) => {
+  if (!runtime || runtime.authorModeEnabled !== true) {
+    return false;
+  }
+  if (!runtime.inlineExportOption || runtime.inlineExportOption.enabled !== true) {
+    return false;
+  }
+  if (!runtime.option || runtime.option.enabled !== true || !runtime.db) {
+    return false;
+  }
+  if (!runtime.viewer || !runtime.viewer.getAttribute || !runtime.viewer.getAttribute("src")) {
+    return false;
+  }
+  if (runtime.mode !== RUNTIME_MODES.AUTHOR) {
     return false;
   }
   const url = currentUrl || safeParseUrl(typeof window !== "undefined" ? window.location.href : "");
@@ -2536,6 +2979,235 @@ const saveLocalEditor = async (runtime, markdown, option = {}) => {
   };
 };
 
+const resolveInlineExportQueryParam = (runtime, option = {}) => {
+  const inlineOption = runtime && runtime.inlineExportOption ? runtime.inlineExportOption : {};
+  const raw = toTrimmedString(option.query_param || option.queryParam, "") || toTrimmedString(inlineOption.queryParam, "page");
+  const viewer = runtime && runtime.viewer ? runtime.viewer : null;
+  if (viewer && typeof viewer.NormalizeInlineSpaParam === "function") {
+    return viewer.NormalizeInlineSpaParam(raw);
+  }
+  return normalizeInlineExportQueryParam(raw);
+};
+
+const resolveInlineExportViewerId = (runtime, option = {}) => {
+  const inlineOption = runtime && runtime.inlineExportOption ? runtime.inlineExportOption : {};
+  const explicit = toTrimmedString(option.viewer_id || option.viewerId, "") || toTrimmedString(inlineOption.viewerId, "");
+  if (explicit) {
+    return explicit;
+  }
+  const viewer = runtime && runtime.viewer ? runtime.viewer : null;
+  return toTrimmedString(viewer && viewer.id ? viewer.id : "", "wiki") || "wiki";
+};
+
+const resolveInlineExportFileName = (runtime, option = {}) => {
+  const inlineOption = runtime && runtime.inlineExportOption ? runtime.inlineExportOption : {};
+  return toTrimmedString(option.file_name || option.fileName, "") || toTrimmedString(inlineOption.fileName, "offline-wiki.html") || "offline-wiki.html";
+};
+
+const resolveInlineExportDefaultPage = (runtime, option = {}, pagePaths = []) => {
+  const pages = pagePaths.filter(Boolean);
+  const set = new Set(pages);
+  const inlineOption = runtime && runtime.inlineExportOption ? runtime.inlineExportOption : {};
+  const explicit = toTrimmedString(option.default_page || option.defaultPage, "") || toTrimmedString(inlineOption.defaultPage, "");
+  if (explicit && set.has(explicit)) {
+    return explicit;
+  }
+  const currentPath = resolveCurrentMarkdownPath(runtime);
+  if (currentPath && set.has(currentPath)) {
+    return currentPath;
+  }
+  if (set.has("index.md")) {
+    return "index.md";
+  }
+  if (set.has("home.md")) {
+    return "home.md";
+  }
+  return pages.length > 0 ? pages[0] : "";
+};
+
+const resolveInlineExportPlugins = (runtime) => {
+  const viewer = runtime && runtime.viewer ? runtime.viewer : null;
+  if (!viewer || !viewer.getAttribute) {
+    return "";
+  }
+  const raw = toTrimmedString(viewer.getAttribute("data-plugins"), "");
+  if (!raw) {
+    return "";
+  }
+  const filtered = raw.split(",")
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .filter((item) => item !== "author-mode" && item !== "auto-indexer");
+  return filtered.join(",");
+};
+
+const collectInlineWikiExportPages = async (runtime, pagesObject, queryParam) => {
+  const pages = isObject(pagesObject) ? pagesObject : {};
+  const paths = sortStringArray(Object.keys(pages));
+  const result = [];
+  for (const path of paths) {
+    const sourcePath = resolveMarkdownSourcePath(runtime, path);
+    if (!sourcePath) {
+      throw new Error(`Failed to resolve source path: ${path}`);
+    }
+    const response = await fetch(sourcePath, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`Failed to load markdown (${response.status}): ${path}`);
+    }
+    const markdown = await response.text();
+    const converted = rewriteMarkdownLinksForInlineWiki(runtime, markdown, path, queryParam, pages);
+    const record = isObject(pages[path]) ? pages[path] : {};
+    const title = toTrimmedString(record.title, "") || path;
+    result.push({
+      path: path,
+      title: title,
+      markdown: converted
+    });
+  }
+  return result;
+};
+
+const buildInlineWikiExportHtml = (runtime, pages, option = {}) => {
+  const viewer = runtime && runtime.viewer ? runtime.viewer : null;
+  const viewerId = resolveInlineExportViewerId(runtime, option);
+  const queryParam = resolveInlineExportQueryParam(runtime, option);
+  const pagePaths = pages.map((page) => page.path);
+  const defaultPage = resolveInlineExportDefaultPage(runtime, option, pagePaths);
+  const plugins = resolveInlineExportPlugins(runtime);
+  const htmlEnabled = viewer && viewer.option ? viewer.option.html === true : true;
+  const sanitizeEnabled = viewer && viewer.option ? viewer.option.sanitize !== false : false;
+  const frontmatterEnabled = viewer && viewer.option ? viewer.option.frontmatter !== false : true;
+  const executeScriptEnabled = viewer && viewer.option ? viewer.option.execute_script === true : false;
+  const title = `${document.title || "MDGarden"} (Offline Wiki Export)`;
+  const templates = pages.map((page) => {
+    return `<template data-page="${escapeHtmlAttribute(page.path)}" data-page-target="${escapeHtmlAttribute(viewerId)}" data-title="${escapeHtmlAttribute(page.title)}">
+${escapeTemplateText(page.markdown)}
+</template>`;
+  }).join("\n\n");
+
+  const attributes = [
+    `id="${escapeHtmlAttribute(viewerId)}"`,
+    `data-inline-spa="true"`,
+    `data-inline-spa-param="${escapeHtmlAttribute(queryParam)}"`,
+    `data-inline-default-page="${escapeHtmlAttribute(defaultPage)}"`,
+    `data-html="${htmlEnabled ? "true" : "false"}"`,
+    `data-sanitize="${sanitizeEnabled ? "true" : "false"}"`,
+    `data-frontmatter="${frontmatterEnabled ? "true" : "false"}"`,
+    `data-execute-script="${executeScriptEnabled ? "true" : "false"}"`
+  ];
+  if (plugins) {
+    attributes.push(`data-plugins="${escapeHtmlAttribute(plugins)}"`);
+  }
+
+  return `<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${escapeHtmlAttribute(title)}</title>
+  <link rel="stylesheet" href="./assets/css/default.css">
+  <script src="./assets/js/mdgarden.min.js"></script>
+</head>
+<body>
+<main>
+  <md-garden
+    ${attributes.join("\n    ")}>
+  </md-garden>
+</main>
+
+<template data-target="${escapeHtmlAttribute(viewerId)}">Loading...</template>
+
+${templates}
+</body>
+</html>
+`;
+};
+
+const pickInlineWikiFileHandle = async (suggestedName) => {
+  const safeName = toTrimmedString(suggestedName, "offline-wiki.html") || "offline-wiki.html";
+  return window.showSaveFilePicker({
+    suggestedName: safeName,
+    types: [
+      {
+        description: "HTML",
+        accept: {
+          "text/html": [".html", ".htm"]
+        }
+      }
+    ]
+  });
+};
+
+const saveInlineWikiAsFile = async (htmlText, fileName) => {
+  if (window.showSaveFilePicker) {
+    const handle = await pickInlineWikiFileHandle(fileName);
+    const granted = await ensureFileHandleWritePermission(handle, true);
+    if (!granted) {
+      throw new Error("Write permission was not granted.");
+    }
+    const writable = await handle.createWritable();
+    await writable.write(String(htmlText == null ? "" : htmlText));
+    await writable.close();
+    return "file-system-access";
+  }
+
+  const blob = new Blob([String(htmlText == null ? "" : htmlText)], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = fileName;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+  return "download";
+};
+
+const exportInlineWiki = async (runtime, option = {}) => {
+  if (!runtime || runtime.authorModeEnabled !== true) {
+    throw new Error("author_mode is disabled.");
+  }
+  evaluateMode(runtime);
+  if (runtime.mode !== RUNTIME_MODES.AUTHOR) {
+    throw new Error("Offline Wiki export is available only in AUTHOR_MODE.");
+  }
+  if (!isInlineWikiExportAvailable(runtime)) {
+    throw new Error("Offline Wiki export requires include mode with local AUTHOR_MODE.");
+  }
+  if (navigator.userActivation && navigator.userActivation.isActive !== true) {
+    throw new Error("Offline Wiki export requires explicit user activation.");
+  }
+
+  const sitemap = await getSitemap(runtime, { live: true, reload: false });
+  if (!sitemap || !sitemap.document || !isObject(sitemap.document.pages)) {
+    const reason = sitemap && Array.isArray(sitemap.errors) && sitemap.errors.length > 0
+      ? sitemap.errors[0]
+      : "Sitemap is unavailable.";
+    throw new Error(`Offline Wiki export failed: ${reason}`);
+  }
+  const queryParam = resolveInlineExportQueryParam(runtime, option);
+  const pages = await collectInlineWikiExportPages(runtime, sitemap.document.pages, queryParam);
+  if (pages.length === 0) {
+    throw new Error("No sitemap pages were available for export.");
+  }
+
+  const html = buildInlineWikiExportHtml(runtime, pages, option);
+  const fileName = resolveInlineExportFileName(runtime, option);
+  const method = await saveInlineWikiAsFile(html, fileName);
+  const defaultPage = resolveInlineExportDefaultPage(runtime, option, pages.map((page) => page.path));
+  const viewerId = resolveInlineExportViewerId(runtime, option);
+  return {
+    ok: true,
+    method: method,
+    fileName: fileName,
+    pageCount: pages.length,
+    viewerId: viewerId,
+    queryParam: queryParam,
+    defaultPage: defaultPage
+  };
+};
+
 const refreshSitemapOwner = async (runtime) => {
   const loaded = await loadSitemapDocument(runtime.option.sitemapPath);
   if (loaded.state === STARTUP_STATES.NORMAL && loaded.document) {
@@ -2738,6 +3410,7 @@ const getStatus = async (runtime) => {
   runtime.canInitializeOwner = canInitializeOwnerInCurrentEnvironment(runtime);
   runtime.currentMarkdownPath = resolveCurrentMarkdownPath(runtime);
   runtime.localEditorReady = isLocalEditorAvailable(runtime);
+  runtime.inlineExportReady = isInlineWikiExportAvailable(runtime);
   if (!runtime.db) {
     return {
       enabled: runtime.option.enabled,
@@ -2753,6 +3426,8 @@ const getStatus = async (runtime) => {
       localEditorEnabled: runtime.localEditorOption && runtime.localEditorOption.enabled === true,
       localEditorAutoReload: runtime.localEditorOption && runtime.localEditorOption.autoReload === true,
       localEditorReady: runtime.localEditorReady === true,
+      inlineExportEnabled: runtime.inlineExportOption && runtime.inlineExportOption.enabled === true,
+      inlineExportReady: runtime.inlineExportReady === true,
       currentMarkdownPath: runtime.currentMarkdownPath || ""
     };
   }
@@ -2760,6 +3435,7 @@ const getStatus = async (runtime) => {
   evaluateMode(runtime);
   runtime.currentMarkdownPath = resolveCurrentMarkdownPath(runtime);
   runtime.localEditorReady = isLocalEditorAvailable(runtime);
+  runtime.inlineExportReady = isInlineWikiExportAvailable(runtime);
   return {
     enabled: runtime.option.enabled,
     authorModeEnabled: runtime.authorModeEnabled === true,
@@ -2774,6 +3450,8 @@ const getStatus = async (runtime) => {
     localEditorEnabled: runtime.localEditorOption && runtime.localEditorOption.enabled === true,
     localEditorAutoReload: runtime.localEditorOption && runtime.localEditorOption.autoReload === true,
     localEditorReady: runtime.localEditorReady === true,
+    inlineExportEnabled: runtime.inlineExportOption && runtime.inlineExportOption.enabled === true,
+    inlineExportReady: runtime.inlineExportReady === true,
     currentMarkdownPath: runtime.currentMarkdownPath || ""
   };
 };
@@ -2790,7 +3468,10 @@ const bindPublicApi = (runtime) => {
     saveSitemap: (option = {}) => saveSitemap(runtime, option),
     initializeOwner: (passphrase) => initializeOwner(runtime, passphrase),
     openLocalEditor: () => openLocalEditor(runtime),
-    saveLocalEditor: (markdown, option = {}) => saveLocalEditor(runtime, markdown, option)
+    saveLocalEditor: (markdown, option = {}) => saveLocalEditor(runtime, markdown, option),
+    exportOfflineWiki: (option = {}) => exportInlineWiki(runtime, option),
+    // Backward-compatible alias
+    exportInlineWiki: (option = {}) => exportInlineWiki(runtime, option)
   };
   hostApi.authorMode = api;
   // Backward-compatible alias
@@ -2803,10 +3484,12 @@ const bootstrap = async (runtime, viewer) => {
   runtime.authorModeEnabled = authorMode.enabled === true;
   runtime.option = normalizeAutoIndexerOption(authorMode.autoIndexerOption, viewer.id || "main");
   runtime.localEditorOption = normalizeLocalEditorOption(authorMode.localEditorOption);
+  runtime.inlineExportOption = normalizeInlineExportOption(authorMode.inlineExportOption);
   runtime.deployConfig = normalizeDeployEntries(authorMode.deploy);
   if (runtime.authorModeEnabled !== true) {
     runtime.option.enabled = false;
     runtime.localEditorOption.enabled = false;
+    runtime.inlineExportOption.enabled = false;
   }
   runtime.mode = RUNTIME_MODES.READER;
   runtime.startupState = STARTUP_STATES.NORMAL;
@@ -2954,6 +3637,7 @@ const createAuthorModePlugin = () => {
     viewer: null,
     option: normalizeAutoIndexerOption({}, "main"),
     localEditorOption: normalizeLocalEditorOption({}),
+    inlineExportOption: normalizeInlineExportOption({}),
     deployConfig: { valid: false, entries: [] },
     authorModeEnabled: true,
     initialized: false,
@@ -2967,6 +3651,7 @@ const createAuthorModePlugin = () => {
     salt: "",
     canInitializeOwner: false,
     localEditorReady: false,
+    inlineExportReady: false,
     currentMarkdownPath: "",
     fileHandle: null,
     lastKnownRevision: 0,
@@ -2982,6 +3667,7 @@ const createAuthorModePlugin = () => {
     const authorMode = resolveAuthorModeSettings(viewer.option || {});
     const nextOption = normalizeAutoIndexerOption(authorMode.autoIndexerOption, viewer.id || "main");
     const nextLocalEditorOption = normalizeLocalEditorOption(authorMode.localEditorOption);
+    const nextInlineExportOption = normalizeInlineExportOption(authorMode.inlineExportOption);
     const nextDeploy = normalizeDeployEntries(authorMode.deploy);
     const nextAuthorModeEnabled = authorMode.enabled === true;
     if (runtime.initialized) {
@@ -2996,6 +3682,11 @@ const createAuthorModePlugin = () => {
         runtime.localEditorOption.enabled === nextLocalEditorOption.enabled &&
         runtime.localEditorOption.autoReload === nextLocalEditorOption.autoReload &&
         runtime.localEditorOption.reloadAfterSave === nextLocalEditorOption.reloadAfterSave &&
+        runtime.inlineExportOption.enabled === nextInlineExportOption.enabled &&
+        runtime.inlineExportOption.fileName === nextInlineExportOption.fileName &&
+        runtime.inlineExportOption.queryParam === nextInlineExportOption.queryParam &&
+        runtime.inlineExportOption.defaultPage === nextInlineExportOption.defaultPage &&
+        runtime.inlineExportOption.viewerId === nextInlineExportOption.viewerId &&
         JSON.stringify(runtime.deployConfig.entries || []) === JSON.stringify(nextDeploy.entries || []);
       if (sameOption) {
         return Promise.resolve();

@@ -1,10 +1,10 @@
 ---
 title: "author mode"
-lastModified: "2026-03-05T22:00:00+09:00"
+lastModified: "2026-03-06T00:40:00+09:00"
 indexing: true
 ---
 
-# author_mode / auto-indexer / local-editor ガイド
+# author_mode / auto-indexer / local-editor / offline-export ガイド
 
 このドキュメントは、現在の実装（`src/assets/js/plugins/author-mode-plugin.js`）に基づく利用手順です。
 
@@ -16,6 +16,7 @@ indexing: true
 
 - `auto_indexer`: ページ情報を `IndexedDB` に増分保存し、必要時に `sitemap.json` を出力
 - `local_editor`: 現在表示中の Markdown を textarea で編集し、File System Access API でローカル保存
+- `offline_export`: include モードのサイト一式を single-file の Offline Wiki HTML として書き出し
 - いずれも `AUTHOR_MODE` で有効
 
 ## 事前設定（推奨）
@@ -37,6 +38,12 @@ indexing: true
     "local_editor": {
       "enabled": true,
       "auto_reload": true
+    },
+    "offline_export": {
+      "enabled": true,
+      "file_name": "offline-wiki.html",
+      "query_param": "page",
+      "default_page": "index.md"
     }
   }
 }
@@ -70,7 +77,8 @@ indexing: true
 `<mdg-author ...>` は Author パネルとして以下を提供します。
 
 - `保存`: sitemap 保存
-- `設定`: ステータス
+- `書き出し`: include モードサイトを single-file HTML に export
+- `ステータス`: ステータスを表示
 - `編集`: local editor（`author_mode.local_editor.enabled=true` のとき）
 
 `auto-hide="true"` でも、local editor が有効な `AUTHOR_MODE` では編集導線を維持するためパネルは表示されます。
@@ -99,6 +107,28 @@ indexing: true
   - 旧設定 `reload_after_save` は後方互換として引き続き解釈されます
 - 保存ダイアログは常に表示され、毎回 `showSaveFilePicker` で保存先を選択します（auto-save は廃止）
 
+## Offline Wiki Export のフロー
+
+1. `書き出し` ボタンを押す
+2. sitemap（live DB）を取得し、`pages` の各Markdownを読み込む
+3. sitemap 準拠でページを収集し、内部リンクを `?page=` 形式へ変換
+   - `list{.auto-indexer-page-list ...}` / `backlinks{.auto-indexer-backlinks ...}` は export 時に静的リンクリストへ展開
+4. 1ファイルの Offline Wiki HTML を生成
+5. `showSaveFilePicker`（非対応時はBlobダウンロード）で保存
+
+制約:
+
+- `AUTHOR_MODE` かつ include モードでのみ利用可能
+- export対象は sitemap 準拠（`indexing: false` は除外）
+- アセット（画像/CSS/JS）は外部参照のまま（HTML内に同梱しない）
+
+`offline_export` の主なオプション:
+
+- `enabled`: export機能を有効化（既定: `true`）
+- `file_name`: export時の既定ファイル名（既定: `offline-wiki.html`）
+- `query_param`: Offline Wiki のページ遷移クエリ（既定: `page`）
+- `default_page`: 初期表示ページ（未指定時は現在ページ→`index.md`→先頭の順に自動決定）
+
 ## 実行時 dataset
 
 `<html>` の `dataset` に状態が反映されます。
@@ -108,6 +138,8 @@ indexing: true
 - `data-auto-indexer-dirty`: `true` / `false`
 - `data-local-editor-enabled`: `true` / `false`
 - `data-local-editor-ready`: `true` / `false`
+- `data-export-enabled`: `true` / `false`
+- `data-export-ready`: `true` / `false`
 - `data-current-path`: 現在ページの正規化パス
 - `data-author`: `author` 時のみ `"true"`
 
@@ -122,6 +154,8 @@ indexing: true
 - `saveSitemap(option)`
 - `openLocalEditor()`
 - `saveLocalEditor(markdown, option)` (`option.autoReload` / `option.reload` で呼び出し時に上書き可)
+- `exportOfflineWiki(option)` (`option.fileName` / `option.queryParam` / `option.defaultPage` / `option.viewerId`)
+  - 旧API `exportInlineWiki(option)` も後方互換として利用可能
 
 例:
 
@@ -129,6 +163,7 @@ indexing: true
 const api = MDGarden.main.authorMode;
 const opened = await api.openLocalEditor();
 await api.saveLocalEditor(opened.content);
+await api.exportOfflineWiki({ fileName: "offline-wiki.html" });
 ```
 
 ## 注意事項
@@ -140,6 +175,7 @@ await api.saveLocalEditor(opened.content);
 ## UI/UX 見直しポイント
 
 - Author パネルは「編集」「保存（sitemap）」「設定」を同一導線に集約
+- Includeサイトの配布向けに「Offline Wiki 書き出し」を追加
 - `AUTHOR_MODE` では `auto-hide` 有効時でも編集導線を維持
-- ステータス行は最小表示（`current-path` 中心）で、`sitemap changed` / `error` / `editor:unavailable` など必要時のみ追加表示
+- ステータス行は最小表示（`current-path` 中心）で、`sitemap changed` / `error` / `editor:unavailable` / `export:unavailable` など必要時のみ追加表示
 - Author認証は「localhost/127.0.0.1 かつ deploy配下外」に簡素化
