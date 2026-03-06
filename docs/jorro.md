@@ -57,15 +57,6 @@ Jorro を使うと、次の点で相性が良くなります。
 - `hotReload` を指定するとファイル更新時にブラウザがリロードされます。
 - `devConsoleErrors` を指定すると、サーバ側のエラーがブラウザのコンソールに流れます
 
-## 併用ワークフロー（実践）
-
-1. Jorro で `docs/` を配信
-2. MDGarden を `include mode` で確認
-3. Author Mode で Markdown 編集・sitemap 更新
-4. 必要なら Offline Wiki を export
-5. Git 差分を確認してコミット
-
-ローカル完結で編集から配布確認まで繋げられるのが、この組み合わせの利点です。
 
 ## 注意点
 
