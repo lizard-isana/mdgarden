@@ -1,10 +1,10 @@
 ---
-title: "MDGarden - Sigle File Wiki/inline mode"
-lastModified: "2026-03-06T09:00:00+09:00"
+title: "MDGarden - Single File Wiki/inline mode"
+lastModified: "2026-03-06T13:30:00+09:00"
 indexing: true
 ---
 
-# Sigle File Wiki/inline mode
+# Single File Wiki/inline mode
 inline mode は、1つのHTMLにコンテンツを同梱して配布したいときに使うモードです。  
 オフライン共有、簡易マニュアル、配布用ドキュメントに向いています。
 
@@ -47,8 +47,15 @@ Welcome to inline mode.
 複数ページを持たせる場合は `template[data-page]` を追加します。
 
 ```html
-<template data-page="home.md" data-page-target="main"># Home</template>
-<template data-page="guide.md" data-page-target="main"># Guide</template>
+<template data-page="home.md" data-page-target="main">
+# Home
+[Open Guide](?page=guide.md)
+</template>
+
+<template data-page="guide.md" data-page-target="main">
+# Guide
+[Back to Home](?page=home.md)
+</template>
 ```
 
 `data-page-target` で対象 viewer を明示すると、複数 `md-garden` 構成でも混線しにくくなります。
@@ -80,6 +87,16 @@ inline mode は配布が簡単な一方、HTML内に script を入れると攻�
 - 複数人編集では競合しやすい
 
 「配布性重視なら inline」「運用性重視なら include」と覚えると判断しやすいです。
+
+## Author Mode からの書き出し
+
+MDGarden では include mode で運用し、Author Mode の `offline_export` で inline 形式（Offline Wiki）へ書き出す使い方ができます。  
+この方法を使うと、日常運用は分割管理のまま、配布時だけ単一HTMLを生成できます。
+
+- 運用: include mode + auto_indexer
+- 配布: Author Mode の「書き出し」ボタンで Offline Wiki 生成
+- 生成物: `?page=` 遷移を含む単一HTML（viewer構成も同梱可能）
+- 詳しくは [Author Mode](author_mode.md) を参照してください
 
 ## 次のステップ
 

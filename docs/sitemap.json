@@ -2,11 +2,11 @@
   "version": "1.0",
   "ownerHash": "docs-owner-local-v1",
   "salt": "ZG9jcy1vd25lci1zYWx0LXYx",
-  "lastUpdated": "2026-03-06T00:39:53.060Z",
+  "lastUpdated": "2026-03-06T06:26:20.356Z",
   "pages": {
     "api.md": {
       "title": "MDGarden - API",
-      "lastModified": "2026-03-05T15:40:00.000Z",
+      "lastModified": "2026-03-06T00:00:00.000Z",
       "indexing": true,
       "links": [],
       "backlinks": [
@@ -19,17 +19,19 @@
       "indexing": true,
       "links": [],
       "backlinks": [
-        "author_mode.md"
+        "author_mode.md",
+        "plugins.md"
       ]
     },
     "author_mode.md": {
       "title": "MDGarden - Author Mode",
-      "lastModified": "2026-03-06T00:00:00.000Z",
+      "lastModified": "2026-03-06T04:30:00.000Z",
       "indexing": true,
       "links": [
         "author_mode_plugin.md"
       ],
       "backlinks": [
+        "getting_started.md",
         "index.md",
         "inline_mode.md",
         "plugins.md"
@@ -46,19 +48,26 @@
     },
     "getting_started.md": {
       "title": "MDGarden - Getting Started?",
-      "lastModified": "2026-03-05T15:40:00.000Z",
+      "lastModified": "2026-03-06T04:00:00.000Z",
       "indexing": true,
-      "links": [],
+      "links": [
+        "author_mode.md",
+        "include_mode.md",
+        "inline_mode.md",
+        "jorro.md",
+        "plugins.md"
+      ],
       "backlinks": [
         "index.md"
       ]
     },
     "include_mode.md": {
       "title": "MDGarden - Multi File Wiki/include mode",
-      "lastModified": "2026-03-05T15:40:00.000Z",
+      "lastModified": "2026-03-06T00:00:00.000Z",
       "indexing": true,
       "links": [],
       "backlinks": [
+        "getting_started.md",
         "index.md",
         "inline_mode.md"
       ]
@@ -84,8 +93,8 @@
       ]
     },
     "inline_mode.md": {
-      "title": "MDGarden - Sigle File Wiki/inline mode",
-      "lastModified": "2026-03-06T00:00:00.000Z",
+      "title": "MDGarden - Single File Wiki/inline mode",
+      "lastModified": "2026-03-06T04:30:00.000Z",
       "indexing": true,
       "links": [
         "author_mode.md",
@@ -93,6 +102,7 @@
         "plugins.md"
       ],
       "backlinks": [
+        "getting_started.md",
         "index.md"
       ]
     },
@@ -102,12 +112,13 @@
       "indexing": true,
       "links": [],
       "backlinks": [
+        "getting_started.md",
         "index.md"
       ]
     },
     "markdown.md": {
-      "title": "MDGarden - Plug-ins",
-      "lastModified": "2026-03-06T00:00:00.000Z",
+      "title": "MDGarden - Markdown + Plugin Extension Sample",
+      "lastModified": "2026-03-06T04:00:00.000Z",
       "indexing": true,
       "links": [
         "index.md"
@@ -116,17 +127,39 @@
         "index.md"
       ]
     },
-    "plugins.md": {
-      "title": "MDGarden - Plug-ins",
-      "lastModified": "2026-03-06T00:00:00.000Z",
+    "plugin_dev_guide.md": {
+      "title": "MDGarden - Plugin Dev Guide",
+      "lastModified": "2026-03-06T07:35:00.000Z",
       "indexing": true,
       "links": [
-        "author_mode.md"
+        "plugins.md"
       ],
       "backlinks": [
-        "index.md",
-        "inline_mode.md"
+        "plugins.md"
       ]
+    },
+    "plugins.md": {
+      "title": "MDGarden - Plug-ins",
+      "lastModified": "2026-03-06T07:10:00.000Z",
+      "indexing": true,
+      "links": [
+        "author_mode_plugin.md",
+        "author_mode.md",
+        "plugin_dev_guide.md"
+      ],
+      "backlinks": [
+        "getting_started.md",
+        "index.md",
+        "inline_mode.md",
+        "plugin_dev_guide.md"
+      ]
+    },
+    "security.md": {
+      "title": "MDGarden - Security",
+      "lastModified": "2026-03-05T15:40:00.000Z",
+      "indexing": true,
+      "links": [],
+      "backlinks": []
     },
     "what_is_it.md": {
       "title": "MDGarden - What is it?",

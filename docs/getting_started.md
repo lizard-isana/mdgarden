@@ -1,6 +1,6 @@
 ---
 title: "MDGarden - Getting Started?"
-lastModified: "2026-03-06T00:40:00+09:00"
+lastModified: "2026-03-06T13:00:00+09:00"
 indexing: true
 ---
 
@@ -81,6 +81,52 @@ This is your first page.
 - タイトルと本文が表示される
 - コンソールに `Failed to load markdown` が出ていない
 - 相対パスのリンクが意図どおり遷移する
+
+## ローカルサーバの立ち上げ方
+
+### 1. エディタのプラグインを使う
+
+最短で確認したい場合は、エディタ拡張のローカルサーバが便利です。
+
+- VS Code: Live Server / Live Preview など
+- 起動後に `http://127.0.0.1:xxxx` を開いて確認
+
+メリット:
+
+- GUIで起動しやすい
+- 保存→再読み込みの確認が速い
+
+### 2. プログラミング言語付属の簡易サーバを使う
+
+開発環境に言語ランタイムがある場合は、付属コマンドで配信できます。
+
+Python:
+
+```bash
+python -m http.server 8080
+```
+
+Node.js (`serve` を使う例):
+
+```bash
+npx serve . -l 8080
+```
+
+Ruby:
+
+```bash
+ruby -run -e httpd . -p 8080
+```
+
+### 3. Jorro を使う（推奨）
+
+Jorro は MDGarden と同時利用を想定したローカル専用ミニマムサーバです。
+
+- `127.0.0.1` のみで待ち受け
+- 実行ファイルを置いたフォルダをそのまま配信
+- Author Mode の localhost 条件と相性が良い
+
+詳細は [Jorro](jorro.md) を参照してください。
 
 ## 初期トラブルと対処
 

@@ -1,6 +1,6 @@
 ---
-title: "MDGarden - Plug-ins"
-lastModified: "2026-03-06T09:00:00+09:00"
+title: "MDGarden - Markdown + Plugin Extension Sample"
+lastModified: "2026-03-06T13:00:00+09:00"
 indexing: true
 ---
 
@@ -96,7 +96,7 @@ echo "markdown sample"
 
 ## 10. 属性拡張（markdown-it-attrs）
 
-この段落はクラス指定の例です。{.note}
+この段落はクラス指定の例です。{.red}
 
 ## 11. Plugin: Highlight
 
@@ -138,8 +138,16 @@ graph TD
   C --> D[Rendered]
 ```
 
-## 15. 相対リンク挙動の確認
+## 1６. Page List (Author Mode/Auto Indexer)
 
-- [同階層リンク](index.md)
-- [親階層リンク](../index.md)
-- [カテゴリリンク](notes/index.md)
+list{.auto-indexer-page-list sort-key="lastModified,path" sort-order="desc" limit="10"}
+
+## 17. Back Links (Author Mode/Auto Indexer)
+
+backlinks{.auto-indexer-backlinks sort-key="lastModified,path" sort-order="desc"}
+
+<style>
+  .red{
+    color: red;
+  }
+</style> 

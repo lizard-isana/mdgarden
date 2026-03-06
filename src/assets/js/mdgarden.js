@@ -1039,16 +1039,28 @@ class MarkdownViewer extends HTMLElement {
     }
     const url = this.BuildViewerUrl(file);
     const target_element = document.querySelector(`#${this.option.link_target}`);
+    let target_viewer = null;
+    if (target_element && typeof target_element.load === "function") {
+      target_viewer = target_element;
+    }
     this.status = "reloading";
     if (target_element) {
       target_element.dataset.status = "reloading";
     }
-    this.load(file, { normalized: true });
+    const loader = target_viewer || this;
+    loader.load(file, { normalized: true });
     window.history.pushState(null, null, url);
-    this.viewerState.History.push({
-      url:url,
-      file:file
-    });
+    if (loader && loader.viewerState && Array.isArray(loader.viewerState.History)) {
+      loader.viewerState.History.push({
+        url:url,
+        file:file
+      });
+    } else {
+      this.viewerState.History.push({
+        url:url,
+        file:file
+      });
+    }
   }
 
   EscapeEntity = function (str) {

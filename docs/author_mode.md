@@ -1,6 +1,6 @@
 ---
 title: "MDGarden - Author Mode"
-lastModified: "2026-03-06T09:00:00+09:00"
+lastModified: "2026-03-06T13:30:00+09:00"
 indexing: true
 ---
 
@@ -45,6 +45,21 @@ Auto Indexer は、レンダリングされたページ情報から sitemap を�
 - 本文ハッシュ比較（notify-only）により、`lastModified` 不変の本文変更を警告して更新漏れを検知
 
 運用では、`lastModified` の記載ルールをチームで統一しておくと不整合を減らせます。
+
+### ページへの埋め込み（List / Backlinks）
+
+Auto Indexer の情報は、Markdown 内に埋め込み記法で表示できます。
+
+```md
+list{.auto-indexer-page-list sort-key="lastModified,path" sort-order="desc" limit="10"}
+backlinks{.auto-indexer-backlinks sort-key="lastModified,path" sort-order="desc"}
+```
+
+- `list`: sitemap のページ一覧を表示
+- `backlinks`: 現在ページへの被リンク一覧を表示
+- `sort-key` / `sort-order` / `limit` / `empty-label` などで表示を調整可能
+
+include mode の通常表示で利用でき、Offline Wiki 書き出し時には静的リンクリストとして展開されます。
 
 ## Local Editor
 

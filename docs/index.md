@@ -19,7 +19,7 @@ https://github.com/lizard-isana/mdgarden
 ### 日本語
 - [What is it?](what_is_it.md)
 - [Getting started](getting_started.md)
-  - [Sigle File Wiki/inline mode](inline_mode.md)
+  - [Single File Wiki/inline mode](inline_mode.md)
   - [Multi File Wiki/include mode](include_mode.md)
   - [Plug-ins](plugins.md)
   - [Author Mode](author_mode.md)
