@@ -20,19 +20,21 @@ Jorro は、MDGarden と同時に使うことを意図して設計されたロ�
 - `jorro-config.json` でポートや許可拡張子などを制御できる
 - `GET` / `HEAD` のみ許可、隠しパス非公開、ディレクトリ一覧無効など最小限の防御を持つ
 - ホットリロードにより、エディタでの編集が即反映される。
+- 実行ファイルサイズは10MB以下、メモリ使用量は数十MB程度。
 
 ## MDGarden と組み合わせる理由
 
-MDGarden は静的ファイルをブラウザで読む構成なので、ローカル検証には軽量な静的サーバが必要です。  
-Jorro を使うと、次の点で相性が良くなります。
+MDGarden は静的ファイルをブラウザで読む構成なので、ローカル検証には静的サーバが必要です。  
+Jorroは極めて軽量でポータビリティが高く、localhost限定のため不要な漏洩リスクを最小限に保てます。
 
-- `localhost` 条件が必要な Author Mode をそのまま使える
+- `localhost` 条件が必要な Author Mode がそのまま使える
 - 余計なミドルウェアなしで `index.html` / `.md` / `.json` を配信できる
 - 開発中の確認環境を配布環境と近い形で保てる
+- ホットリロードできるため、エディタなどでの編集作業と相性が良い
 
 ## 最短セットアップ
 
-1. MDGarden の `docs/` など配信したいフォルダに `jorro.app` / `jorro.exe` / `jorro-cli` を置く
+1. MDGarden の `docs/` など配信したいフォルダにjorroの実行ファイルを置く
 2. 同じ場所で Jorro を起動する
 3. 開いたブラウザで MDGarden を確認する
 
@@ -46,7 +48,7 @@ Jorro を使うと、次の点で相性が良くなります。
   "indexFile": "index.html",
   "allowExtensions": [".html", ".css", ".js", ".md", ".json"],
   "hotReload": true,
-  "devConsoleErrors": true
+  "devConsoleErrors": false
 }
 ```
 
@@ -54,17 +56,18 @@ Jorro を使うと、次の点で相性が良くなります。
 
 - `allowExtensions` に `.md` / `.json` を含める（MDGarden に必要）
 - `indexFile` に `index.html` を指定する
-- `hotReload` を指定するとファイル更新時にブラウザがリロードされます。
-- `devConsoleErrors` を指定すると、サーバ側のエラーがブラウザのコンソールに流れます
+- `hotReload` に `true` を指定するとファイル更新時にブラウザがリロードされます
+- `devConsoleErrors` に `true` を指定すると、サーバ側のエラーがブラウザのコンソールに流れます
 
 
 ## 注意点
 
 - Jorro は公開サーバ用途ではありません[^1]
-- 実行ファイルや設定をそのまま公開ディレクトリへ置かない
+- 実行ファイルや設定をそのまま公開ディレクトリへ置かないでください[^2]
 - Author Mode の有効条件（localhost かつ deploy 配下外）を維持する
 - `hotReload`と`devConsoleErrors`は有効化すると、表示時にページ内にJavaScriptが挿入されます
-[^1]:公開サーバ上に置いてもサーバのローカルホストに対してしか有効にならないので、改竄・漏洩リスクはほとんどありません。
+[^1]:localhostでしか待ち受けず、静的ファイルしか配信しないため、同一ネットワークやサーバの外から利用することはできません。
+[^2]:ただし、誤って公開サーバ上に置いて起動しても外部から利用することはできず改竄や漏洩などのリスクはほとんどありません。
 
 詳細仕様は Jorro README を参照してください:
 
