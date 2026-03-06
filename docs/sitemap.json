@@ -2,7 +2,7 @@
   "version": "1.0",
   "ownerHash": "docs-owner-local-v1",
   "salt": "ZG9jcy1vd25lci1zYWx0LXYx",
-  "lastUpdated": "2026-03-06T18:43:21.663Z",
+  "lastUpdated": "2026-03-06T19:10:24.728Z",
   "pages": {
     "api.md": {
       "title": "MDGarden - API",
@@ -47,8 +47,8 @@
       ]
     },
     "getting_started.md": {
-      "title": "MDGarden - Getting Started?",
-      "lastModified": "2026-03-06T04:00:00.000Z",
+      "title": "MDGarden - Getting Started",
+      "lastModified": "2026-03-06T19:00:00.000Z",
       "indexing": true,
       "links": [
         "author_mode.md",
