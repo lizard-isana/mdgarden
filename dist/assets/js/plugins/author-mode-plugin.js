@@ -88,6 +88,11 @@ const toTrimmedString = (value, fallback = "") => {
   return value.trim();
 };
 
+const normalizeContentHash = (value) => {
+  const hash = toTrimmedString(String(value || ""), "").toLowerCase();
+  return /^[a-f0-9]{64}$/.test(hash) ? hash : "";
+};
+
 const normalizeDbName = (prefix, viewId) => {
   const normalizedPrefix = toTrimmedString(prefix, DEFAULT_DB_PREFIX).replace(/[^a-zA-Z0-9_-]/g, "_");
   const normalizedViewId = toTrimmedString(viewId, "default").replace(/[^a-zA-Z0-9_-]/g, "_");
@@ -2681,6 +2686,7 @@ const normalizePageRecord = (url, rawPage) => {
     lastModified: lastModified,
     indexing: indexing,
     links: sortStringArray(links),
+    contentHash: normalizeContentHash(rawPage.contentHash),
     lastSeen: normalizeUtcIsoOrNow(rawPage.lastSeen),
     updatedAt: normalizeUtcIsoOrNow(rawPage.updatedAt)
   };
@@ -3012,6 +3018,44 @@ const resolveMarkdownSourcePath = (runtime, normalizedPath) => {
   return safePath;
 };
 
+const normalizeMarkdownForHash = (markdown) => {
+  const text = String(markdown == null ? "" : markdown).replace(/\r\n?/g, "\n");
+  const withoutTrailingSpaces = text.replace(/[ \t]+$/gm, "");
+  return withoutTrailingSpaces.replace(/\n+$/, "\n");
+};
+
+const sha256Hex = async (text) => {
+  if (typeof crypto === "undefined" || !crypto || !crypto.subtle || typeof TextEncoder !== "function") {
+    return "";
+  }
+  try {
+    const encoder = new TextEncoder();
+    const input = encoder.encode(String(text == null ? "" : text));
+    const digest = await crypto.subtle.digest("SHA-256", input);
+    const bytes = new Uint8Array(digest);
+    return Array.from(bytes).map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  } catch (error) {
+    return "";
+  }
+};
+
+const computeCurrentMarkdownHash = async (runtime, normalizedPath) => {
+  const sourcePath = resolveMarkdownSourcePath(runtime, normalizedPath);
+  if (!sourcePath) {
+    return "";
+  }
+  try {
+    const response = await fetch(sourcePath, { cache: "no-store" });
+    if (!response.ok) {
+      return "";
+    }
+    const markdown = await response.text();
+    return normalizeContentHash(await sha256Hex(normalizeMarkdownForHash(markdown)));
+  } catch (error) {
+    return "";
+  }
+};
+
 const isLocalEditorAvailable = (runtime, currentUrl = null) => {
   if (!runtime || runtime.authorModeEnabled !== true) {
     return false;
@@ -3124,12 +3168,14 @@ const upsertPageFromView = async (runtime, payload) => {
 
   const titleCandidate = toTrimmedString(frontmatter.title || "", "") || extractRenderedTitle(root);
   const links = extractLinks(runtime, root, normalizedPath);
+  const contentHash = await computeCurrentMarkdownHash(runtime, normalizedPath);
   const page = {
     url: normalizedPath,
     title: sanitizeTitle(titleCandidate),
     lastModified: lastModified,
     indexing: true,
     links: links,
+    contentHash: contentHash,
     lastSeen: nowIso(),
     updatedAt: nowIso()
   };
@@ -3159,6 +3205,24 @@ const upsertPageFromView = async (runtime, payload) => {
   }
 
   if (!shouldUpdate) {
+    const existingHash = normalizeContentHash(existing && existing.contentHash);
+    const nextHash = normalizeContentHash(page.contentHash);
+    if (!existingHash && nextHash) {
+      await putPage(runtime.db, {
+        ...existing,
+        contentHash: nextHash,
+        lastSeen: nowIso(),
+        updatedAt: nowIso()
+      });
+      return;
+    }
+    if (existingHash && nextHash && existingHash !== nextHash) {
+      const mismatchMessage = `content changed without lastModified update (notify-only): ${normalizedPath}`;
+      if (runtime.lastError !== mismatchMessage || runtime.dirty !== true) {
+        await setRuntimeError(runtime, mismatchMessage);
+        await setDirtyState(runtime, true);
+      }
+    }
     return;
   }
 

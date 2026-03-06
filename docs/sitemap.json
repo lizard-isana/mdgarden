@@ -2,7 +2,7 @@
   "version": "1.0",
   "ownerHash": "docs-owner-local-v1",
   "salt": "ZG9jcy1vd25lci1zYWx0LXYx",
-  "lastUpdated": "2026-03-05T16:56:21.944Z",
+  "lastUpdated": "2026-03-06T00:39:53.060Z",
   "pages": {
     "api.md": {
       "title": "MDGarden - API",
@@ -18,15 +18,21 @@
       "lastModified": "2026-03-05T15:40:00.000Z",
       "indexing": true,
       "links": [],
-      "backlinks": []
+      "backlinks": [
+        "author_mode.md"
+      ]
     },
     "author_mode.md": {
       "title": "MDGarden - Author Mode",
-      "lastModified": "2026-03-05T15:40:00.000Z",
+      "lastModified": "2026-03-06T00:00:00.000Z",
       "indexing": true,
-      "links": [],
+      "links": [
+        "author_mode_plugin.md"
+      ],
       "backlinks": [
-        "index.md"
+        "index.md",
+        "inline_mode.md",
+        "plugins.md"
       ]
     },
     "credits.md": {
@@ -53,12 +59,13 @@
       "indexing": true,
       "links": [],
       "backlinks": [
-        "index.md"
+        "index.md",
+        "inline_mode.md"
       ]
     },
     "index.md": {
       "title": "MDGarden - Home",
-      "lastModified": "2026-03-05T15:00:00.000Z",
+      "lastModified": "2026-03-06T00:00:00.000Z",
       "indexing": true,
       "links": [
         "api.md",
@@ -78,16 +85,20 @@
     },
     "inline_mode.md": {
       "title": "MDGarden - Sigle File Wiki/inline mode",
-      "lastModified": "2026-03-05T15:40:00.000Z",
+      "lastModified": "2026-03-06T00:00:00.000Z",
       "indexing": true,
-      "links": [],
+      "links": [
+        "author_mode.md",
+        "include_mode.md",
+        "plugins.md"
+      ],
       "backlinks": [
         "index.md"
       ]
     },
     "jorro.md": {
       "title": "MDGarden - Jorro",
-      "lastModified": "2026-03-05T15:40:00.000Z",
+      "lastModified": "2026-03-06T03:00:00.000Z",
       "indexing": true,
       "links": [],
       "backlinks": [
@@ -96,7 +107,7 @@
     },
     "markdown.md": {
       "title": "MDGarden - Plug-ins",
-      "lastModified": "2026-03-05T15:40:00.000Z",
+      "lastModified": "2026-03-06T00:00:00.000Z",
       "indexing": true,
       "links": [
         "index.md"
@@ -107,11 +118,14 @@
     },
     "plugins.md": {
       "title": "MDGarden - Plug-ins",
-      "lastModified": "2026-03-05T15:40:00.000Z",
+      "lastModified": "2026-03-06T00:00:00.000Z",
       "indexing": true,
-      "links": [],
+      "links": [
+        "author_mode.md"
+      ],
       "backlinks": [
-        "index.md"
+        "index.md",
+        "inline_mode.md"
       ]
     },
     "what_is_it.md": {

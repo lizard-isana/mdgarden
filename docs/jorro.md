@@ -1,11 +1,81 @@
 ---
 title: "MDGarden - Jorro"
-lastModified: "2026-03-06T00:40:00+09:00"
+lastModified: "2026-03-06T12:00:00+09:00"
 indexing: true
 ---
 
 # Jorro
-(TBA)
+Jorro は、MDGarden と同時に使うことを意図して作ったローカルホスト専用のミニマム Web サーバです。  
+`127.0.0.1` のみで待ち受ける設計で、ローカル確認を安全側で素早く回すためのツールです。
+
+## 機能の紹介（要約）
+
+- 配信先は `127.0.0.1` 限定（外部公開しない前提）
+- 実行ファイルを置いたディレクトリを配信ルートとして扱う
+- 起動時にブラウザを開いてすぐ確認できる
+- `jorro-config.json` でポートや許可拡張子などを制御できる
+- `GET` / `HEAD` のみ許可、隠しパス非公開、ディレクトリ一覧無効など最小限の防御を持つ
+
+ダウンロード:
+
+- https://github.com/lizard-isana/jorro/releases/
+
+## MDGarden と組み合わせる理由
+
+MDGarden は静的ファイルをブラウザで読む構成なので、ローカル検証には軽量な静的サーバが必要です。  
+Jorro を使うと、次の点で相性が良くなります。
+
+- `localhost` 条件が必要な Author Mode をそのまま使える
+- 余計なミドルウェアなしで `index.html` / `.md` / `.json` を配信できる
+- 開発中の確認環境を配布環境と近い形で保てる
+
+## 最短セットアップ
+
+1. MDGarden の `docs/` など配信したいフォルダに `jorro.app` / `jorro.exe` / `jorro-cli` を置く
+2. 同じ場所で Jorro を起動する
+3. 開いたブラウザで MDGarden を確認する
+
+この運用なら `python -m http.server` 等の代わりに、同じ前提で再現性のある確認ができます。
+
+## 推奨設定（MDGarden 併用）
+
+`jorro-config.json` 例:
+
+```json
+{
+  "port": 8080,
+  "indexFile": "index.html",
+  "allowExtensions": [".html", ".css", ".js", ".md", ".json"],
+  "hotReload": false,
+  "devConsoleErrors": false
+}
+```
+
+ポイント:
+
+- `allowExtensions` に `.md` / `.json` を含める（MDGarden に必要）
+- `indexFile` を `index.html` に合わせる
+- `hotReload` は必要時のみ有効化
+
+## 併用ワークフロー（実践）
+
+1. Jorro で `docs/` を配信
+2. MDGarden を `include mode` で確認
+3. Author Mode で Markdown 編集・sitemap 更新
+4. 必要なら Offline Wiki を export
+5. Git 差分を確認してコミット
+
+ローカル完結で編集から配布確認まで繋げられるのが、この組み合わせの利点です。
+
+## 注意点
+
+- Jorro は公開サーバ用途ではありません
+- 実行ファイルや設定をそのまま公開ディレクトリへ置かない
+- Author Mode の有効条件（localhost かつ deploy 配下外）を維持する
+
+詳細仕様は Jorro README を参照してください:
+
+- https://github.com/lizard-isana/jorro/blob/main/README.md
 
 ## Back links
 backlinks{.auto-indexer-backlinks sort-key="lastModified,path" sort-order="desc"}

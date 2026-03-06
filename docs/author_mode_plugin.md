@@ -70,6 +70,7 @@ indexing: true
 
 - `lastModified` は RFC3339（タイムゾーン必須）
 - 不正または未設定時は更新停止し、dirty を維持
+- 本文の SHA-256 ハッシュ比較（notify-only）を行い、`lastModified` が同じまま本文だけ変化した場合は `dirty=true` と警告を出して更新を促します
 - `indexing: false` の場合は既存エントリを削除
 
 ## Author パネル UI
