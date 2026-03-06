@@ -2,7 +2,7 @@
   "version": "1.0",
   "ownerHash": "docs-owner-local-v1",
   "salt": "ZG9jcy1vd25lci1zYWx0LXYx",
-  "lastUpdated": "2026-03-06T06:26:20.356Z",
+  "lastUpdated": "2026-03-06T17:20:37.661Z",
   "pages": {
     "api.md": {
       "title": "MDGarden - API",
@@ -58,7 +58,8 @@
         "plugins.md"
       ],
       "backlinks": [
-        "index.md"
+        "index.md",
+        "what_is_it.md"
       ]
     },
     "include_mode.md": {
@@ -69,7 +70,8 @@
       "backlinks": [
         "getting_started.md",
         "index.md",
-        "inline_mode.md"
+        "inline_mode.md",
+        "what_is_it.md"
       ]
     },
     "index.md": {
@@ -103,7 +105,8 @@
       ],
       "backlinks": [
         "getting_started.md",
-        "index.md"
+        "index.md",
+        "what_is_it.md"
       ]
     },
     "jorro.md": {
@@ -159,13 +162,20 @@
       "lastModified": "2026-03-05T15:40:00.000Z",
       "indexing": true,
       "links": [],
-      "backlinks": []
+      "backlinks": [
+        "what_is_it.md"
+      ]
     },
     "what_is_it.md": {
       "title": "MDGarden - What is it?",
-      "lastModified": "2026-03-05T16:00:00.000Z",
+      "lastModified": "2026-03-06T07:55:00.000Z",
       "indexing": true,
-      "links": [],
+      "links": [
+        "getting_started.md",
+        "include_mode.md",
+        "inline_mode.md",
+        "security.md"
+      ],
       "backlinks": [
         "index.md"
       ]
