@@ -16,7 +16,7 @@ MDGarden は plugin で機能を拡張できます。
 <md-garden
   id="main"
   src="index.md"
-  data-plugins="toc,highlight,math,graph,chart,author-mode">
+  data-plugins="toc,highlight,math,graph,chart,js-run,js-demo,author-mode">
 </md-garden>
 ```
 
@@ -96,6 +96,53 @@ flowchart TD
   A[Start] --> B{Ready?}
   B -->|Yes| C[Run]
   B -->|No| D[Wait]
+```
+````
+
+### `js-run`　*experimental*
+
+`js-run` コードブロックを sandbox iframe 内で実行します。  
+実行はブラウザ内のみで、ネットワーク API は無効化され、タイムアウトと出力上限が適用されます。
+`js:run` も互換 alias として利用できます。
+初期表示は `Code` タブで、`Run` ボタン押下時に実行され `Result` タブへ切り替わります。
+`// libs: mathjs, decimal` の directive で許可ライブラリを指定できます。
+`config.json` の `plugins.js-run` で `allowList/trustedOrigins/libraries` を上書き可能です。
+利用ライブラリはコード先頭の directive で指定します（allowlist 方式）。
+詳細仕様は [js_sandbox_plugins](js_sandbox_plugins.md) を参照してください。
+
+````md
+```js-run
+// libs: mathjs, decimal
+console.log("hello from sandbox");
+const sum = api.math.sum([1, 2, 3]);
+const precise = new api.Decimal("0.1").plus("0.2").toString();
+return { sum, precise };
+```
+````
+
+### `js-demo` *experimental*
+
+`js-demo` コードブロックを demo 用 sandbox iframe で実行します。  
+`Run` 押下時に実行され、`Result` タブで描画結果とログを確認できます。
+`js:demo` も互換 alias として利用できます。
+`config.json` の `plugins.js-demo` でも `allowList/trustedOrigins/libraries` を上書き可能です。
+利用ライブラリはコード先頭の directive で指定します（allowlist 方式）。
+詳細仕様は [js_sandbox_plugins](js_sandbox_plugins.md) を参照してください。
+
+
+````md
+```js-demo
+// libs: d3, mathjs
+const radius = api.math.round(api.math.pi * 15, 0);
+const svg = api.d3.select(api.mount).append("svg")
+  .attr("width", api.width)
+  .attr("height", api.height);
+svg.append("circle")
+  .attr("cx", 100)
+  .attr("cy", 100)
+  .attr("r", radius)
+  .attr("fill", "#60a5fa");
+return { radius };
 ```
 ````
 

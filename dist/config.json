@@ -6,6 +6,49 @@
   "link_resolution": "relative",
   "allow_parent": true,
   "query_path_mode": "split",
+  "plugins": {
+    "js-run": {
+      "allowList": [
+        "mathjs",
+        "decimal",
+        "astronomy"
+      ],
+      "trustedOrigins": [
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com"
+      ],
+      "libraries": {
+        "astronomy": {
+          "global": "Astronomy",
+          "urls": [
+            "https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"
+          ]
+        }
+      }
+    },
+    "js-demo": {
+      "allowList": [
+        "d3",
+        "three",
+        "p5",
+        "mathjs",
+        "decimal",
+        "astronomy"
+      ],
+      "trustedOrigins": [
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com"
+      ],
+      "libraries": {
+        "astronomy": {
+          "global": "Astronomy",
+          "urls": [
+            "https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"
+          ]
+        }
+      }
+    }
+  },
   "author_mode": {
     "enabled": false,
     "deploy": [

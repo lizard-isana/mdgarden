@@ -1,4 +1,4 @@
-const HIGHLIGHT_EXCEPTIONS = ['math', 'graph', 'chart'];
+const HIGHLIGHT_EXCEPTIONS = ['math', 'graph', 'chart', 'js-run', 'js:run', 'js-demo', 'js:demo'];
 const HIGHLIGHT_JS_VERSION = '11.11.1';
 const HIGHLIGHT_LINE_NUMBERS_VERSION = '2.9.0';
 

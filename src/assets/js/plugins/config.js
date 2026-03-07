@@ -3,6 +3,8 @@ import { createHighlightPlugin } from './highlight-plugin.js';
 import { createMathPlugin } from './math-plugin.js';
 import { createGraphPlugin } from './graph-plugin.js';
 import { createChartPlugin } from './chart-plugin.js';
+import { createJsRunPlugin } from './js-run-plugin.js';
+import { createJsDemoPlugin } from './js-demo-plugin.js';
 import { createInlineSpaPlugin } from './inline-spa-plugin.js';
 import { createAuthorModePlugin } from './author-mode-plugin.js';
 
@@ -25,6 +27,12 @@ const PluginConfig = Object.freeze({
     },
     chart: {
       create: () => createChartPlugin()
+    },
+    'js-run': {
+      create: () => createJsRunPlugin()
+    },
+    'js-demo': {
+      create: () => createJsDemoPlugin()
     },
     'inline-spa': {
       create: () => createInlineSpaPlugin()
