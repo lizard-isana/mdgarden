@@ -2,7 +2,7 @@
   "version": "1.0",
   "ownerHash": "docs-owner-local-v1",
   "salt": "ZG9jcy1vd25lci1zYWx0LXYx",
-  "lastUpdated": "2026-03-06T19:10:24.728Z",
+  "lastUpdated": "2026-03-07T16:45:52.360Z",
   "pages": {
     "api.md": {
       "title": "MDGarden - API",
@@ -118,6 +118,20 @@
         "getting_started.md",
         "index.md"
       ]
+    },
+    "js_run_plugin.md": {
+      "title": "MDGarden - js-run Plugin",
+      "lastModified": "2026-03-07T13:30:00.000Z",
+      "indexing": true,
+      "links": [],
+      "backlinks": []
+    },
+    "js_sandbox_plugins.md": {
+      "title": "MDGarden - JS Sandbox Plugins",
+      "lastModified": "2026-03-07T14:10:00.000Z",
+      "indexing": true,
+      "links": [],
+      "backlinks": []
     },
     "markdown.md": {
       "title": "MDGarden - Markdown + Plugin Extension Sample",

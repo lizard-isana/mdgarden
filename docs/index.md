@@ -22,9 +22,11 @@ https://github.com/lizard-isana/mdgarden
   - [Single File Wiki/inline mode](inline_mode.md)
   - [Multi File Wiki/include mode](include_mode.md)
   - [Plug-ins](plugins.md)
+    - [JS Sandbox Plugins](js_sandbox_plugins.md)
   - [Author Mode](author_mode.md)
-  - [Jorro](jorro.md)
+- [Jorro](jorro.md)
 - [API](api.md)
+- [Plugin Dev Guide](plugin_dev_guide.md)
 - [Copyrights/Credits](credits.md)
 - [Markdown Cheat Sheet](markdown.md)
 
