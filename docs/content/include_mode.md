@@ -16,23 +16,36 @@ include mode は、Markdown を複数ファイルに分割して管理・運用�
 
 配布のしやすさ最優先なら inline mode、運用性重視なら include mode が基本方針です。
 
-## 推奨ディレクトリ構成
+## ディレクトリ構成
 
 最小例:
+
+index.mdとsubpage.mdをページとして配信する例です
+```text
+docs/
+  index.html
+  config.json
+  index.md
+  subpage.md
+  assets/
+    css/default.css
+    js/mdgarden.min.js
+```
+
+必要に応じて `data-allowed-dirs` を指定して `content/` などのサブディレクトリへページを分けることができます。
 
 ```text
 docs/
   index.html
   config.json
   index.md
-  getting_started.md
-  include_mode.md
+  content/
+    subpage.md
   assets/
     css/default.css
     js/mdgarden.min.js
 ```
 
-必要に応じて `content/` などのサブディレクトリへページを分けます。
 
 ## 基本設定
 
@@ -43,7 +56,8 @@ docs/
   id="main"
   src="index.md"
   data-link-target="main"
-  data-allowed-dirs="content"
+  data-strict_root="true"
+  data-allowed-dirs="content,dev"
   data-allowed-files="index.md,404.md"
   data-link-resolution="relative"
   data-allow-parent="true"
@@ -54,20 +68,29 @@ docs/
 主要項目:
 
 - `src`: 初期表示 Markdown
-- `allowed_dirs` / `allowed_files`: 読み込み許可範囲
+- `allowed_dirs` 読み込み許可ディレクトリ。ここで指定したディレクトリ以外は読み込めません。
+  - MDGardenを通して参照できなくなるだけで、ファイルの直接表示を拒否することはできません。
 - `strict_root`: ルート参照を厳密化するか
+  - `true`にすると`allowed_files`で指定したファイル以外は参照できなくなります。
+- `allowed_files`: `strict_root`に`true`を指定した時の参照可能ファイル
 - `link_resolution`: `relative` / `root` の解決方針
 - `allow_parent`: `..` を許可するか
-- `query_path_mode`: URL のクエリ形式
+- `query_path_mode`: `full`/ `split` URL のクエリ形式
 
 ## リンク解決と URL 設計
 
 include mode の遷移はクエリパラメータで管理されます。
 
-- `full` モード: `?main=path/to/page.md`
-- `split` モード: `?main=page.md&dir=path&subdir=to`
+### query_path_mode
+- `full`: `?main=path/to/page.md`
+- `split`: `?main=page.md&dir=path&subdir=to`
 
 リンク運用が複雑になりやすい場合は、まず `full` で始め、必要になってから `split` へ移行すると安全です。
+
+### link_resolution
+- `root`: 現在のドキュメント位置を基準にせず、常にルート基準で解決
+- `relative`: 現在の Markdown のディレクトリを基準に解決
+
 
 ## レイアウトとの組み合わせ
 

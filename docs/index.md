@@ -1,6 +1,6 @@
 ---
 title: "MDGarden - Home"
-lastModified: "2026-03-06T09:00:00+09:00"
+lastModified: "2026-03-08T09:00:00+09:00"
 indexing: true
 ---
 
@@ -21,6 +21,7 @@ https://github.com/lizard-isana/mdgarden
 - [Getting started](./content/getting_started.md)
   - [Single File Wiki/inline mode](./content/inline_mode.md)
   - [Multi File Wiki/include mode](./content/include_mode.md)
+  - [Options](./content/options.md)
   - [Plug-ins](./content/plugins.md)
     - [JS Sandbox Plugins](./content/js_sandbox_plugins.md)
   - [Author Mode](./content/author_mode.md)

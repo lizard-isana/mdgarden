@@ -2,7 +2,7 @@
   "version": "1.0",
   "ownerHash": "",
   "salt": "",
-  "lastUpdated": "2026-03-08T00:33:05.150Z",
+  "lastUpdated": "2026-03-08T02:26:23.986Z",
   "pages": {
     "content/api.md": {
       "title": "MDGarden - API",
@@ -110,6 +110,15 @@
         "index.md"
       ]
     },
+    "content/options.md": {
+      "title": "MDGarden - Options Reference",
+      "lastModified": "2026-03-08T03:30:00.000Z",
+      "indexing": true,
+      "links": [],
+      "backlinks": [
+        "index.md"
+      ]
+    },
     "content/plugin_dev_guide.md": {
       "title": "MDGarden - Plugin Dev Guide",
       "lastModified": "2026-03-06T07:35:00.000Z",
@@ -155,7 +164,7 @@
     },
     "index.md": {
       "title": "MDGarden - Home",
-      "lastModified": "2026-03-06T00:00:00.000Z",
+      "lastModified": "2026-03-08T00:00:00.000Z",
       "indexing": true,
       "links": [
         "content/api.md",
@@ -167,6 +176,7 @@
         "content/jorro.md",
         "content/js_sandbox_plugins.md",
         "content/markdown.md",
+        "content/options.md",
         "content/plugin_dev_guide.md",
         "content/plugins.md",
         "content/what_is_it.md"

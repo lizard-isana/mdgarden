@@ -1,9 +1,9 @@
 module.exports = {
   server: {
-    baseDir: 'src',
+    baseDir: 'docs',
   },
   ghostMode: false,
   files: [
-    'src/**/*'
+    'docs/**/*'
   ],
 };
