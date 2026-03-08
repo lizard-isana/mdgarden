@@ -1,6 +1,6 @@
 ---
 title: "MDGarden - Markdown + Plugin Extension Sample"
-lastModified: "2026-03-06T13:00:00+09:00"
+lastModified: "2026-03-08T00:30:00+09:00"
 indexing: true
 ---
 

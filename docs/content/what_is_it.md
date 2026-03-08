@@ -1,6 +1,6 @@
 ---
 title: "MDGarden - What is it?"
-lastModified: "2026-03-06T16:55:00+09:00"
+lastModified: "2026-03-09T00:30:00+09:00"
 indexing: true
 ---
 

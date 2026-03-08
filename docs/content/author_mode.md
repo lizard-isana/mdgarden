@@ -1,6 +1,6 @@
 ---
 title: "MDGarden - Author Mode"
-lastModified: "2026-03-06T13:30:00+09:00"
+lastModified: "2026-03-09T20:15:00+09:00"
 indexing: true
 ---
 
@@ -23,15 +23,54 @@ Author Mode は次の条件で有効になります。
 - `local_editor`: 現在ページの Markdown を直接編集してローカル保存
 - `offline_export`: include 構成を Offline Wiki（単一HTML）として書き出し
 
-詳細仕様は [author_mode_plugin](author_mode_plugin.md) を参照してください。
+## Search Plugin 連携
+
+Author Mode 自体は検索機能を持ちませんが、`search` plugin と連携して検索インデックスの運用を支援します。
+
+- `search` plugin が有効なとき、`mdg-author` に `INDEX保存` ボタンを表示
+- `AUTHOR_MODE` かつ `dirty=true` のときだけ `INDEX保存` を実行可能
+- `INDEX保存` は `search-index.json` を生成し、公開時の検索初期化コストを削減
+
+詳細な検索仕様は [Search Plugin](search_plugin.md) を参照してください。
+
+## 事前設定（推奨）
+
+`config.json` で `author_mode` を設定します。
+
+```json
+{
+  "author_mode": {
+    "enabled": true,
+    "deploy": ["https://example.com/"],
+    "auto_indexer": {
+      "enabled": true,
+      "mode": "include-only",
+      "strict": true,
+      "sitemap_path": "sitemap.json",
+      "db_prefix": "mdgarden_auto_indexer_docs"
+    },
+    "local_editor": {
+      "enabled": true,
+      "auto_reload": true
+    },
+    "offline_export": {
+      "enabled": true,
+      "file_name": "bundle.html",
+      "query_param": "page",
+      "default_page": "index.md"
+    }
+  }
+}
+```
 
 ## 想定ワークフロー
 
 1. include mode でページを開く
 2. 必要な Markdown を編集（local editor も可）
 3. sitemap の差分を確認して保存
-4. 必要に応じて Offline Wiki を書き出す
-5. 最終確認後に Git へ反映して公開
+4. 検索を使う構成では `INDEX保存` で `search-index.json` も更新
+5. 必要に応じて Offline Wiki を書き出す
+6. 最終確認後に Git へ反映して公開
 
 編集・索引・配布を1つの流れで扱えるのが Author Mode の利点です。
 
@@ -45,6 +84,23 @@ Auto Indexer は、レンダリングされたページ情報から sitemap を�
 - 本文ハッシュ比較（notify-only）により、`lastModified` 不変の本文変更を警告して更新漏れを検知
 
 運用では、`lastModified` の記載ルールをチームで統一しておくと不整合を減らせます。
+
+### Front Matter の要件（auto_indexer）
+
+対象ページには `lastModified` を入れてください。
+
+```yaml
+---
+title: "ページタイトル"
+lastModified: "2026-03-01T12:00:00Z"
+indexing: true
+---
+```
+
+- `lastModified` は RFC3339（タイムゾーン必須）
+- 不正または未設定時は更新停止し、dirty を維持
+- 本文の SHA-256 ハッシュ比較（notify-only）を行い、`lastModified` が同じまま本文だけ変化した場合は `dirty=true` と警告を出して更新を促します
+- `indexing: false` の場合は既存エントリを削除
 
 ### ページへの埋め込み（List / Backlinks）
 

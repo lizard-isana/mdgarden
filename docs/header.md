@@ -1,15 +1,15 @@
-[MDGarden](index.md){.header_title}
+[MDGarden](./index.md){.header_title}
 
-- [What is it?](what_is_it.md)
-- [Getting started](getting_started.md)
-- [Sigle File Wiki/inline mode](inline_mode.md)
-- [Multi File Wiki/include mode](include_mode.md)
-- [Plug-ins](plugins.md)
-- [Author Mode](author_mode.md)
-- [Jorro](jorro.md)
-- [API](api.md)
-- [Copyrights/Credits](credits.md)
-- [Markdown Cheat Sheet](markdown.md)
+- [What is it?](./content/what_is_it.md)
+- [Getting started](./content/getting_started.md)
+- [Sigle File Wiki/inline mode](./content/inline_mode.md)
+- [Multi File Wiki/include mode](./content/include_mode.md)
+- [Plug-ins](./content/plugins.md)
+- [Author Mode](./content/author_mode.md)
+- [Jorro](./content/jorro.md)
+- [API](./content/api.md)
+- [Copyrights/Credits](./content/credits.md)
+- [Markdown Cheat Sheet](./content/markdown.md)
 
 <div class="hamburger"><span></span><span></span><span></span><span></span></div>
 

@@ -1,6 +1,6 @@
 ---
 title: "MDGarden - Home"
-lastModified: "2026-03-08T16:00:00+09:00"
+lastModified: "2026-03-09T00:30:00+09:00"
 indexing: true
 ---
 
@@ -23,7 +23,8 @@ https://github.com/lizard-isana/mdgarden
   - [Multi File Wiki/include mode](./content/include_mode.md)
   - [Options](./content/options.md)
   - [Plug-ins](./content/plugins.md)
-    - [JS Sandbox Plugins](./content/js_sandbox_plugins.md)
+    - [JS Sandbox Plugin](./content/js_sandbox_plugins.md)
+    - [Search Plugin](./content/search_plugin.md)
   - [Author Mode](./content/author_mode.md)
 - [Jorro](./content/jorro.md)
 - [API](./content/api.md)

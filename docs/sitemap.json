@@ -2,7 +2,7 @@
   "version": "1.0",
   "ownerHash": "",
   "salt": "",
-  "lastUpdated": "2026-03-08T09:49:52.558Z",
+  "lastUpdated": "2026-03-08T15:59:29.510Z",
   "pages": {
     "content/api.md": {
       "title": "MDGarden - API",
@@ -15,10 +15,10 @@
     },
     "content/author_mode.md": {
       "title": "MDGarden - Author Mode",
-      "lastModified": "2026-03-06T04:30:00.000Z",
+      "lastModified": "2026-03-09T11:15:00.000Z",
       "indexing": true,
       "links": [
-        "content/author_mode_plugin.md"
+        "content/search_plugin.md"
       ],
       "backlinks": [
         "content/getting_started.md",
@@ -101,7 +101,7 @@
     },
     "content/markdown.md": {
       "title": "MDGarden - Markdown + Plugin Extension Sample",
-      "lastModified": "2026-03-06T04:00:00.000Z",
+      "lastModified": "2026-03-07T15:30:00.000Z",
       "indexing": true,
       "links": [
         "content/index.md"
@@ -148,9 +148,19 @@
         "index.md"
       ]
     },
+    "content/search_plugin.md": {
+      "title": "MDGarden - Search Plugin",
+      "lastModified": "2026-03-08T15:00:30.000Z",
+      "indexing": true,
+      "links": [],
+      "backlinks": [
+        "content/author_mode.md",
+        "index.md"
+      ]
+    },
     "content/what_is_it.md": {
       "title": "MDGarden - What is it?",
-      "lastModified": "2026-03-06T07:55:00.000Z",
+      "lastModified": "2026-03-08T15:30:00.000Z",
       "indexing": true,
       "links": [
         "content/getting_started.md",
@@ -164,7 +174,7 @@
     },
     "index.md": {
       "title": "MDGarden - Home",
-      "lastModified": "2026-03-08T07:00:00.000Z",
+      "lastModified": "2026-03-08T15:30:00.000Z",
       "indexing": true,
       "links": [
         "content/api.md",
@@ -179,6 +189,7 @@
         "content/options.md",
         "content/plugin_dev_guide.md",
         "content/plugins.md",
+        "content/search_plugin.md",
         "content/what_is_it.md"
       ],
       "backlinks": []

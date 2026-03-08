@@ -1,4 +1,9 @@
-# Search Plugin ガイド
+---
+title: "MDGarden - Search Plugin"
+lastModified: "2026-03-09T00:00:30+09:00"
+indexing: true
+---
+# Search Plugin
 
 このドキュメントは、現在の実装（`src/assets/js/plugins/search-plugin.js`）に基づいて、`search` plugin の仕様と使い方をまとめたものです。
 
