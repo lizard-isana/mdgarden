@@ -17,18 +17,18 @@ https://github.com/lizard-isana/mdgarden
 
 ## Document
 ### 日本語
-- [What is it?](what_is_it.md)
-- [Getting started](getting_started.md)
-  - [Single File Wiki/inline mode](inline_mode.md)
-  - [Multi File Wiki/include mode](include_mode.md)
-  - [Plug-ins](plugins.md)
-    - [JS Sandbox Plugins](js_sandbox_plugins.md)
-  - [Author Mode](author_mode.md)
-- [Jorro](jorro.md)
-- [API](api.md)
-- [Plugin Dev Guide](plugin_dev_guide.md)
-- [Copyrights/Credits](credits.md)
-- [Markdown Cheat Sheet](markdown.md)
+- [What is it?](./content/what_is_it.md)
+- [Getting started](./content/getting_started.md)
+  - [Single File Wiki/inline mode](./content/inline_mode.md)
+  - [Multi File Wiki/include mode](./content/include_mode.md)
+  - [Plug-ins](./content/plugins.md)
+    - [JS Sandbox Plugins](./content/js_sandbox_plugins.md)
+  - [Author Mode](./content/author_mode.md)
+- [Jorro](./content/jorro.md)
+- [API](./content/api.md)
+- [Plugin Dev Guide](./content/plugin_dev_guide.md)
+- [Copyrights/Credits](./content/credits.md)
+- [Markdown Cheat Sheet](./content/markdown.md)
 
 ## License
 ©2026 Isana Kashiwai ([MIT license](https://github.com/lizard-isana/mdgarden/blob/main/LICENSE))
