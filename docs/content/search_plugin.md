@@ -9,9 +9,9 @@ indexing: true
 
 ## 概要
 
-`search` plugin は `sitemap.json` を元に Markdown ページをインデックス化し、`mdg-search` コンポーネント経由で全文検索を提供します。
+Search Plugin は `sitemap.json` を元に Markdown をインデックス化し、`mdg-search` コンポーネント経由で全文検索を提供します。
 
-- 検索 UI は `mdg-search`（ライトDOM）
+- 検索 UI は `mdg-search` コンポーネントに展開
 - 検索対象は `include` / `inline(embedded)` の両モードに対応
 - `include` モードでは `search-index.json` を優先利用
 - `search-index.json` が無い場合は `sitemap.json` から各 Markdown を読んでフォールバック構築
