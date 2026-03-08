@@ -55,6 +55,7 @@ viewer.setMarkdown("# Temporary page");
 - `resetRuntimeSettings()`
 - `getSitemap(option?)`
 - `saveSitemap(option?)`
+- `saveSearchIndex(option?)`
 - `openLocalEditor()`
 - `saveLocalEditor(markdown, option?)`
 - `exportOfflineWiki(option?)`
@@ -67,7 +68,8 @@ const author = window.MDGarden.main.authorMode;
 const status = await author.getStatus();
 const opened = await author.openLocalEditor();
 await author.saveLocalEditor(opened.content, { autoReload: true });
-await author.exportOfflineWiki({ fileName: "offline-wiki.html" });
+await author.saveSearchIndex({ fileName: "search-index.json" });
+await author.exportOfflineWiki({ fileName: "bundle.html" });
 ```
 
 ## イベント

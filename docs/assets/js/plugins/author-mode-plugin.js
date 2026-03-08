@@ -3,6 +3,8 @@ const AUTO_INDEXER_VERSION = "1.0";
 const DEFAULT_DB_PREFIX = "mdgarden_auto_indexer";
 const DEFAULT_SITEMAP_PATH = "sitemap.json";
 const DEFAULT_FILE_NAME = "sitemap.json";
+const DEFAULT_SEARCH_INDEX_FILE_NAME = "search-index.json";
+const SEARCH_INDEX_VERSION = 1;
 const DEFAULT_PBKDF2_ITERATIONS = 210000;
 const STARTUP_STATES = Object.freeze({
   NORMAL: "normal",
@@ -29,6 +31,7 @@ const KEY_SCHEMA_VERSION = "schemaVersion";
 const KEY_REVISION = "revision";
 const KEY_LAST_SAVED_AT = "lastSavedAt";
 const KEY_FILE_HANDLE = "fileHandle";
+const KEY_SEARCH_INDEX_FILE_HANDLE = "searchIndexFileHandle";
 const KEY_RUNTIME_OVERRIDE = "runtimeOverride";
 const KEY_DIRTY = "dirty";
 const KEY_LAST_ERROR = "lastError";
@@ -132,7 +135,7 @@ const normalizeInlineExportOption = (rawOption) => {
   const option = isObject(rawOption) ? rawOption : {};
   return {
     enabled: boolFrom(option.enabled, true),
-    fileName: toTrimmedString(option.file_name || option.fileName, "offline-wiki.html") || "offline-wiki.html",
+    fileName: toTrimmedString(option.file_name || option.fileName, "bundle.html") || "bundle.html",
     queryParam: toTrimmedString(option.query_param || option.queryParam, "page") || "page",
     defaultPage: toTrimmedString(option.default_page || option.defaultPage, ""),
     viewerId: toTrimmedString(option.viewer_id || option.viewerId, "")
@@ -223,7 +226,7 @@ const buildEffectiveRuntimeSettings = (runtime) => {
     },
     offline_export: {
       enabled: runtime.inlineExportOption && runtime.inlineExportOption.enabled === true,
-      file_name: runtime.inlineExportOption && runtime.inlineExportOption.fileName ? runtime.inlineExportOption.fileName : "offline-wiki.html",
+      file_name: runtime.inlineExportOption && runtime.inlineExportOption.fileName ? runtime.inlineExportOption.fileName : "bundle.html",
       query_param: runtime.inlineExportOption && runtime.inlineExportOption.queryParam ? runtime.inlineExportOption.queryParam : "page",
       default_page: runtime.inlineExportOption && runtime.inlineExportOption.defaultPage ? runtime.inlineExportOption.defaultPage : "",
       viewer_id: runtime.inlineExportOption && runtime.inlineExportOption.viewerId ? runtime.inlineExportOption.viewerId : ""
@@ -948,6 +951,7 @@ const defineAutoIndexerAuthorPanelElement = () => {
       this.onRefreshClick = this.onRefreshClick.bind(this);
       this.onInitializeClick = this.onInitializeClick.bind(this);
       this.onSaveClick = this.onSaveClick.bind(this);
+      this.onSaveIndexClick = this.onSaveIndexClick.bind(this);
       this.onExportInlineClick = this.onExportInlineClick.bind(this);
       this.onEditClick = this.onEditClick.bind(this);
       this.onEditorSaveClick = this.onEditorSaveClick.bind(this);
@@ -980,6 +984,9 @@ const defineAutoIndexerAuthorPanelElement = () => {
       }
       if (this.saveButton) {
         this.saveButton.removeEventListener("click", this.onSaveClick);
+      }
+      if (this.saveIndexButton) {
+        this.saveIndexButton.removeEventListener("click", this.onSaveIndexClick);
       }
       if (this.exportInlineButton) {
         this.exportInlineButton.removeEventListener("click", this.onExportInlineClick);
@@ -1018,6 +1025,10 @@ const defineAutoIndexerAuthorPanelElement = () => {
       return toTrimmedString(this.getAttribute("file-name"), DEFAULT_FILE_NAME) || DEFAULT_FILE_NAME;
     }
 
+    getSearchIndexFileName() {
+      return toTrimmedString(this.getAttribute("index-file-name"), DEFAULT_SEARCH_INDEX_FILE_NAME) || DEFAULT_SEARCH_INDEX_FILE_NAME;
+    }
+
     isReaderVisible() {
       if (!this.hasAttribute("show-reader")) {
         return false;
@@ -1040,6 +1051,14 @@ const defineAutoIndexerAuthorPanelElement = () => {
       return window.MDGarden[viewerId].authorMode || window.MDGarden[viewerId].autoIndexer || null;
     }
 
+    getSearchApi() {
+      const viewerId = this.getViewerId();
+      if (!window.MDGarden || !window.MDGarden[viewerId]) {
+        return null;
+      }
+      return window.MDGarden[viewerId].search || null;
+    }
+
     bindElements() {
       this.panelElement = this.shadowRoot.querySelector(".panel");
       this.metaElement = this.shadowRoot.querySelector('[data-part="meta"]');
@@ -1047,6 +1066,7 @@ const defineAutoIndexerAuthorPanelElement = () => {
       this.refreshButton = this.shadowRoot.querySelector('[data-action="refresh"]');
       this.initializeButton = this.shadowRoot.querySelector('[data-action="initialize"]');
       this.saveButton = this.shadowRoot.querySelector('[data-action="save"]');
+      this.saveIndexButton = this.shadowRoot.querySelector('[data-action="save-index"]');
       this.exportInlineButton = this.shadowRoot.querySelector('[data-action="export-inline"]');
       this.editButton = this.shadowRoot.querySelector('[data-action="edit"]');
       this.settingsButton = this.shadowRoot.querySelector('[data-action="settings"]');
@@ -1085,6 +1105,9 @@ const defineAutoIndexerAuthorPanelElement = () => {
       this.refreshButton.addEventListener("click", this.onRefreshClick);
       this.initializeButton.addEventListener("click", this.onInitializeClick);
       this.saveButton.addEventListener("click", this.onSaveClick);
+      if (this.saveIndexButton) {
+        this.saveIndexButton.addEventListener("click", this.onSaveIndexClick);
+      }
       this.exportInlineButton.addEventListener("click", this.onExportInlineClick);
       this.editButton.addEventListener("click", this.onEditClick);
       this.editorSaveButton.addEventListener("click", this.onEditorSaveClick);
@@ -1162,7 +1185,7 @@ const defineAutoIndexerAuthorPanelElement = () => {
         this.settingsExportEnabledInput.checked = offlineExport.enabled === true;
       }
       if (this.settingsExportFileNameInput) {
-        this.settingsExportFileNameInput.value = toTrimmedString(offlineExport.file_name, "offline-wiki.html") || "offline-wiki.html";
+        this.settingsExportFileNameInput.value = toTrimmedString(offlineExport.file_name, "bundle.html") || "bundle.html";
       }
       if (this.settingsExportQueryParamInput) {
         this.settingsExportQueryParamInput.value = toTrimmedString(offlineExport.query_param, "page") || "page";
@@ -1211,6 +1234,7 @@ const defineAutoIndexerAuthorPanelElement = () => {
       const lastError = toTrimmedString(safeState.lastError, "");
       const shortError = lastError.length > 60 ? `${lastError.slice(0, 60)}...` : lastError;
       const isAuthor = mode === RUNTIME_MODES.AUTHOR;
+      const searchEnabled = !!this.getSearchApi();
       const localEditorEnabled = safeState.localEditorEnabled === true;
       const localEditorReady = safeState.localEditorReady === true;
       const inlineExportEnabled = safeState.inlineExportEnabled === true;
@@ -1226,6 +1250,13 @@ const defineAutoIndexerAuthorPanelElement = () => {
       this.panelElement.style.display = visible ? "block" : "none";
       this.panelElement.dataset.mode = isAuthor ? RUNTIME_MODES.AUTHOR : RUNTIME_MODES.READER;
       this.saveButton.disabled = !(isAuthor && dirty);
+      if (this.saveIndexButton) {
+        this.saveIndexButton.hidden = !searchEnabled;
+        this.saveIndexButton.disabled = !(isAuthor && searchEnabled && dirty);
+        this.saveIndexButton.title = searchEnabled
+          ? (dirty ? "" : "sitemapに差分があるときに保存できます。")
+          : "search plugin が有効な場合のみ利用できます。";
+      }
       this.exportInlineButton.hidden = !(isAuthor && inlineExportEnabled);
       this.exportInlineButton.disabled = !(isAuthor && inlineExportEnabled && inlineExportReady);
       this.exportInlineButton.title = inlineExportReady ? "" : "Offline Wiki export は include モードのローカル AUTHOR_MODE で利用できます。";
@@ -1395,6 +1426,36 @@ const defineAutoIndexerAuthorPanelElement = () => {
           result: result
         });
         await this.renderStatus("after saveSitemap");
+      } catch (error) {
+        this.writeError(error);
+      }
+    }
+
+    async onSaveIndexClick() {
+      const api = this.getApi();
+      if (!api || typeof api.saveSearchIndex !== "function") {
+        this.writeError("search index API is unavailable.");
+        return;
+      }
+      if (typeof api.getStatus === "function") {
+        try {
+          const status = await api.getStatus();
+          this.applyModeHint(status);
+        } catch (error) {
+          this.writeError(error);
+          return;
+        }
+      }
+      try {
+        const result = await api.saveSearchIndex({
+          fileName: this.getSearchIndexFileName()
+        });
+        this.writeSetupHint("", "muted");
+        this.writeStatus({
+          label: "saveSearchIndex",
+          result: result
+        });
+        await this.renderStatus("after saveSearchIndex");
       } catch (error) {
         this.writeError(error);
       }
@@ -1721,6 +1782,7 @@ button:disabled {
       <button type="button" data-action="edit">編集</button>
       <button type="button" data-action="export-inline">書き出し</button>
       <button type="button" data-action="save">SITEMAP保存</button>
+      <button type="button" data-action="save-index" hidden>INDEX保存</button>
       <button type="button" data-action="settings">設定</button>
     </div>
   </div>
@@ -1772,7 +1834,7 @@ button:disabled {
           </label>
           <label class="runtime-settings-item">
             file_name
-            <input class="runtime-settings-input" type="text" data-field="export-file-name" placeholder="offline-wiki.html">
+            <input class="runtime-settings-input" type="text" data-field="export-file-name" placeholder="bundle.html">
           </label>
           <label class="runtime-settings-item">
             query_param
@@ -2609,23 +2671,23 @@ const normalizeStoredFileHandle = (value) => {
   return isWritableFileHandle(value) ? value : null;
 };
 
-const persistRuntimeFileHandle = async (runtime, handle) => {
+const persistRuntimeFileHandle = async (runtime, handle, key = KEY_FILE_HANDLE) => {
   if (!runtime || !runtime.db) {
     return;
   }
   try {
-    await setStoreValues(runtime.db, "config", { key: KEY_FILE_HANDLE, value: handle || null });
+    await setStoreValues(runtime.db, "config", { key: key, value: handle || null });
   } catch (error) {
     // Keep runtime file handle in memory even if persistence is unavailable.
   }
 };
 
-const clearRuntimeFileHandle = async (runtime) => {
+const clearRuntimeFileHandle = async (runtime, key = KEY_FILE_HANDLE, fieldName = "fileHandle") => {
   if (!runtime) {
     return;
   }
-  runtime.fileHandle = null;
-  await persistRuntimeFileHandle(runtime, null);
+  runtime[fieldName] = null;
+  await persistRuntimeFileHandle(runtime, null, key);
 };
 
 const getPageByUrl = async (db, url) => {
@@ -2900,6 +2962,17 @@ const syncRuntimeFromStorage = async (runtime) => {
     }
     runtime.fileHandle = storedFileHandle;
   }
+  if (!isWritableFileHandle(runtime.searchIndexFileHandle)) {
+    let storedSearchIndexHandle = null;
+    try {
+      storedSearchIndexHandle = normalizeStoredFileHandle(
+        await getStoreValue(runtime.db, "config", KEY_SEARCH_INDEX_FILE_HANDLE, null)
+      );
+    } catch (error) {
+      storedSearchIndexHandle = null;
+    }
+    runtime.searchIndexFileHandle = storedSearchIndexHandle;
+  }
 };
 
 const persistRuntimeOverrideOption = async (runtime) => {
@@ -3024,6 +3097,31 @@ const normalizeMarkdownForHash = (markdown) => {
   const text = String(markdown == null ? "" : markdown).replace(/\r\n?/g, "\n");
   const withoutTrailingSpaces = text.replace(/[ \t]+$/gm, "");
   return withoutTrailingSpaces.replace(/\n+$/, "\n");
+};
+
+const stripFrontmatter = (markdown) => {
+  const source = String(markdown == null ? "" : markdown);
+  if (!source.startsWith("---")) {
+    return source;
+  }
+  const matched = source.match(/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/);
+  if (!matched) {
+    return source;
+  }
+  return source.slice(matched[0].length);
+};
+
+const markdownToSearchableText = (markdown) => {
+  return stripFrontmatter(markdown)
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/`[^`]*`/g, " ")
+    .replace(/!\[[^\]]*]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/[*_~>#-]+/g, " ")
+    .replace(/\r?\n+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 };
 
 const sha256Hex = async (text) => {
@@ -3362,23 +3460,25 @@ const pickSaveFileHandle = async (fileName) => {
   });
 };
 
-const saveTextAsFile = async (runtime, text, fileName) => {
+const saveTextAsFile = async (runtime, text, fileName, option = {}) => {
+  const handleField = toTrimmedString(option.handleField, "fileHandle") || "fileHandle";
+  const handleStoreKey = toTrimmedString(option.storeKey, KEY_FILE_HANDLE) || KEY_FILE_HANDLE;
   if (window.showSaveFilePicker) {
-    let handle = runtime && runtime.fileHandle ? runtime.fileHandle : null;
+    let handle = runtime && runtime[handleField] ? runtime[handleField] : null;
     if (!handle) {
       handle = await pickSaveFileHandle(fileName);
       if (runtime) {
-        runtime.fileHandle = handle;
+        runtime[handleField] = handle;
       }
-      await persistRuntimeFileHandle(runtime, handle);
+      await persistRuntimeFileHandle(runtime, handle, handleStoreKey);
     }
     const granted = await ensureFileHandleWritePermission(handle, true);
     if (!granted) {
       handle = await pickSaveFileHandle(fileName);
       if (runtime) {
-        runtime.fileHandle = handle;
+        runtime[handleField] = handle;
       }
-      await persistRuntimeFileHandle(runtime, handle);
+      await persistRuntimeFileHandle(runtime, handle, handleStoreKey);
       const grantedAfterRepick = await ensureFileHandleWritePermission(handle, true);
       if (!grantedAfterRepick) {
         throw new Error("Write permission was not granted.");
@@ -3390,7 +3490,7 @@ const saveTextAsFile = async (runtime, text, fileName) => {
       await writable.close();
     } catch (error) {
       if (isFileHandlePermissionError(error)) {
-        await clearRuntimeFileHandle(runtime);
+        await clearRuntimeFileHandle(runtime, handleStoreKey, handleField);
       }
       throw error;
     }
@@ -3538,7 +3638,7 @@ const resolveInlineExportViewerId = (runtime, option = {}) => {
 
 const resolveInlineExportFileName = (runtime, option = {}) => {
   const inlineOption = runtime && runtime.inlineExportOption ? runtime.inlineExportOption : {};
-  return toTrimmedString(option.file_name || option.fileName, "") || toTrimmedString(inlineOption.fileName, "offline-wiki.html") || "offline-wiki.html";
+  return toTrimmedString(option.file_name || option.fileName, "") || toTrimmedString(inlineOption.fileName, "bundle.html") || "bundle.html";
 };
 
 const resolveInlineExportDefaultPage = (runtime, option = {}, pagePaths = []) => {
@@ -3858,7 +3958,7 @@ ${templateSections.join("\n\n")}
 };
 
 const pickInlineWikiFileHandle = async (suggestedName) => {
-  const safeName = toTrimmedString(suggestedName, "offline-wiki.html") || "offline-wiki.html";
+  const safeName = toTrimmedString(suggestedName, "bundle.html") || "bundle.html";
   return window.showSaveFilePicker({
     suggestedName: safeName,
     types: [
@@ -3938,6 +4038,119 @@ const exportInlineWiki = async (runtime, option = {}) => {
     viewerId: viewerId,
     queryParam: queryParam,
     defaultPage: defaultPage
+  };
+};
+
+const buildSearchIndexSignature = async (pagesObject) => {
+  const pages = isObject(pagesObject) ? pagesObject : {};
+  const records = sortStringArray(Object.keys(pages)).map((path) => {
+    const page = isObject(pages[path]) ? pages[path] : {};
+    return [
+      path,
+      toTrimmedString(page.title, ""),
+      toTrimmedString(page.lastModified, "")
+    ].join("|");
+  }).join("\n");
+  const digest = await sha256Hex(records);
+  return digest ? `sha256-${digest}` : "";
+};
+
+const buildSearchIndexDocument = async (runtime, pagesObject) => {
+  const pages = isObject(pagesObject) ? pagesObject : {};
+  const entries = [];
+  const errors = [];
+  const paths = sortStringArray(Object.keys(pages));
+  for (const path of paths) {
+    const sourcePath = resolveMarkdownSourcePath(runtime, path);
+    if (!sourcePath) {
+      errors.push(`Failed to resolve source path: ${path}`);
+      continue;
+    }
+    try {
+      const response = await fetch(sourcePath, { cache: "no-store" });
+      if (!response.ok) {
+        errors.push(`Failed to load markdown (${response.status}): ${path}`);
+        continue;
+      }
+      const markdown = await response.text();
+      const page = isObject(pages[path]) ? pages[path] : {};
+      const title = toTrimmedString(page.title, "") || path;
+      entries.push({
+        p: path,
+        t: title,
+        s: markdownToSearchableText(markdown)
+      });
+    } catch (error) {
+      errors.push(error && error.message ? `${path}: ${error.message}` : `Failed to load markdown: ${path}`);
+    }
+  }
+
+  const signature = await buildSearchIndexSignature(pages);
+  return {
+    document: {
+      version: SEARCH_INDEX_VERSION,
+      generatedAt: nowIso(),
+      source: {
+        sitemapPath: toTrimmedString(runtime && runtime.option ? runtime.option.sitemapPath : "", DEFAULT_SITEMAP_PATH) || DEFAULT_SITEMAP_PATH,
+        signature: signature
+      },
+      pages: entries
+    },
+    errors: errors
+  };
+};
+
+const resolveSearchIndexFileName = (option = {}) => {
+  const raw = toTrimmedString(option.fileName, "") || toTrimmedString(option.file_name, "");
+  return raw || DEFAULT_SEARCH_INDEX_FILE_NAME;
+};
+
+const saveSearchIndex = async (runtime, option = {}) => {
+  if (!runtime || runtime.authorModeEnabled !== true) {
+    throw new Error("author_mode is disabled.");
+  }
+  const viewerId = runtime && runtime.viewer && runtime.viewer.id ? runtime.viewer.id : "";
+  const searchApi = viewerId && window.MDGarden && window.MDGarden[viewerId]
+    ? window.MDGarden[viewerId].search
+    : null;
+  if (!searchApi || typeof searchApi.search !== "function") {
+    throw new Error("search plugin is not enabled.");
+  }
+  evaluateMode(runtime);
+  if (runtime.mode !== RUNTIME_MODES.AUTHOR) {
+    throw new Error("Search index export is available only in AUTHOR_MODE.");
+  }
+  if (navigator.userActivation && navigator.userActivation.isActive !== true) {
+    throw new Error("Search index export requires explicit user activation.");
+  }
+
+  const sitemap = await getSitemap(runtime, { live: true, reload: false });
+  if (!sitemap || !sitemap.document || !isObject(sitemap.document.pages)) {
+    const reason = sitemap && Array.isArray(sitemap.errors) && sitemap.errors.length > 0
+      ? sitemap.errors[0]
+      : "Sitemap is unavailable.";
+    throw new Error(`Search index export failed: ${reason}`);
+  }
+
+  const built = await buildSearchIndexDocument(runtime, sitemap.document.pages);
+  if (!Array.isArray(built.document.pages) || built.document.pages.length === 0) {
+    throw new Error("No searchable pages were available for search index export.");
+  }
+
+  const serialized = `${JSON.stringify(built.document, null, 2)}\n`;
+  const fileName = resolveSearchIndexFileName(option);
+  const method = await saveTextAsFile(runtime, serialized, fileName, {
+    handleField: "searchIndexFileHandle",
+    storeKey: KEY_SEARCH_INDEX_FILE_HANDLE
+  });
+
+  return {
+    ok: true,
+    method: method,
+    fileName: fileName,
+    pageCount: built.document.pages.length,
+    signature: built.document.source && built.document.source.signature ? built.document.source.signature : "",
+    errors: built.errors
   };
 };
 
@@ -4206,6 +4419,7 @@ const bindPublicApi = (runtime) => {
     resetRuntimeSettings: () => resetRuntimeSettings(runtime),
     getSitemap: (option = {}) => getSitemap(runtime, option),
     saveSitemap: (option = {}) => saveSitemap(runtime, option),
+    saveSearchIndex: (option = {}) => saveSearchIndex(runtime, option),
     initializeOwner: (passphrase) => initializeOwner(runtime, passphrase),
     openLocalEditor: () => openLocalEditor(runtime),
     saveLocalEditor: (markdown, option = {}) => saveLocalEditor(runtime, markdown, option),
@@ -4395,6 +4609,7 @@ const createAuthorModePlugin = () => {
     inlineExportReady: false,
     currentMarkdownPath: "",
     fileHandle: null,
+    searchIndexFileHandle: null,
     lastKnownRevision: 0,
     lastError: "",
     sitemapDocument: null
@@ -4438,6 +4653,7 @@ const createAuthorModePlugin = () => {
       }
       runtime.db = null;
       runtime.fileHandle = null;
+      runtime.searchIndexFileHandle = null;
       runtime.initialized = false;
     }
     return bootstrap(runtime, viewer);

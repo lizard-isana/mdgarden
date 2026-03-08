@@ -17,6 +17,20 @@ const createInlineSpaPlugin = () => {
   let clickHandler = null;
   let viewerRef = null;
 
+  const scrollViewportToTop = () => {
+    try {
+      window.scroll({
+        top: 0,
+        left: 0,
+        behavior: "instant"
+      });
+      return;
+    } catch (_error) {
+      // Fallback for browsers that do not support the options object.
+    }
+    window.scrollTo(0, 0);
+  };
+
   const isEnabled = (viewer) => {
     if (!viewer || viewer.getAttribute("src")) {
       return false;
@@ -124,6 +138,7 @@ const createInlineSpaPlugin = () => {
             return;
           }
           event.preventDefault();
+          scrollViewportToTop();
           activeViewer.setPage(targetPage, {
             reload: true,
             updateUrl: true,
@@ -159,6 +174,7 @@ const createInlineSpaPlugin = () => {
           if (!requested) {
             return;
           }
+          scrollViewportToTop();
           activeViewer.setPage(requested, {
             reload: true,
             updateUrl: false,

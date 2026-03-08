@@ -67,7 +67,7 @@
     },
     "offline_export": {
       "enabled": true,
-      "file_name": "offline-wiki.html",
+      "file_name": "bundle.html",
       "query_param": "page"
     }
   }

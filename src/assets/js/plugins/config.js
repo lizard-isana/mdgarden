@@ -6,6 +6,7 @@ import { createChartPlugin } from './chart-plugin.js';
 import { createJsRunPlugin } from './js-run-plugin.js';
 import { createJsDemoPlugin } from './js-demo-plugin.js';
 import { createInlineSpaPlugin } from './inline-spa-plugin.js';
+import { createSearchPlugin } from './search-plugin.js';
 import { createAuthorModePlugin } from './author-mode-plugin.js';
 
 const PluginConfig = Object.freeze({
@@ -36,6 +37,9 @@ const PluginConfig = Object.freeze({
     },
     'inline-spa': {
       create: () => createInlineSpaPlugin()
+    },
+    search: {
+      create: () => createSearchPlugin()
     },
     'author-mode': {
       create: () => createAuthorModePlugin()

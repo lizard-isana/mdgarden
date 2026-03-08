@@ -1,0 +1,2859 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MDGarden: Markdown Viewer Component (Offline Wiki Export)</title>
+  <link rel="stylesheet" href="./assets/css/default.css">
+  <script src="./assets/js/mdgarden.min.js"></script>
+</head>
+<body>
+<header>
+  <md-garden data-execute-script="true" data-highlight-style="github" data-html="true" data-link-target="main" data-plugins="toc" data-sanitize="false" data-spa="false" id="header"><section><p><a href="?main=index.md" class="header_title" data-mdgarden-target="index.md" data-mdgarden-bound="true">MDGarden</a></p>
+<ul>
+<li><a href="?main=what_is_it.md" data-mdgarden-target="what_is_it.md" data-mdgarden-bound="true">What is it?</a></li>
+<li><a href="?main=getting_started.md" data-mdgarden-target="getting_started.md" data-mdgarden-bound="true">Getting started</a></li>
+<li><a href="?main=inline_mode.md" data-mdgarden-target="inline_mode.md" data-mdgarden-bound="true">Sigle File Wiki/inline mode</a></li>
+<li><a href="?main=include_mode.md" data-mdgarden-target="include_mode.md" data-mdgarden-bound="true">Multi File Wiki/include mode</a></li>
+<li><a href="?main=plugins.md" data-mdgarden-target="plugins.md" data-mdgarden-bound="true">Plug-ins</a></li>
+<li><a href="?main=author_mode.md" data-mdgarden-target="author_mode.md" data-mdgarden-bound="true">Author Mode</a></li>
+<li><a href="?main=jorro.md" data-mdgarden-target="jorro.md" data-mdgarden-bound="true">Jorro</a></li>
+<li><a href="?main=api.md" data-mdgarden-target="api.md" data-mdgarden-bound="true">API</a></li>
+<li><a href="?main=credits.md" data-mdgarden-target="credits.md" data-mdgarden-bound="true">Copyrights/Credits</a></li>
+<li><a href="?main=markdown.md" data-mdgarden-target="markdown.md" data-mdgarden-bound="true">Markdown Cheat Sheet</a></li>
+</ul>
+<div class="hamburger"><span></span><span></span><span></span><span></span></div>
+<style>
+  header > md-garden > section{
+    max-width:initial;
+    width:100%;
+    padding:10px;
+    display: flex;
+    position:relative;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    height: 60px;
+  }
+    header > md-garden > section p{
+      display:block;
+      margin-bottom:initial;
+    }
+  header > md-garden > .hamburger a,
+  header > md-garden > .hamburger a:visited{
+    color: #fff;
+  }
+  .header_title{
+    display: inline-block;
+    font-size: 22px;
+    font-weight: 100;
+    margin-left: 64px;
+    font-weight: 100;
+    text-decoration:none !important;
+    margin-left: 60px;
+  }
+  .hamburger{
+    position:absolute;
+    left:10px;
+    top:10px;
+    width: 44px;
+    height: 44px;
+    z-index: 1000;
+    cursor: pointer;
+  }
+  .hamburger>span{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 30px;
+    height: 1.5px;
+    background: #999;
+    -webkit-transition: 200ms ease-in-out;
+    transition: 200ms ease-in-out;
+  }
+  .hamburger>span:nth-child(1) {
+    top: 10px;
+  }
+  .hamburger>span:nth-child(2),
+  .hamburger>span:nth-child(3){
+    top: 20px;
+  }
+  .hamburger>span:nth-child(4) {
+    top: 30px;
+  }
+  header section.open .hamburger>span:nth-child(1) {
+    transform: translateY(-6px);
+    opacity: 0;
+  }
+  header section.open .hamburger>span:nth-child(2) {
+    transform: rotate(-45deg);
+  }
+  header section.open .hamburger>span:nth-child(3) {
+    transform: rotate(45deg);
+  }
+  header section.open .hamburger>span:nth-child(4) {
+    transform: translateY(6px);
+    opacity: 0;
+  }
+  header section ul{
+    z-index: 100;
+    display: none;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    position: absolute;
+    overflow: scroll;
+    margin: 0;
+    padding: 20px;
+    padding-top: 80px;
+    padding-left: 30px;
+    padding-bottom: 60px;
+    padding-bottom: 60px;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    /* background-color: rgba(0,0,0,0.7); */
+    opacity: 0;
+    backdrop-filter: blur(12px);
+  }
+  header section ul li{
+    grid-column:1/2;
+    grid-row:1/2;
+    width:fit-content;
+    font-size:1rem;
+    line-height:2;
+  }
+  header section ul li::before{
+    content: none;
+  }
+  header section ul a:hover {
+    border-bottom:1px solid #fff;
+  }
+  header section ul a:visited {
+    color :#999;
+  }
+  header section ul li::after{
+    content:none;
+  }
+  header section.open ul{
+    position:fixed;
+    opacity:1;
+    display:flex;
+    animation: fade-in .2s cubic-bezier(0, 0, 0.2, 1) 0s forwards;
+  }
+  header section.close ul{
+    position:fixed;
+    opacity:1;
+    display:flex;
+    animation: fade-out .2s cubic-bezier(0, 0, 0.2, 1) 0s forwards;
+  }
+  @keyframes fade-in {
+    0%{
+      opacity: 0;
+    }
+    100%{
+      opacity: 1;
+    }
+  }
+  @keyframes fade-out {
+    0%{
+      opacity: 1;
+    }
+    100%{
+      opacity: 0;
+    }
+  }
+</style>
+<script>
+  var hamburger = document.querySelector(".hamburger");
+  hamburger.addEventListener('click',(e)=>{
+    var hamburger = e.currentTarget;
+    var section = hamburger.closest('section');
+    if(section.classList.contains("open")){
+      section.classList.add("close");
+      section.classList.remove("open")
+      window.setTimeout(()=>{
+        section.classList.remove("close")
+      },500)
+    }else{
+      section.classList.add("open");
+    }
+  })
+  var link = document.querySelectorAll("header ul li a");
+  link.forEach((element,index)=>{
+    element.addEventListener('click',(e)=>{
+      var section = e.currentTarget.closest('section');
+      section.classList.toggle("open");
+    })
+  })
+</script>
+</section></md-garden>
+  <mdg-search viewer-id="main" class="mdg-search-host" data-ready="14">
+<style>
+.mdg-search-host {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+}
+.mdg-search-host .panel {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 8px;
+  /*
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  */
+  background: #ffffff;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.mdg-search-host .bar {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+.mdg-search-host .input {
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 7px 9px;
+  font-size: 13px;
+  color: #0f172a;
+  background: #ffffff;
+}
+.mdg-search-host .clear {
+  appearance: none;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #334155;
+  padding: 7px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.mdg-search-host .status {
+  /* display: none; */
+  flex: 0 0 auto;
+  min-width: 76px;
+  text-align: right;
+  color: #64748b;
+  font-size: 12px;
+}
+.mdg-search-host .results {
+  margin-top: 8px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 8px;
+}
+.mdg-search-host .list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 280px;
+  overflow: auto;
+}
+.mdg-search-host .result-item {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #ffffff;
+  padding: 7px 8px;
+  cursor: pointer;
+  color: #0f172a;
+}
+.mdg-search-host .result-item:hover {
+  background: #f8fafc;
+  border-color: #93c5fd;
+}
+.mdg-search-host .result-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+.mdg-search-host .result-meta {
+  font-size: 11px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mdg-search-host .empty {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+}
+</style>
+<div class="panel">
+  <div class="bar">
+    <input class="input" data-part="input" type="search" placeholder="Search pages..." spellcheck="false" autocomplete="off">
+    <button class="clear" data-action="clear" type="button">Clear</button>
+    <span class="status" data-part="status" aria-hidden="true" data-ready="14"></span>
+  </div>
+  <div class="results" data-part="results" hidden="">
+    <ul class="list" data-part="list"></ul>
+    <p class="empty" data-part="empty" hidden="">No matches</p>
+  </div>
+</div>
+      </mdg-search>
+</header>
+<main>
+  <md-garden data-allow-parent="true" data-allowed-dirs="content" data-allowed-files="index.md,404.md" data-execute-script="false" data-frontmatter="true" data-highlight-style="github" data-html="true" data-inline-default-page="index.md" data-inline-spa="true" data-inline-spa-param="page" data-link-resolution="relative" data-plugins="toc,graph,chart,math,highlight,js-run,js-demo" data-query-path-mode="split" data-sanitize="false" id="main"><section><h1>MDGarden</h1>
+<p>A lightweight, portable, markdown-based wiki engine that runs entirely in the browser.</p>
+<blockquote>
+<p>A life is like a garden.<br>
+Perfect moments can be had, but not preserved, except in memory.<br>
+LLAP - Leonard Nimoy</p>
+</blockquote>
+<h2 id="58267a45">Source</h2>
+<p><a href="https://github.com/lizard-isana/mdgarden">https://github.com/lizard-isana/mdgarden</a></p>
+<h2 id="211fe820">Document</h2>
+<h3 id="7eee1eb4">日本語</h3>
+<ul>
+<li><a href="?main=what_is_it.md&amp;dir=content" data-mdgarden-target="content/what_is_it.md" data-mdgarden-bound="true">What is it?</a></li>
+<li><a href="?main=getting_started.md&amp;dir=content" data-mdgarden-target="content/getting_started.md" data-mdgarden-bound="true">Getting started</a>
+<ul>
+<li><a href="?main=inline_mode.md&amp;dir=content" data-mdgarden-target="content/inline_mode.md" data-mdgarden-bound="true">Single File Wiki/inline mode</a></li>
+<li><a href="?main=include_mode.md&amp;dir=content" data-mdgarden-target="content/include_mode.md" data-mdgarden-bound="true">Multi File Wiki/include mode</a></li>
+<li><a href="?main=options.md&amp;dir=content" data-mdgarden-target="content/options.md" data-mdgarden-bound="true">Options</a></li>
+<li><a href="?main=plugins.md&amp;dir=content" data-mdgarden-target="content/plugins.md" data-mdgarden-bound="true">Plug-ins</a>
+<ul>
+<li><a href="?main=js_sandbox_plugins.md&amp;dir=content" data-mdgarden-target="content/js_sandbox_plugins.md" data-mdgarden-bound="true">JS Sandbox Plugins</a></li>
+</ul>
+</li>
+<li><a href="?main=author_mode.md&amp;dir=content" data-mdgarden-target="content/author_mode.md" data-mdgarden-bound="true">Author Mode</a></li>
+</ul>
+</li>
+<li><a href="?main=jorro.md&amp;dir=content" data-mdgarden-target="content/jorro.md" data-mdgarden-bound="true">Jorro</a></li>
+<li><a href="?main=api.md&amp;dir=content" data-mdgarden-target="content/api.md" data-mdgarden-bound="true">API</a></li>
+<li><a href="?main=plugin_dev_guide.md&amp;dir=content" data-mdgarden-target="content/plugin_dev_guide.md" data-mdgarden-bound="true">Plugin Dev Guide</a></li>
+<li><a href="?main=credits.md&amp;dir=content" data-mdgarden-target="content/credits.md" data-mdgarden-bound="true">Copyrights/Credits</a></li>
+<li><a href="?main=markdown.md&amp;dir=content" data-mdgarden-target="content/markdown.md" data-mdgarden-bound="true">Markdown Cheat Sheet</a></li>
+</ul>
+<h2 id="98d5cd85">License</h2>
+<p>©2026 Isana Kashiwai (<a href="https://github.com/lizard-isana/mdgarden/blob/main/LICENSE">MIT license</a>)</p>
+</section></md-garden>
+</main>
+
+<footer>
+  <md-garden data-html="true" id="footer"><section><p class="footer">Powered by <a href="https://github.com/lizard-isana/mdgarden">MDGarden</a> © Isana Kashiwai</p>
+<style>
+.footer{
+  text-align:right;
+  color:#bbb;
+  font-size:10px;
+  padding: 5px;
+}
+.footer a{
+  color:#bbb;
+  text-decoration:none;
+}
+.footer a:hover{
+  text-decoration:underline;
+}
+</style>
+</section></md-garden>
+</footer>
+
+
+
+<script data-jorro-hot-reload="">(function(){if(globalThis.__JORRO_HOT_RELOAD_ACTIVE__){return;}Object.defineProperty(globalThis,"__JORRO_HOT_RELOAD_ACTIVE__",{value:true,writable:false,configurable:false});var sse=new EventSource("/__jorro/events");sse.addEventListener("reload",function(){location.reload();});})();</script>
+
+<div class="mermaidTooltip" style="opacity: 0;"></div><svg id="MJX-SVG-global-cache" style="display: none;"><defs><path id="MJX-TEX-LO-222B" d="M114 -798Q132 -824 165 -824H167Q195 -824 223 -764T275 -600T320 -391T362 -164Q365 -143 367 -133Q439 292 523 655T645 1127Q651 1145 655 1157T672 1201T699 1257T733 1306T777 1346T828 1360Q884 1360 912 1325T944 1245Q944 1220 932 1205T909 1186T887 1183Q866 1183 849 1198T832 1239Q832 1287 885 1296L882 1300Q879 1303 874 1307T866 1313Q851 1323 833 1323Q819 1323 807 1311T775 1255T736 1139T689 936T633 628Q574 293 510 -5T410 -437T355 -629Q278 -862 165 -862Q125 -862 92 -831T55 -746Q55 -711 74 -698T112 -685Q133 -685 150 -700T167 -741Q167 -789 114 -798Z"></path><path id="MJX-TEX-N-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path><path id="MJX-TEX-N-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"></path><path id="MJX-TEX-I-1D465" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"></path><path id="MJX-TEX-N-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"></path><path id="MJX-TEX-I-1D451" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"></path><path id="MJX-TEX-N-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path><path id="MJX-TEX-N-33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"></path></defs></svg><div class="glasp-extension-toaster" style="display: block; width: 320px; margin: unset; padding: unset; border: unset; border-radius: unset; outline: unset; background-color: unset; box-shadow: unset; position: fixed; top: 40px; right: 24px; z-index: 9999;"></div>
+
+<template data-target="main">Loading...</template>
+
+<template data-page="content/api.md" data-page-target="main" data-title="MDGarden - API">
+---
+title: "MDGarden - API"
+lastModified: "2026-03-06T09:00:00+09:00"
+indexing: true
+---
+
+# API
+このページは、MDGarden の JavaScript API を実装観点で整理したリファレンス初稿です。  
+主に `window.MDGarden` 配下の viewer API と Author Mode API を対象にします。
+
+## API の公開先
+
+各 viewer は `id` をキーに公開されます。
+
+```js
+const api = window.MDGarden.main; // &lt;md-garden id="main"&gt;
+```
+
+Author Mode を有効化している場合は、次も参照できます。
+
+```js
+const authorApi = window.MDGarden.main.authorMode;
+```
+
+後方互換として `autoIndexer` も同一APIを参照します。
+
+```js
+const legacy = window.MDGarden.main.autoIndexer; // alias
+```
+
+## 基本 viewer API
+
+`window.MDGarden[viewerId]` の主なメソッド:
+
+- `load(target?, option?)`
+- `setMarkdown(markdown, option?)`
+- `setPage(page, option?)`（inline mode）
+- `getCurrentPage()`（inline mode）
+
+例:
+
+```js
+const viewer = window.MDGarden.main;
+await viewer.load("getting_started.md");
+viewer.setMarkdown("# Temporary page");
+```
+
+## Author Mode API
+
+`window.MDGarden[viewerId].authorMode` の主なメソッド:
+
+- `getStatus()`
+- `getRuntimeSettings()`
+- `setRuntimeSettings(settings)`
+- `resetRuntimeSettings()`
+- `getSitemap(option?)`
+- `saveSitemap(option?)`
+- `openLocalEditor()`
+- `saveLocalEditor(markdown, option?)`
+- `exportOfflineWiki(option?)`
+- `exportInlineWiki(option?)`（後方互換 alias）
+
+代表例:
+
+```js
+const author = window.MDGarden.main.authorMode;
+const status = await author.getStatus();
+const opened = await author.openLocalEditor();
+await author.saveLocalEditor(opened.content, { autoReload: true });
+await author.exportOfflineWiki({ fileName: "bundle.html" });
+```
+
+## イベント
+
+plugin 向けイベント定数:
+
+- `markdown_loaded`
+- `content_loaded`
+- `content_reloaded`
+- `content_rendered`
+
+参照:
+
+```js
+window.MDGarden.PLUGIN_EVENTS;
+```
+
+自作 plugin でイベント監視する場合は `onEvent` を使います。  
+また、`window.MDGarden.registerHook(viewId, eventName, handler)` による hook 登録も可能です。
+
+## plugin 関連 API
+
+グローバルに公開される主な関数:
+
+- `window.MDGarden.registerPlugin(viewId, plugin)`
+- `window.MDGarden.emitPluginEvent(viewId, eventName, payload)`
+- `window.MDGarden.loadScripts(urls)`
+- `window.MDGarden.loadStyles(urls)`
+
+最小例:
+
+```js
+window.MDGarden.registerPlugin("main", {
+  name: "sample",
+  onEvent: ({ event }) =&gt; console.log(event)
+});
+```
+
+## 戻り値とエラーハンドリング
+
+- 読み取り系は `ok` / `state` / `errors` を返す設計が多い
+- 書き込み系は失敗時に `throw` される
+- Author Mode の保存系はユーザー操作起点が必須（ブラウザ制約）
+
+実装では `try/catch` 前提で扱ってください。
+
+```js
+try {
+  const result = await window.MDGarden.main.authorMode.saveSitemap();
+  console.log(result.ok);
+} catch (error) {
+  console.error(error.message);
+}
+```
+
+## dataset と状態確認
+
+Author Mode では `&lt;html&gt;` の dataset に実行状態が反映されます。
+
+- `data-auto-indexer-mode`
+- `data-auto-indexer-state`
+- `data-auto-indexer-dirty`
+- `data-local-editor-enabled`
+- `data-local-editor-ready`
+- `data-export-enabled`
+- `data-export-ready`
+- `data-current-path`
+
+UI 連携では dataset と `getStatus()` を併用すると安定します。
+
+## 互換性メモ
+
+- `authorMode` と `autoIndexer` は同一APIを参照（互換維持）
+- `exportInlineWiki()` は `exportOfflineWiki()` の互換 alias
+- 設定キーは `offline_export` が現行（`inline_export` は互換解釈）
+
+## Back links
+- [MDGarden - Home](?page=index.md)
+
+</template>
+
+<template data-page="content/author_mode.md" data-page-target="main" data-title="MDGarden - Author Mode">
+---
+title: "MDGarden - Author Mode"
+lastModified: "2026-03-06T13:30:00+09:00"
+indexing: true
+---
+
+# Author Mode
+Author Mode は、ローカル環境での編集・索引更新・配布用書き出しをまとめて支援する運用モードです。  
+公開サイトを直接書き換える仕組みではなく、ローカルでの作業効率を上げるための補助機能として設計されています。
+
+## 有効条件
+
+Author Mode は次の条件で有効になります。
+
+- `localhost` または `127.0.0.1` で開いている
+- 現在URLが `author_mode.deploy` で指定した公開URL配下ではない
+
+この判定により、公開環境で誤って編集UIを出すリスクを減らします。
+
+## 機能全体像
+
+- `auto_indexer`: ページ情報を IndexedDB に蓄積し、`sitemap.json` を生成
+- `local_editor`: 現在ページの Markdown を直接編集してローカル保存
+- `offline_export`: include 構成を Offline Wiki（単一HTML）として書き出し
+
+詳細仕様は [author_mode_plugin](?page=content%2Fauthor_mode_plugin.md) を参照してください。
+
+## 想定ワークフロー
+
+1. include mode でページを開く
+2. 必要な Markdown を編集（local editor も可）
+3. sitemap の差分を確認して保存
+4. 必要に応じて Offline Wiki を書き出す
+5. 最終確認後に Git へ反映して公開
+
+編集・索引・配布を1つの流れで扱えるのが Author Mode の利点です。
+
+## Auto Indexer
+
+Auto Indexer は、レンダリングされたページ情報から sitemap を組み立てます。
+
+- Front Matter の `lastModified` を基準に更新判定
+- `indexing: false` のページは sitemap から除外
+- `strict=true` の場合、`lastModified` が過去方向に戻る更新を拒否
+- 本文ハッシュ比較（notify-only）により、`lastModified` 不変の本文変更を警告して更新漏れを検知
+
+運用では、`lastModified` の記載ルールをチームで統一しておくと不整合を減らせます。
+
+### ページへの埋め込み（List / Backlinks）
+
+Auto Indexer の情報は、Markdown 内に埋め込み記法で表示できます。
+
+```md
+list{.auto-indexer-page-list sort-key="lastModified,path" sort-order="desc" limit="10"}
+backlinks{.auto-indexer-backlinks sort-key="lastModified,path" sort-order="desc"}
+```
+
+- `list`: sitemap のページ一覧を表示
+- `backlinks`: 現在ページへの被リンク一覧を表示
+- `sort-key` / `sort-order` / `limit` / `empty-label` などで表示を調整可能
+
+include mode の通常表示で利用でき、Offline Wiki 書き出し時には静的リンクリストとして展開されます。
+
+## Local Editor
+
+Local Editor では、現在表示中 Markdown を textarea で編集して保存できます。
+
+- 保存先は毎回ダイアログで選択
+- `auto_reload` により保存後リロードを制御
+- File System Access API 対応ブラウザが前提
+
+「サーバへの直接書き込み」ではなく、あくまでローカルファイル操作です。
+
+## Offline Export
+
+Offline Export は sitemap 準拠でページを収集し、配布用HTMLを生成します。
+
+- 内部リンクは `?page=` 形式へ変換
+- 追加 viewer（header/footer 等）も同一HTMLへ同梱可能
+- `src=*.md` の viewer は export 時に template 展開され、`file://` でも表示可能
+
+## 設定項目の整理
+
+設定は3層で決まります（後勝ち）。
+
+1. `config.json` / タグ属性
+2. Author Mode の実行時判定（local/deploy条件）
+3. ランタイム上書き（IndexedDB の `runtimeOverride`）
+
+ランタイム設定はブラウザストレージ削除で消える前提の揮発設定です。
+
+## セキュリティ境界
+
+- Author Mode は認証システムではない
+- UI状態（`data-author` など）は権限制御ではない
+- Local Editor はブラウザ権限に依存
+
+他スクリプト共存時のリスクを下げるため、`execute_script` の扱いは慎重に運用してください。
+
+## よくあるトラブル
+
+- `lastModified moved backwards` が出る  
+  既存値より新しい時刻に更新するか、`strict` 設定を見直す
+- 保存ダイアログが想定どおり出ない  
+  ブラウザ権限とユーザー操作起点（クリック）を確認
+- Author Mode にならない  
+  URL が localhost か、deploy 配下に入っていないか確認
+- export 後に一部表示が崩れる  
+  参照アセットや viewer ごとの設定差分を確認
+
+## ベストプラクティス
+
+- 作業前に Git 状態をクリーンにする
+- `lastModified` 更新ルールを決める
+- sitemap 保存前に差分をレビューする
+- Offline 出力物に生成元コミットを記録する
+- 本番公開前に `reader` 相当の表示確認を行う
+
+## Back links
+- [MDGarden - Home](?page=index.md)
+- [MDGarden - Getting Started](?page=content%2Fgetting_started.md)
+- [MDGarden - Plug-ins](?page=content%2Fplugins.md)
+- [MDGarden - Single File Wiki/inline mode](?page=content%2Finline_mode.md)
+
+</template>
+
+<template data-page="content/credits.md" data-page-target="main" data-title="MDGarden - Credits">
+---
+title: "MDGarden - Credits"
+lastModified: "2026-03-06T00:40:00+09:00"
+indexing: true
+---
+
+# Copyrights/Credit
+
+## Third-party libraries
+MDGarden depends on below superb libraries.
+- [markdown-it.js](https://github.com/markdown-it/markdown-it) ([MIT License](https://github.com/markdown-it/markdown-it/blob/master/LICENSE))
+- [markdown-it-footnote](https://github.com//markdown-it/markdown-it-footnote) ([MIT License](https://github.com/markdown-it/markdown-it-footnote/blob/master/LICENSE))
+- [markdown-it-task-lists.js](https://github.com/revin/markdown-it-task-lists) ([ISC License](https://github.com/revin/markdown-it-task-lists/blob/master/LICENSE))
+- [markdown-it-attrs](https://github.com/arve0/markdown-it-attrs)([MIT License](https://github.com/arve0/markdown-it-attrs/blob/master/LICENSE))
+- [DOMPurify](https://github.com/cure53/DOMPurify)([Apache/Mozilla Public License](https://github.com/cure53/DOMPurify/blob/master/LICENSE))
+- [highlight.js](https://highlightjs.org/) ([BSD License](https://github.com/highlightjs/highlight.js/blob/master/LICENSE))
+- [MathJax](https://www.mathjax.org/) ([Apache License 2.0](https://github.com/mathjax/MathJax/blob/master/LICENSE))
+- [C3.js](https://c3js.org/) ([The MIT License](https://github.com/c3js/c3/blob/master/LICENSE))
+- [Mermaid.js](https://mermaid-js.github.io/) ([MIT License](https://github.com/mermaid-js/mermaid/blob/develop/LICENSE))
+
+## License
+©2026 Isana Kashiwai ([MIT license](https://github.com/lizard-isana/mdgarden/blob/main/LICENSE))
+
+## Back links
+- [MDGarden - Home](?page=index.md)
+
+</template>
+
+<template data-page="content/getting_started.md" data-page-target="main" data-title="MDGarden - Getting Started">
+---
+title: "MDGarden - Getting Started"
+lastModified: "2026-03-07T04:00:00+09:00"
+indexing: true
+---
+
+# Getting Started
+このページでは、MDGarden を最小構成で起動し、1ページ表示できるところまでを最短手順で説明します。
+
+## 前提条件
+
+- モダンブラウザ（Chrome / Edge / Firefox / Safari の最新版推奨）
+- ローカルで静的ファイルを配信できる環境
+- `index.html` と `index.md` を配置できる作業ディレクトリ
+
+`file://` でも動く構成はありますが、最初はローカルサーバ経由での確認を推奨します。
+
+## 最小構成
+
+まずは次の3ファイルだけ用意します。
+
+- `index.html`
+- `index.md`
+- `assets/js/mdgarden.min.js`（必要なCSS/JS一式）
+
+`index.html` の最小例:
+
+```html
+&lt;!DOCTYPE html&gt;
+&lt;html lang="ja"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;link rel="stylesheet" href="./assets/css/default.css"&gt;
+  &lt;script src="./assets/js/mdgarden.min.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;md-garden id="main" src="index.md"&gt;&lt;/md-garden&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+```
+
+## 最初の Markdown
+
+`index.md` は Front Matter 付きで開始すると、後で Author Mode を使う時も移行しやすくなります。
+
+```md
+---
+title: "Home"
+lastModified: "2026-03-06T12:00:00+09:00"
+indexing: true
+---
+
+# Hello MDGarden
+
+This is your first page.
+```
+
+## config.json（任意だが推奨）
+
+最初は次の程度で十分です。
+
+```json
+{
+  "spa": true,
+  "frontmatter": true,
+  "link_target": "main"
+}
+```
+
+必要に応じて `index.html` 側で `data-config="config.json"` を指定します。
+
+## ローカルでの確認
+
+1. ローカルサーバを起動
+2. `http://localhost:xxxx/` を開く
+3. `Hello MDGarden` が表示されることを確認
+
+## ローカルサーバの立ち上げ方
+
+### 1. エディタのプラグインを使う
+
+最短で確認したい場合は、エディタ拡張のローカルサーバが便利です。使い慣れたエディタでMarkdownを編集しながらブラウザで確認ができます（プラグインによってはエディタ内で表示確認ができます）。
+- VS Code: Live Server / Live Preview など
+- 起動後に `http://127.0.0.1:xxxx` を開いて確認
+
+注意: セキュリティ上の制限からプライベートIPアドレス（192.168.x.x）ではReaderモードのみの動作です。
+
+
+### 2. プログラミング言語付属の簡易サーバを使う
+
+開発環境に言語ランタイムがある場合は、付属コマンドで配信できます。
+
+Python:
+
+```bash
+python -m http.server 8080
+```
+
+Node.js (`serve` を使う例):
+
+```bash
+npx serve . -l 8080
+```
+
+Ruby:
+
+```bash
+ruby -run -e httpd . -p 8080
+```
+
+### 3. Jorro を使う（推奨）
+
+Jorro は MDGarden と同時利用を想定したローカル専用ミニマムサーバです。
+
+- `127.0.0.1` のみで待ち受け
+- 実行ファイルを置いたフォルダをルートとしてそのまま配信
+- ホットリロードでエディタでの編集が即反映される
+
+詳細は [Jorro](?page=content%2Fjorro.md) を参照してください。
+
+## 初期トラブルと対処
+
+- `Not Found` が出る  
+  `src` のパスと実ファイル名を確認
+- `Failed to load markdown` が出る  
+  ローカルサーバ経由で開いているか確認
+- リンク遷移が崩れる  
+  `link_target` と `id` の一致を確認
+- include 構成でページが開けない  
+  `allowed_dirs` / `allowed_files` の制約を確認
+
+## 次のステップ
+
+- 単一ファイルで配布したい: [Sigle File Wiki/inline mode](?page=content%2Finline_mode.md)
+- 複数ページを分割管理したい: [Multi File Wiki/include mode](?page=content%2Finclude_mode.md)
+- 機能を拡張したい: [Plug-ins](?page=content%2Fplugins.md)
+- 編集運用を整えたい: [Author Mode](?page=content%2Fauthor_mode.md)
+
+## Back links
+- [MDGarden - Home](?page=index.md)
+- [MDGarden - What is it?](?page=content%2Fwhat_is_it.md)
+
+</template>
+
+<template data-page="content/include_mode.md" data-page-target="main" data-title="MDGarden - Multi File Wiki/include mode">
+---
+title: "MDGarden - Multi File Wiki/include mode"
+lastModified: "2026-03-06T09:00:00+09:00"
+indexing: true
+---
+
+# Multi File Wiki/include mode
+include mode は、Markdown を複数ファイルに分割して管理・運用したい場合の標準モードです。  
+更新頻度が高いサイトや、ページ数が増えるプロジェクトでは inline mode より保守しやすくなります。
+
+## 向いている用途
+
+- 複数ページを継続的に更新したい
+- Git でページ単位に差分管理したい
+- 共通レイアウトと本文を分離したい
+
+配布のしやすさ最優先なら inline mode、運用性重視なら include mode が基本方針です。
+
+## ディレクトリ構成
+
+最小例:
+
+index.mdとsubpage.mdをページとして配信する例です
+```text
+docs/
+  index.html
+  config.json
+  index.md
+  subpage.md
+  assets/
+    css/default.css
+    js/mdgarden.min.js
+```
+
+必要に応じて `data-allowed-dirs` を指定して `content/` などのサブディレクトリへページを分けることができます。
+
+```text
+docs/
+  index.html
+  config.json
+  index.md
+  content/
+    subpage.md
+  assets/
+    css/default.css
+    js/mdgarden.min.js
+```
+
+
+## 基本設定
+
+`index.html` 側:
+
+```html
+&lt;md-garden
+  id="main"
+  src="index.md"
+  data-link-target="main"
+  data-strict_root="true"
+  data-allowed-dirs="content,dev"
+  data-allowed-files="index.md,404.md"
+  data-link-resolution="relative"
+  data-allow-parent="true"
+  data-query-path-mode="split"&gt;
+&lt;/md-garden&gt;
+```
+
+主要項目:
+
+- `src`: 初期表示 Markdown
+- `allowed_dirs` 読み込み許可ディレクトリ。ここで指定したディレクトリ以外は読み込めません。
+  - MDGardenを通して参照できなくなるだけで、ファイルの直接表示を拒否することはできません。
+- `strict_root`: ルート参照を厳密化するか
+  - `true`にすると`allowed_files`で指定したファイル以外は参照できなくなります。
+- `allowed_files`: `strict_root`に`true`を指定した時の参照可能ファイル
+- `link_resolution`: `relative` / `root` の解決方針
+- `allow_parent`: `..` を許可するか
+- `query_path_mode`: `full`/ `split` URL のクエリ形式
+
+## リンク解決と URL 設計
+
+include mode の遷移はクエリパラメータで管理されます。
+
+### query_path_mode
+- `full`: `?main=path/to/page.md`
+- `split`: `?main=page.md&dir=path&subdir=to`
+
+リンク運用が複雑になりやすい場合は、まず `full` で始め、必要になってから `split` へ移行すると安全です。
+
+### link_resolution
+- `root`: 現在のドキュメント位置を基準にせず、常にルート基準で解決
+- `relative`: 現在の Markdown のディレクトリを基準に解決
+
+
+## レイアウトとの組み合わせ
+
+`header` / `footer` などを別 `md-garden` として置く構成も可能です。  
+この場合は `id` と `data-link-target` の対応を明確にし、どの viewer が主導でページ遷移するかを固定してください。
+
+## よくあるエラーと対処
+
+- `Blocked target path`  
+  `allowed_dirs` / `allowed_files` / `allow_parent` を確認
+- `Not Found`  
+  `src` と実ファイル配置、拡張子 `.md` を確認
+- 意図しないページが開く  
+  `link_resolution` と `query_path_mode` の組み合わせを確認
+- 遷移URLが長い / 分かりにくい  
+  `split` / `full` の方式を再検討
+
+## inline mode との使い分け
+
+- include mode: 運用・更新・分割管理に強い
+- inline mode: 配布・持ち運び・単体共有に強い
+
+まず include mode で管理し、配布時に Offline Wiki（inline）へ書き出す流れが実運用では扱いやすい構成です。
+
+## Back links
+- [MDGarden - Home](?page=index.md)
+- [MDGarden - Getting Started](?page=content%2Fgetting_started.md)
+- [MDGarden - What is it?](?page=content%2Fwhat_is_it.md)
+- [MDGarden - Single File Wiki/inline mode](?page=content%2Finline_mode.md)
+
+</template>
+
+<template data-page="content/inline_mode.md" data-page-target="main" data-title="MDGarden - Single File Wiki/inline mode">
+---
+title: "MDGarden - Single File Wiki/inline mode"
+lastModified: "2026-03-06T13:30:00+09:00"
+indexing: true
+---
+
+# Single File Wiki/inline mode
+inline mode は、1つのHTMLにコンテンツを同梱して配布したいときに使うモードです。 
+複数のMarkdownを一つのHTML内に保持することで、擬似的にページ遷移を再現します。
+ファイルのFetchを行わないためサーバレス(file://〜)で動作します。
+オフライン共有、簡易マニュアル、配布用ドキュメントに向いています。
+
+## 向いている用途
+- 単一ファイルで配布したい
+- `file://` でも閲覧可能にしたい
+- サーバ側の設定を増やしたくない
+
+ページ数が多く、更新頻度も高い場合は include mode の方が保守しやすくなります。
+
+## 基本構成
+
+inline mode では `src` を使わず、`template[data-target]` に本文を書きます。
+
+```html
+&lt;md-garden
+  id="main"
+  data-inline-spa="true"
+  data-inline-spa-param="page"
+  data-frontmatter="true"
+  data-sanitize="true"
+  data-html="true"&gt;
+&lt;/md-garden&gt;
+
+&lt;template data-target="main"&gt;
+---
+title: "Home"
+lastModified: "2026-03-06T12:00:00+09:00"
+indexing: true
+---
+
+# Home
+Welcome to inline mode.
+&lt;/template&gt;
+```
+
+## 複数ページ化
+
+複数ページを持たせる場合は `template[data-page]` を追加します。
+
+```html
+&lt;template data-page="home.md" data-page-target="main"&gt;
+# Home
+[Open Guide](?page=guide.md)
+&lt;/template&gt;
+
+&lt;template data-page="guide.md" data-page-target="main"&gt;
+# Guide
+[Back to Home](?page=home.md)
+&lt;/template&gt;
+```
+
+`data-page-target` で対象 viewer を明示すると、複数 `md-garden` 構成でも混線しにくくなります。
+
+## ページ遷移の仕組み
+
+- `data-inline-spa="true"` でクエリ遷移を有効化
+- `data-inline-spa-param="page"` でクエリキーを指定
+- URL は `?page=guide.md` のように切り替わる
+
+初期ページを固定したい場合は `data-inline-default-page="home.md"` を使います。
+
+## 推奨設定
+
+- `data-frontmatter="true"`: metadata を使う場合
+- `data-sanitize="true"`: まずは安全側
+- `data-html="true"`: HTML併用が必要なときのみ
+- `data-execute-script="false"`: 原則維持
+
+## セキュリティ上の注意
+
+inline mode は配布が簡単な一方、HTML内に script を入れると攻撃面積が増えます。  
+外部提供コンテンツを混ぜる場合は、`sanitize=true` と `execute_script=false` を基本にしてください。
+
+## 制約とトレードオフ
+
+- ページ数が増えるほど1ファイルが肥大化する
+- 差分レビューが読みにくくなる
+- 複数人編集では競合しやすい
+
+「配布性重視なら inline」「運用性重視なら include」と覚えると判断しやすいです。
+
+## Author Mode からの書き出し
+
+MDGarden では include mode で運用し、Author Mode の `offline_export` で inline 形式（Offline Wiki）へ書き出す使い方ができます。  
+この方法を使うと、日常運用は分割管理のまま、配布時だけ単一HTMLを生成できます。
+
+- 運用: include mode + auto_indexer
+- 配布: Author Mode の「書き出し」ボタンで Offline Wiki 生成
+- 生成物: `?page=` 遷移を含む単一HTML（viewer構成も同梱可能）
+- 詳しくは [Author Mode](?page=content%2Fauthor_mode.md) を参照してください
+
+## 次のステップ
+
+- 分割管理へ移行する: [Multi File Wiki/include mode](?page=content%2Finclude_mode.md)
+- plugin を追加する: [Plug-ins](?page=content%2Fplugins.md)
+- ローカル編集や書き出しを使う: [Author Mode](?page=content%2Fauthor_mode.md)
+
+## Back links
+- [MDGarden - Home](?page=index.md)
+- [MDGarden - Getting Started](?page=content%2Fgetting_started.md)
+- [MDGarden - What is it?](?page=content%2Fwhat_is_it.md)
+
+</template>
+
+<template data-page="content/jorro.md" data-page-target="main" data-title="MDGarden - Jorro">
+---
+title: "MDGarden - Jorro"
+lastModified: "2026-03-06T12:00:00+09:00"
+indexing: true
+---
+
+# Jorro
+Jorro は、MDGarden と同時に使うことを意図して設計されたローカルホスト専用のミニマム Web サーバです。 
+`127.0.0.1` のみで待ち受ける設計で、実行ファイルを置いたディレクトリをドキュメントルートとして配信します。
+
+## ダウンロード
+- https://github.com/lizard-isana/jorro/releases/
+
+
+## 機能の紹介（要約）
+
+- 配信先は `127.0.0.1` 限定（外部公開しない前提）
+- 実行ファイルを置いたディレクトリを配信ルートとして扱う
+- 起動時にブラウザを開いてすぐ確認できる
+- `jorro-config.json` でポートや許可拡張子などを制御できる
+- `GET` / `HEAD` のみ許可、隠しパス非公開、ディレクトリ一覧無効など最小限の防御を持つ
+- ホットリロードにより、エディタでの編集が即反映される。
+- 実行ファイルサイズは10MB以下、メモリ使用量は数十MB程度。
+
+## MDGarden と組み合わせる理由
+
+MDGarden は静的ファイルをブラウザで読む構成なので、ローカル検証には静的サーバが必要です。  
+Jorroは極めて軽量でポータビリティが高く、localhost限定のため不要な漏洩リスクを最小限に保てます。
+
+- `localhost` 条件が必要な Author Mode がそのまま使える
+- 余計なミドルウェアなしで `index.html` / `.md` / `.json` を配信できる
+- 開発中の確認環境を配布環境と近い形で保てる
+- ホットリロードできるため、エディタなどでの編集作業と相性が良い
+
+## 最短セットアップ
+
+1. MDGarden の `docs/` など配信したいフォルダにjorroの実行ファイルを置く
+2. 同じ場所で Jorro を起動する
+3. 開いたブラウザで MDGarden を確認する
+
+## 推奨設定（MDGarden 併用時）
+
+`jorro-config.json` 例:
+
+```json
+{
+  "port": 8080,
+  "indexFile": "index.html",
+  "allowExtensions": [".html", ".css", ".js", ".md", ".json"],
+  "hotReload": true,
+  "devConsoleErrors": false
+}
+```
+
+ポイント:
+
+- `allowExtensions` に `.md` / `.json` を含める（MDGarden に必要）
+- `indexFile` に `index.html` を指定する
+- `hotReload` に `true` を指定するとファイル更新時にブラウザがリロードされます
+- `devConsoleErrors` に `true` を指定すると、サーバ側のエラーがブラウザのコンソールに流れます
+
+
+## 注意点
+
+- Jorro は公開サーバ用途ではありません[^1]
+- 実行ファイルや設定をそのまま公開ディレクトリへ置かないでください[^2]
+- Author Mode の有効条件（localhost かつ deploy 配下外）を維持する
+- `hotReload`と`devConsoleErrors`は有効化すると、表示時にページ内にJavaScriptが挿入されます
+[^1]:localhostでしか待ち受けず、静的ファイルしか配信しないため、同一ネットワークやサーバの外から利用することはできません。
+[^2]:ただし、誤って公開サーバ上に置いて起動しても外部から利用することはできず改竄や漏洩などのリスクはほとんどありません。
+
+詳細仕様は Jorro README を参照してください:
+
+- https://github.com/lizard-isana/jorro/blob/main/README.md
+
+## Back links
+- [MDGarden - Home](?page=index.md)
+- [MDGarden - Getting Started](?page=content%2Fgetting_started.md)
+
+</template>
+
+<template data-page="content/js_sandbox_plugins.md" data-page-target="main" data-title="MDGarden - JS Sandbox Plugins">
+---
+title: "MDGarden - JS Sandbox Plugins"
+lastModified: "2026-03-07T23:10:00+09:00"
+indexing: true
+---
+
+# JS Sandbox Plugins
+
+このページは `js-run` と `js-demo` の仕様をまとめたドキュメントです。  
+対象実装:
+
+- `src/assets/js/plugins/js-run-plugin.js`
+- `src/assets/js/plugins/js-demo-plugin.js`
+
+## 使い分け
+
+- `js-run`: 計算・ログ出力向け。Worker 実行で強制停止しやすい
+- `js-demo`: d3/three/p5 など描画デモ向け。DOM/Canvas を使える
+
+## 有効化
+
+```html
+&lt;md-garden
+  id="main"
+  src="index.md"
+  data-plugins="toc,highlight,js-run,js-demo"&gt;
+&lt;/md-garden&gt;
+```
+
+## `config.json` での拡張
+
+`plugins.js-run` / `plugins.js-demo` でライブラリ設定を上書きできます。
+
+```json
+{
+  "plugins": {
+    "js-run": {
+      "allowList": ["mathjs", "decimal", "astronomy"],
+      "trustedOrigins": ["https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
+      "libraries": {
+        "astronomy": {
+          "global": "Astronomy",
+          "urls": [
+            "https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+仕様:
+
+- `allowList`: `// libs:` で利用可能な名前の許可リスト
+- `trustedOrigins`: `libraries.urls` で許可する origin
+- `libraries`: カスタムライブラリ定義（`global` + `urls`）
+- URL は `https` かつ `trustedOrigins` に含まれる origin のみ有効
+- sandbox 実行では browser 向け build を使ってください（例: `astronomy.browser.min.js`）
+- Node 向け build（例: `astronomy.min.js`）はロード失敗することがあるため非推奨です
+
+## `js-run`
+
+### 記法
+
+````md
+```js-run
+// libs: mathjs, decimal
+console.log("hello from sandbox");
+const sum = api.math.sum([1, 2, 3]);
+const precise = new api.Decimal("0.1").plus("0.2").toString();
+return { sum, precise };
+```
+````
+
+`js:run` も互換 alias として利用できます。
+
+### UI
+
+- 初期表示: `Code` タブ
+- `Run` 押下で実行開始し `Result` タブへ切り替え
+- `status`: `idle` / `running` / `done` / `error` / `timeout`
+
+### libs directive
+
+`js-run` でも `// libs: ...` を指定できます。  
+現在の allowlist:
+
+- `mathjs`
+- `decimal`
+
+設定例の `astronomy` を追加した場合:
+
+```js
+// libs: astronomy
+const Astronomy = api.libs.astronomy;
+```
+
+### 制限値
+
+- timeout: `1500ms`
+- 出力上限: `64KiB`
+- 行数上限: `200`
+- iframe 高さ: `300px`
+
+### セキュリティ要点
+
+- 外側 iframe: `sandbox="allow-scripts"`（`allow-same-origin` なし）
+- 内部実行: Worker + `terminate()` で停止
+- `fetch` / `XMLHttpRequest` / `WebSocket` / `EventSource` / `importScripts` を無効化
+
+## `js-demo`
+
+### 記法
+
+````md
+```js-demo
+// libs: d3, mathjs
+const radius = api.math.round(api.math.pi * 15, 0);
+const svg = api.d3.select(api.mount).append("svg")
+  .attr("width", api.width)
+  .attr("height", api.height);
+svg.append("circle").attr("cx", 80).attr("cy", 80).attr("r", radius).attr("fill", "#60a5fa");
+return { radius };
+```
+````
+
+`js:demo` も互換 alias として利用できます。
+
+### libs directive
+
+コード内で `// libs: ...` を指定します。  
+指定された名前だけを allowlist から読み込みます。
+
+対応ライブラリ:
+
+- `d3`
+- `three`
+- `p5`
+- `mathjs`
+- `decimal`
+
+例:
+
+```js
+// libs: d3, three
+```
+
+不明な名前は無視され、allowlist にない URL は読み込みません。
+
+### 実行時 API
+
+`js-demo` のコードには `api` が渡されます。
+
+- `api.mount`: 描画先要素
+- `api.width` / `api.height`: 描画領域サイズ
+- `api.libs`: 読み込み済みライブラリ辞書
+- `api.d3` / `api.THREE` / `api.p5`: 各ライブラリへのショートカット
+- `api.math` / `api.Decimal`: mathjs / decimal のショートカット
+- `api.log(...)`: ログ出力
+- `api.clear()`: `mount` の初期化
+
+### UI
+
+- 初期表示: `Code` タブ
+- `Run` 押下で `Result` タブへ切り替え
+- `Result` には preview iframe とログ出力を表示
+- `status`: `idle` / `loading` / `running` / `done` / `error` / `timeout`
+
+### 制限値
+
+- timeout: `10000ms`
+- 出力上限: `64KiB`
+- 行数上限: `200`
+- iframe 高さ: `380px`
+
+### セキュリティ要点
+
+- 外側 iframe: `sandbox="allow-scripts"`
+- preview iframe: `sandbox="allow-scripts"`
+- runtime CSP で `script-src` を CDN allowlist（jsdelivr/cdnjs）のみに固定
+- `connect-src 'none'`
+- ユーザーコード実行前に `fetch` / `XMLHttpRequest` / `WebSocket` / `EventSource` / `window.open` を無効化
+
+## 注意点
+
+- `js-demo` は DOM/Canvas 実行のため、`js-run` ほど停止制御は強くありません
+- heavy 描画や無限ループはブラウザ負荷につながります
+- 外部アセット取得（テクスチャや追加データ）は既定で禁止です
+
+## トラブルシューティング
+
+- `Result` が `undefined`
+  - `return` を書いて戻り値を返してください
+- `timeout`
+  - 処理を短くするか、描画サイズ・反復回数を下げてください
+- ライブラリが使えない
+  - 先頭の `// libs:` 指定を確認してください
+  - allowlist 外のライブラリは読み込まれません
+
+## Back links
+- [MDGarden - Home](?page=index.md)
+- [MDGarden - Plug-ins](?page=content%2Fplugins.md)
+
+</template>
+
+<template data-page="content/markdown.md" data-page-target="main" data-title="MDGarden - Markdown + Plugin Extension Sample">
+---
+title: "MDGarden - Markdown + Plugin Extension Sample"
+lastModified: "2026-03-06T13:00:00+09:00"
+indexing: true
+---
+
+# Markdown + Plugin Extension Sample
+
+このファイルは、標準 Markdown と MDView 拡張（プラグイン）を確認するためのサンプルです。
+
+toc{.toc}
+
+---
+
+## 1. 見出し
+
+# H1
+## H2
+### H3
+#### H4
+##### H5
+###### H6
+
+## 2. 強調
+
+- **太字**
+- *斜体*
+- ~~打ち消し線~~
+- `インラインコード`
+
+## 3. リスト
+
+- 箇条書き 1
+- 箇条書き 2
+  - ネスト 2-1
+
+1. 番号付き 1
+2. 番号付き 2
+3. 番号付き 3
+
+- [x] タスク完了
+- [ ] タスク未完了
+
+## 4. 引用
+
+&gt; これは引用です。  
+&gt; 複数行の引用にも対応します。
+
+## 5. 水平線
+
+---
+
+## 6. リンクと画像
+
+- [内部リンク（index.md）](?page=content%2Findex.md)
+- [外部リンク（OpenAI）](https://openai.com){.external}
+
+![サンプル画像](https://picsum.photos/480/160)
+
+## 7. テーブル
+
+| 項目 | 値 | メモ |
+|---|---:|---|
+| A | 10 | left |
+| B | 20 | center |
+| C | 30 | right |
+
+## 8. コードブロック（標準）
+
+```text
+plain text block
+```
+
+```js
+const greet = (name) =&gt; `Hello, ${name}`;
+console.log(greet("MDView"));
+```
+
+```bash
+echo "markdown sample"
+```
+
+```json
+{
+  "name": "mdview",
+  "type": "sample"
+}
+```
+
+## 9. 脚注（footnote）
+
+脚注の例です[^1]。もう1つ[^longnote]。
+
+[^1]: これは短い脚注です。
+[^longnote]: これは長めの脚注です。Markdown-it footnote 拡張で表示されます。
+
+## 10. 属性拡張（markdown-it-attrs）
+
+この段落はクラス指定の例です。{.red}
+
+## 11. Plugin: Highlight
+
+`highlight` プラグインでコードハイライトと行番号を確認できます。
+
+```js
+function sum(a, b) {
+  return a + b;
+}
+```
+
+## 12. Plugin: Math
+
+```math
+\[
+\int_0^1 x^2 dx = \frac{1}{3}
+\]
+```
+
+## 13. Plugin: Graph (c3)
+
+```graph
+{
+  "data": {
+    "columns": [
+      ["data1", 30, 200, 100, 400, 150, 250],
+      ["data2", 50, 20, 10, 40, 15, 25]
+    ]
+  }
+}
+```
+
+## 14. Plugin: Chart (Mermaid)
+
+```chart
+graph TD
+  A[Markdown] --&gt; B[MDView]
+  B --&gt; C[Plugins]
+  C --&gt; D[Rendered]
+```
+
+## 1６. Page List (Author Mode/Auto Indexer)
+
+- [MDGarden - Home](?page=index.md)
+- [MDGarden - Options Reference](?page=content%2Foptions.md)
+- [MDGarden - JS Sandbox Plugins](?page=content%2Fjs_sandbox_plugins.md)
+- [MDGarden - Getting Started](?page=content%2Fgetting_started.md)
+- [MDGarden - What is it?](?page=content%2Fwhat_is_it.md)
+- [MDGarden - Plugin Dev Guide](?page=content%2Fplugin_dev_guide.md)
+- [MDGarden - Plug-ins](?page=content%2Fplugins.md)
+- [MDGarden - Single File Wiki/inline mode](?page=content%2Finline_mode.md)
+- [MDGarden - Author Mode](?page=content%2Fauthor_mode.md)
+- [MDGarden - Markdown + Plugin Extension Sample](?page=content%2Fmarkdown.md)
+- [MDGarden - Jorro](?page=content%2Fjorro.md)
+- [MDGarden - Multi File Wiki/include mode](?page=content%2Finclude_mode.md)
+- [MDGarden - API](?page=content%2Fapi.md)
+- [MDGarden - Credits](?page=content%2Fcredits.md)
+
+## 17. Back Links (Author Mode/Auto Indexer)
+
+- [MDGarden - Home](?page=index.md)
+
+&lt;style&gt;
+  .red{
+    color: red;
+  }
+&lt;/style&gt; 
+
+
+## 18. JS-RUN
+
+```js-run
+console.log("hello from sandbox");
+const sum = [1, 2, 3].reduce((a, b) =&gt; a + b, 0);
+return sum;
+```
+
+### Cave generation + A* pathfinding demo (deterministic seed)
+このデモは、セルオートマトンでランダムな洞窟マップを生成し、A\*アルゴリズムで開始点 S から目標点 G までの最短経路を探索するサンプルです。　# は壁、. は通路、* は探索で見つかった経路を表します。最後に探索結果（到達可否、展開ノード数、経路長）を返し、js-run 上でアルゴリズム処理と可視化ログを同時に確認できます。
+
+```js-run
+// Cave generation + A* pathfinding demo (deterministic seed)
+const W = 61;
+const H = 31;
+const WALL_INIT = 0.45;
+const SMOOTH_STEPS = 5;
+const seed = 1337;
+
+// xorshift32
+function rngFactory(s) {
+  let x = s | 0;
+  return () =&gt; {
+    x ^= x &lt;&lt; 13; x ^= x &gt;&gt;&gt; 17; x ^= x &lt;&lt; 5;
+    return ((x &gt;&gt;&gt; 0) / 4294967296);
+  };
+}
+const rand = rngFactory(seed);
+
+const grid = Array.from({ length: H }, () =&gt; Array(W).fill(1));
+
+// init random walls
+for (let y = 1; y &lt; H - 1; y++) {
+  for (let x = 1; x &lt; W - 1; x++) {
+    grid[y][x] = rand() &lt; WALL_INIT ? 1 : 0;
+  }
+}
+
+function countWallNeighbors(g, x, y) {
+  let c = 0;
+  for (let dy = -1; dy &lt;= 1; dy++) {
+    for (let dx = -1; dx &lt;= 1; dx++) {
+      if (dx === 0 && dy === 0) continue;
+      const nx = x + dx, ny = y + dy;
+      if (nx &lt; 0 || ny &lt; 0 || nx &gt;= W || ny &gt;= H) c++;
+      else c += g[ny][nx];
+    }
+  }
+  return c;
+}
+
+// smooth cellular automata
+for (let step = 0; step &lt; SMOOTH_STEPS; step++) {
+  const next = Array.from({ length: H }, () =&gt; Array(W).fill(1));
+  for (let y = 1; y &lt; H - 1; y++) {
+    for (let x = 1; x &lt; W - 1; x++) {
+      const n = countWallNeighbors(grid, x, y);
+      next[y][x] = n &gt;= 5 ? 1 : 0;
+    }
+  }
+  for (let x = 0; x &lt; W; x++) next[0][x] = next[H - 1][x] = 1;
+  for (let y = 0; y &lt; H; y++) next[y][0] = next[y][W - 1] = 1;
+  for (let y = 0; y &lt; H; y++) for (let x = 0; x &lt; W; x++) grid[y][x] = next[y][x];
+}
+
+function randomFloor() {
+  for (let i = 0; i &lt; 5000; i++) {
+    const x = 1 + (rand() * (W - 2)) | 0;
+    const y = 1 + (rand() * (H - 2)) | 0;
+    if (grid[y][x] === 0) return [x, y];
+  }
+  return null;
+}
+
+let start = randomFloor();
+let goal = randomFloor();
+if (!start || !goal) throw new Error("No floor cell found.");
+
+function dist(a, b) { return Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]); }
+while (dist(start, goal) &lt; (W + H) / 3) {
+  const g2 = randomFloor();
+  if (!g2) break;
+  goal = g2;
+}
+
+// A*
+const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+const key = (x,y) =&gt; `${x},${y}`;
+const open = [{ x:start[0], y:start[1], g:0, f:dist(start, goal) }];
+const came = new Map();
+const gScore = new Map([[key(start[0], start[1]), 0]]);
+const closed = new Set();
+
+let expanded = 0;
+let found = false;
+
+while (open.length) {
+  open.sort((a,b)=&gt;a.f-b.f);
+  const cur = open.shift();
+  const ck = key(cur.x, cur.y);
+  if (closed.has(ck)) continue;
+  closed.add(ck);
+  expanded++;
+
+  if (cur.x === goal[0] && cur.y === goal[1]) { found = true; break; }
+
+  for (const [dx,dy] of dirs) {
+    const nx = cur.x + dx, ny = cur.y + dy;
+    if (nx &lt;= 0 || ny &lt;= 0 || nx &gt;= W-1 || ny &gt;= H-1) continue;
+    if (grid[ny][nx] === 1) continue;
+    const nk = key(nx, ny);
+    if (closed.has(nk)) continue;
+    const ng = cur.g + 1;
+    const old = gScore.get(nk);
+    if (old === undefined || ng &lt; old) {
+      gScore.set(nk, ng);
+      came.set(nk, ck);
+      open.push({ x:nx, y:ny, g:ng, f:ng + Math.abs(nx-goal[0]) + Math.abs(ny-goal[1]) });
+    }
+  }
+}
+
+let path = [];
+if (found) {
+  let k = key(goal[0], goal[1]);
+  while (k !== key(start[0], start[1])) {
+    const [x,y] = k.split(",").map(Number);
+    path.push([x,y]);
+    k = came.get(k);
+    if (!k) break;
+  }
+  path.push(start);
+  path.reverse();
+}
+
+// render
+const chars = grid.map(row =&gt; row.map(v =&gt; v ? "#" : "."));
+for (const [x,y] of path) {
+  if ((x === start[0] && y === start[1]) || (x === goal[0] && y === goal[1])) continue;
+  chars[y][x] = "*";
+}
+chars[start[1]][start[0]] = "S";
+chars[goal[1]][goal[0]] = "G";
+
+console.log(`seed=${seed} size=${W}x${H} found=${found}`);
+console.log(`expanded=${expanded} pathLength=${path.length}`);
+for (let y = 0; y &lt; H; y++) console.log(chars[y].join(""));
+
+return {
+  found,
+  expanded,
+  pathLength: path.length,
+  start,
+  goal
+};
+
+```
+
+## 19. JS-DEMO
+
+```js-demo
+// libs: d3
+const svg = api.d3
+  .select(api.mount)
+  .append("svg")
+  .attr("width", api.width)
+  .attr("height", api.height);
+svg.append("circle").attr("cx", 80).attr("cy", 80).attr("r", 48).attr("fill", "#60a5fa");
+return "ok";
+```
+
+このデモは d3 を使って、疑似乱数で生成した相関データを散布図として描画します。js-demo の api.mount を描画先に使い、Result タブでプレビューと実行結果（点数など）を確認できます。
+```js-demo
+// libs: d3
+api.clear();
+
+const d3 = api.d3;
+const width = Math.max(320, api.width);
+const height = Math.max(220, api.height);
+const margin = { top: 24, right: 24, bottom: 36, left: 44 };
+
+function rng(seed) {
+  let x = seed | 0;
+  return () =&gt; {
+    x ^= x &lt;&lt; 13; x ^= x &gt;&gt;&gt; 17; x ^= x &lt;&lt; 5;
+    return (x &gt;&gt;&gt; 0) / 4294967296;
+  };
+}
+const rand = rng(20260307);
+
+// 相関のある疑似データを生成
+const points = Array.from({ length: 120 }, (_, i) =&gt; {
+  const x = i / 119;
+  const noise = (rand() - 0.5) * 0.22;
+  const y = 0.15 + 0.7 * x + noise;
+  return { x, y: Math.max(0, Math.min(1, y)) };
+});
+
+const svg = d3
+  .select(api.mount)
+  .append("svg")
+  .attr("width", width)
+  .attr("height", height)
+  .style("background", "#ffffff");
+
+const x = d3.scaleLinear().domain([0, 1]).range([margin.left, width - margin.right]);
+const y = d3.scaleLinear().domain([0, 1]).range([height - margin.bottom, margin.top]);
+
+svg.append("g")
+  .attr("transform", `translate(0,${height - margin.bottom})`)
+  .call(d3.axisBottom(x).ticks(6));
+
+svg.append("g")
+  .attr("transform", `translate(${margin.left},0)`)
+  .call(d3.axisLeft(y).ticks(5));
+
+svg.selectAll(".domain, .tick line").attr("stroke", "#94a3b8");
+svg.selectAll(".tick text").attr("fill", "#334155");
+
+svg.append("g")
+  .selectAll("circle")
+  .data(points)
+  .enter()
+  .append("circle")
+  .attr("cx", d =&gt; x(d.x))
+  .attr("cy", d =&gt; y(d.y))
+  .attr("r", 3.5)
+  .attr("fill", "#2563eb")
+  .attr("opacity", 0.9);
+
+svg.append("text")
+  .attr("x", margin.left)
+  .attr("y", 16)
+  .attr("fill", "#334155")
+  .style("font", "12px sans-serif")
+  .text("d3 scatter demo (seeded data)");
+
+return { points: points.length, chart: "scatter" };
+```
+
+## 20. JS-RUN + Astronomy
+
+```js-run
+// libs: astronomy
+const Astronomy = api.libs.astronomy;
+if (!Astronomy) {
+  throw new Error("Astronomy library is unavailable.");
+}
+
+const symbols = Object.keys(Astronomy).sort();
+const now = new Date();
+const moonPhase = typeof Astronomy.MoonPhase === "function"
+  ? Astronomy.MoonPhase(now)
+  : null;
+
+console.log("Astronomy exports:", symbols.length);
+return {
+  now: now.toISOString(),
+  moonPhase,
+  sampleSymbols: symbols.slice(0, 16)
+};
+```
+
+## 21. JS-DEMO + Astronomy
+
+```js-demo
+// libs: astronomy
+api.clear();
+const Astronomy = api.libs.astronomy;
+if (!Astronomy || typeof Astronomy.MoonPhase !== "function") {
+  throw new Error("Astronomy.MoonPhase is not available.");
+}
+
+const days = 30;
+const intervalHours = 6;
+const samplesCount = Math.floor((days * 24) / intervalHours) + 1;
+const samples = [];
+for (let i = 0; i &lt; samplesCount; i++) {
+  const date = new Date(Date.now() + i * intervalHours * 60 * 60 * 1000);
+  // MoonPhase: 0-360 (0=new moon, 180=full moon)
+  const phaseDeg = Astronomy.MoonPhase(date);
+  // Convert wrapped phase angle to smooth illumination ratio (0..1)
+  const illumination = 0.5 * (1 - Math.cos((phaseDeg * Math.PI) / 180));
+  samples.push({
+    step: i,
+    label: date.toISOString().slice(0, 10),
+    value: illumination
+  });
+}
+
+const width = Math.max(380, api.width);
+const height = Math.max(380, api.height);
+const margin = { top: 24, right: 16, bottom: 28, left: 36 };
+const innerW = width - margin.left - margin.right;
+const innerH = height - margin.top - margin.bottom;
+
+const svgNS = "http://www.w3.org/2000/svg";
+const svg = document.createElementNS(svgNS, "svg");
+svg.setAttribute("width", String(width));
+svg.setAttribute("height", String(height));
+svg.style.background = "#ffffff";
+svg.style.display = "block";
+api.mount.appendChild(svg);
+
+const xOf = (i) =&gt; margin.left + (i / (samples.length - 1)) * innerW;
+const yOf = (v) =&gt; margin.top + (1 - v) * innerH;
+
+const grid = document.createElementNS(svgNS, "g");
+grid.setAttribute("stroke", "#d1d5db");
+for (let i = 0; i &lt;= 4; i++) {
+  const y = margin.top + (i / 4) * innerH;
+  const line = document.createElementNS(svgNS, "line");
+  line.setAttribute("x1", String(margin.left));
+  line.setAttribute("x2", String(width - margin.right));
+  line.setAttribute("y1", String(y));
+  line.setAttribute("y2", String(y));
+  grid.appendChild(line);
+}
+svg.appendChild(grid);
+
+const path = document.createElementNS(svgNS, "path");
+const d = samples
+  .map((s, i) =&gt; `${i === 0 ? "M" : "L"} ${xOf(i)} ${yOf(s.value)}`)
+  .join(" ");
+path.setAttribute("d", d);
+path.setAttribute("fill", "none");
+path.setAttribute("stroke", "#2563eb");
+path.setAttribute("stroke-width", "2");
+svg.appendChild(path);
+
+const title = document.createElementNS(svgNS, "text");
+title.setAttribute("x", String(margin.left));
+title.setAttribute("y", "16");
+title.setAttribute("fill", "#334155");
+title.setAttribute("font-size", "12");
+title.textContent = "Moon illumination trend (next 30 days, 6h step)";
+svg.appendChild(title);
+
+return {
+  firstDay: samples[0].label,
+  lastDay: samples[samples.length - 1].label,
+  minIllumination: Math.min(...samples.map((s) =&gt; s.value)),
+  maxIllumination: Math.max(...samples.map((s) =&gt; s.value)),
+  samples: samples.length
+};
+```
+
+</template>
+
+<template data-page="content/options.md" data-page-target="main" data-title="MDGarden - Options Reference">
+---
+title: "MDGarden - Options Reference"
+lastModified: "2026-03-08T12:30:00+09:00"
+indexing: true
+---
+
+# Options Reference
+このページは、`config.json` と `&lt;md-garden&gt;` で指定できるオプションを実装ベースで網羅したリファレンスです。
+
+## 適用順序（優先順位）
+
+同じキーを複数箇所で指定した場合は、後勝ちで上書きされます。
+
+1. `DEFAULT_VIEWER_OPTIONS`（実装の既定値）
+2. `config.json`（既定で自動読み込み）
+3. `data-config` で指定した追加設定ファイル
+4. `data-option`（JSON文字列）
+5. 個別の `data-*` 属性
+
+補足:
+
+- `link_target` 未指定時は `&lt;md-garden id="..."&gt;` の `id` が使われます。
+- `mode` は設定値ではなく、`src` 属性の有無で自動決定されます（`include` / `inline`）。
+
+## `&lt;md-garden&gt;` 属性
+
+### 基本属性
+
+| 属性 | 型 | 対応キー | 既定/挙動 |
+|---|---|---|---|
+| `id` | `string` | `link_target` の既定に使用 | viewer識別子。未指定時は不正構成 |
+| `src` | `string` | なし（モード判定） | 指定時 `include` mode、未指定時 `inline` mode |
+| `data-config` | `string` | なし（追加設定URL） | 指定したJSONを追加読み込み |
+| `data-option` | `string(JSON)` | 任意 | オプションオブジェクトとしてマージ |
+| `data-plugins` | `string(csv)` | なし（plugin有効化） | 未指定時は `toc,author-mode`。指定可能名は下記参照 |
+| `data-highlight-style` | `string` | なし（highlight plugin用） | 未指定時 `github` |
+
+### viewerオプション属性（`this.option.*` へ反映）
+
+| 属性 | 対応キー | 型 | 既定値 |
+|---|---|---|---|
+| `data-html` | `html` | `boolean` | `false` |
+| `data-sanitize` | `sanitize` | `boolean` | `true` |
+| `data-format` | `format` | `string` | `"markdown"` |
+| `data-spa` | `spa` | `boolean` | `false` |
+| `data-inline-spa` | `inline_spa` | `boolean` | `false` |
+| `data-inline-spa-param` | `inline_spa_param` | `string` | `"page"` |
+| `data-inline-page-attr` | `inline_page_attr` | `string` | `"data-page"` |
+| `data-inline-default-page` | `inline_default_page` | `string` | `""` |
+| `data-link-target` / `data-link_target` | `link_target` | `string` | `id` |
+| `data-frontmatter` | `frontmatter` | `boolean` | `true` |
+| `data-allowed-dirs` | `allowed_dirs` | `string(csv)` or `string[]` | `[]` |
+| `data-allowed-files` | `allowed_files` | `string(csv)` or `string[]` | `["index.md","404.md"]` を常に含む |
+| `data-strict-root` | `strict_root` | `boolean` | `false` |
+| `data-link-resolution` | `link_resolution` | `"relative"` or `"root"` | `"root"` |
+| `data-allow-parent` | `allow_parent` | `boolean` | `false` |
+| `data-query-path-mode` | `query_path_mode` | `"full"` or `"split"` | `"full"` |
+| `data-execute-script` | `execute_script` | `boolean` | `false` |
+
+注意:
+
+- `data-status` は内部状態用で、設定用途ではありません。
+- `inline_spa=true` の場合、`inline-spa` plugin は `data-plugins` に未指定でも自動追加されます。
+
+### `data-plugins` で指定可能な組み込み名
+
+- `toc`
+- `highlight`
+- `math`
+- `graph`
+- `chart`
+- `js-run`
+- `js-demo`
+- `inline-spa`
+- `author-mode`
+- `auto-indexer`（`author-mode` の互換alias）
+
+## `config.json` オプション
+
+`config.json` は `&lt;md-garden&gt;` ごとに `this.option` にマージされます。  
+次は実装で参照される主要キーです。
+
+### viewer共通キー
+
+| キー | 型 | 既定値 | 説明 |
+|---|---|---|---|
+| `html` | `boolean` | `false` | Markdown内HTMLを許可 |
+| `sanitize` | `boolean` | `true` | DOMPurifyによるサニタイズ |
+| `format` | `string` | `"markdown"` | 現在の通常表示フローでは実質未使用 |
+| `spa` | `boolean` | `false` | include modeでクエリ遷移を有効化 |
+| `inline_spa` | `boolean` | `false` | inline modeで`?page=`遷移を有効化 |
+| `inline_spa_param` | `string` | `"page"` | inline SPA のクエリキー |
+| `inline_page_attr` | `string` | `"data-page"` | inline templateのページ属性名 |
+| `inline_default_page` | `string` | `""` | inlineページ解決時の既定ページ |
+| `frontmatter` | `boolean` | `true` | frontmatter パース有効化 |
+| `link_target` | `string` | viewer `id` | 遷移時に再描画する対象viewer |
+| `allowed_dirs` | `string[]` or `string(csv)` | `[]` | include mode で許可する先頭ディレクトリ |
+| `allowed_files` | `string[]` or `string(csv)` | `["index.md","404.md"]` | `strict_root=true` 時の単一ファイル許可リスト |
+| `strict_root` | `boolean` | `false` | ルート直下参照の制限有効化 |
+| `link_resolution` | `"relative"` or `"root"` | `"root"` | 相対/ルート基準の解決方針 |
+| `allow_parent` | `boolean` | `false` | `..` 解決許可 |
+| `query_path_mode` | `"full"` or `"split"` | `"full"` | URLクエリ形式 |
+| `execute_script` | `boolean` | `false` | 描画後 `&lt;script&gt;` を有効化 |
+
+### `plugins` キー（plugin個別設定）
+
+`plugins` はオブジェクトです。現行で設定キーを解釈するのは `js-run` と `js-demo` です。
+
+```json
+{
+  "plugins": {
+    "js-run": {
+      "allowList": ["mathjs", "decimal", "astronomy"],
+      "trustedOrigins": ["https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"],
+      "libraries": {
+        "astronomy": {
+          "global": "Astronomy",
+          "urls": [
+            "https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+`plugins.&lt;pluginName&gt;` で使えるキー:
+
+| キー | 型 | 説明 |
+|---|---|---|
+| `allowList` | `string[]` | 使用許可ライブラリ名。未指定時はレジストリ全許可 |
+| `trustedOrigins` | `string[]` | `https` origin の許可追加。既定originに加算 |
+| `libraries` | `object` | ライブラリ定義の追加/上書き |
+
+`libraries.&lt;name&gt;` の形式:
+
+| キー | 型 | 必須 | 説明 |
+|---|---|---|---|
+| `global` | `string` | 必須 | 参照するグローバル名 |
+| `urls` | `string` or `string[]` | 必須 | 読み込みURL（`https` かつ trusted origin のみ有効） |
+
+### `author_mode` キー
+
+Author Mode 系は `author_mode` 配下で指定します。後方互換として一部トップレベルキーも解釈されます。
+
+| キー | 型 | 既定値 | 説明 |
+|---|---|---|---|
+| `author_mode.enabled` | `boolean` | `true`（`author_mode` 未指定時） / `false`（`author_mode` オブジェクトがあり `enabled` 省略時） | Author Mode 全体の有効/無効 |
+| `author_mode.deploy` | `string[]` or `string` | `[]` | 本番URL判定に使うデプロイ先 |
+| `author_mode.auto_indexer.enabled` | `boolean` | `false` | Auto Indexer有効化 |
+| `author_mode.auto_indexer.strict` | `boolean` | `true` | 厳格モード |
+| `author_mode.auto_indexer.mode` | `string` | `"include-only"` | 現在は `include-only` のみ有効 |
+| `author_mode.auto_indexer.sitemap_path` | `string` | `"sitemap.json"` | sitemap パス |
+| `author_mode.auto_indexer.db_prefix` | `string` | `"mdgarden_auto_indexer"` | IndexedDB名の接頭辞 |
+| `author_mode.auto_indexer.pbkdf2_iterations` | `number` | `210000` | 鍵導出反復回数 |
+| `author_mode.local_editor.enabled` | `boolean` | `false` | Local Editor有効化 |
+| `author_mode.local_editor.auto_reload` | `boolean` | `true` | 保存後の自動再読込 |
+| `author_mode.offline_export.enabled` | `boolean` | `true` | Offline Wiki export有効化 |
+| `author_mode.offline_export.file_name` | `string` | `"bundle.html"` | 出力ファイル名 |
+| `author_mode.offline_export.query_param` | `string` | `"page"` | 出力wikiのクエリパラメータ名 |
+| `author_mode.offline_export.default_page` | `string` | `""` | 既定ページ |
+| `author_mode.offline_export.viewer_id` | `string` | `""` | 出力対象viewer上書き |
+
+後方互換キー（トップレベルで解釈）:
+
+- `deploy`
+- `auto_indexer`
+- `local_editor`
+- `offline_export`
+- `inline_export`（`offline_export` の互換alias）
+
+## 例
+
+```html
+&lt;md-garden
+  id="main"
+  src="index.md"
+  data-config="config.json"
+  data-plugins="toc,highlight,math,graph,chart,js-run,js-demo,author-mode"
+  data-highlight-style="github"
+  data-link-resolution="relative"
+  data-query-path-mode="split"&gt;
+&lt;/md-garden&gt;
+```
+
+```json
+{
+  "spa": true,
+  "frontmatter": true,
+  "link_target": "main",
+  "strict_root": false,
+  "link_resolution": "relative",
+  "allow_parent": true,
+  "query_path_mode": "split",
+  "plugins": {
+    "js-run": {
+      "allowList": ["mathjs", "decimal"],
+      "trustedOrigins": ["https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com"]
+    },
+    "js-demo": {
+      "allowList": ["d3", "three", "p5", "mathjs", "decimal"]
+    }
+  },
+  "author_mode": {
+    "enabled": false,
+    "deploy": ["https://example.com/"],
+    "auto_indexer": {
+      "enabled": false,
+      "mode": "include-only",
+      "strict": true,
+      "sitemap_path": "sitemap.json"
+    },
+    "local_editor": {
+      "enabled": false,
+      "auto_reload": true
+    },
+    "offline_export": {
+      "enabled": true,
+      "file_name": "bundle.html",
+      "query_param": "page"
+    }
+  }
+}
+```
+
+## Back links
+- [MDGarden - Home](?page=index.md)
+
+</template>
+
+<template data-page="content/plugin_dev_guide.md" data-page-target="main" data-title="MDGarden - Plugin Dev Guide">
+---
+title: "MDGarden - Plugin Dev Guide"
+lastModified: "2026-03-06T16:35:00+09:00"
+indexing: true
+---
+
+# Plugin Dev Guide
+このページは、MDGarden の plugin を実装する開発者向けガイドです。  
+組み込み plugin の利用方法は [Plug-ins](?page=content%2Fplugins.md) を参照してください。
+
+## Purpose / Scope
+
+- 対象読者: MDGarden の挙動を拡張したい開発者
+- 対象範囲: plugin runtime、イベント連携、実装パターン、運用上の注意
+- 非対象: 組み込み plugin の使い方（`plugins.md` 側で説明）
+
+## Plugin Architecture
+
+- plugin は viewer（`&lt;md-garden id="..."&gt;`）単位で登録されます
+- 実行基盤は `window.MDGarden.pluginRuntime` です
+- 登録 API:
+  - `window.MDGarden.registerPlugin(viewId, plugin)`
+- plugin runtime が提供する `ctx`:
+  - `ctx.viewId`
+  - `ctx.getViewer()`
+  - `ctx.loadScripts(urls)`
+  - `ctx.loadStyles(urls)`
+
+## Plugin Contract (API)
+
+plugin は次の形のオブジェクトです。
+
+```js
+{
+  name: "plugin-name",
+  onInit: ({ ctx }) =&gt; {},
+  onEvent: ({ event, payload, ctx }) =&gt; {},
+  onDispose: ({ ctx }) =&gt; {},
+  transformCode: ({ code, lang, ctx }) =&gt; {}
+}
+```
+
+- `name`: 省略時は `"anonymous_plugin"` として扱われます
+- `onInit`: viewer 初期化時に1回実行されます
+- `onEvent`: plugin event ごとに呼ばれます
+- `onDispose`: viewer 破棄時に呼ばれます
+- `transformCode`: コードブロック変換フックです
+  - `undefined` を返すと「未変換」
+  - 文字列を返すとその値で置換
+
+## Lifecycle
+
+1. `registerPlugin(viewId, plugin)` で plugin を登録
+2. viewer 初期化時に `onInit`
+3. Markdown 読み込み/描画の各フェーズで `onEvent`
+4. viewer 破棄時に `onDispose`
+
+補足:
+
+- viewer 初期化後に `registerPlugin` した場合も `onInit` は即時実行されます
+- plugin 例外は runtime 側で捕捉され、`console.error` に出力されます
+
+## Event Reference
+
+`window.MDGarden.PLUGIN_EVENTS` で参照できる標準イベント:
+
+- `markdown_loaded`
+  - Markdown 読み込み完了直後、HTML変換前
+- `content_rendered`
+  - HTML が section に反映された後
+- `content_loaded`
+  - 初回描画時に発火
+- `content_reloaded`
+  - SPA遷移など再描画時に発火
+- `code_highlight`
+  - `onEvent` ではなく hook/`transformCode` 系で使うイベント名
+
+実務では `content_loaded` / `content_reloaded` を同じ処理で扱う構成が安定します。
+
+## Payload / Context Spec
+
+`onEvent` の引数は `{ event, payload, ctx }` です。
+
+`payload` の代表的な形:
+
+```js
+// markdown_loaded / content_rendered
+{
+  viewer: /* MarkdownViewer */,
+  target: /* md-garden element */,
+  status: "content_loaded" | "content_reloaded", // content_rendered のとき
+  context: {
+    viewerId: "main",
+    currentDocPath: "index.md",
+    normalizedPath: "index.md",
+    frontmatter: { title: "...", lastModified: "..." },
+    mode: "include" | "inline",
+    status: "..."
+  }
+}
+```
+
+```js
+// content_loaded / content_reloaded
+{
+  target: /* md-garden element */,
+  status: "content_loaded" | "content_reloaded",
+  context: {
+    viewerId: "main",
+    currentDocPath: "index.md",
+    normalizedPath: "index.md",
+    frontmatter: { ... },
+    mode: "include" | "inline",
+    status: "..."
+  }
+}
+```
+
+`ctx` の実用ポイント:
+
+- `ctx.getViewer()` で対象 viewer を取得
+- `ctx.loadScripts` / `ctx.loadStyles` は URL 配列も受け取れる
+
+## Minimal Plugin Example
+
+```js
+const createHelloPlugin = () =&gt; {
+  return {
+    name: "hello",
+    onInit: ({ ctx }) =&gt; {
+      const viewer = ctx.getViewer();
+      console.log("init:", viewer && viewer.id);
+    },
+    onEvent: ({ event, payload }) =&gt; {
+      if (event !== window.MDGarden.PLUGIN_EVENTS.CONTENT_RENDERED) {
+        return;
+      }
+      const root = payload && payload.target ? payload.target : null;
+      if (!root) {
+        return;
+      }
+      root.querySelectorAll("h1").forEach((h1) =&gt; {
+        h1.dataset.hello = "true";
+      });
+    }
+  };
+};
+
+window.MDGarden.registerPlugin("main", createHelloPlugin());
+```
+
+## Advanced Patterns
+
+- 遅延ロード:
+  - `onEvent` で必要時に `ctx.loadScripts` / `ctx.loadStyles` を呼ぶ
+  - ロード済みフラグを保持して多重読み込みを防ぐ
+- 再入安全:
+  - `dataset` フラグ（例: `data-mdgarden-*-rendered`）で二重処理を防止
+- スコープ限定:
+  - `payload.target` 以下だけをクエリし、`document` 全体走査を避ける
+- SPA対応:
+  - `content_loaded` と `content_reloaded` の両方を処理対象にする
+
+## Performance Guidelines
+
+- 重い処理を `content_rendered` ごとに全件実行しない
+- DOM クエリは `payload.target` を起点に最小化する
+- レイアウトスラッシングを避ける
+- `onDispose` でイベントリスナやタイマーを解放する
+
+## Security Guidelines
+
+- plugin はブラウザ内で任意コードを実行できるため、配布元の信頼性を確認する
+- 外部 CDN 読み込みは固定バージョンを使う
+- `data-execute-script="true"` と併用する場合は特にレビューを厳格化する
+- ユーザー入力や外部データを DOM に入れるときはサニタイズ方針を明確化する
+
+## Debugging / Troubleshooting
+
+- イベントが来ない:
+  - `viewId` と `registerPlugin` 対象 viewer id を確認
+  - `data-plugins` の指定名と registry 名の一致を確認
+- 処理対象が取れない:
+  - `payload.target` が存在するイベントか確認
+  - 必要なら `ctx.getViewer()` へフォールバック
+- 二重描画される:
+  - `dataset` フラグで idempotent にする
+- SPA遷移時だけ崩れる:
+  - `content_reloaded` を処理対象に含める
+
+## Compatibility / Versioning
+
+- plugin API は `window.MDGarden` 経由で提供されます
+- 実装依存の挙動は `src/assets/js/plugins/plugin-runtime.js` と `src/assets/js/mdgarden.js` を基準に確認してください
+- 組み込み名の後方互換:
+  - `auto-indexer` は `author-mode` の alias
+
+## Checklist for New Plugin
+
+- `name` を設定した
+- `content_loaded` と `content_reloaded` を考慮した
+- `payload.target` 不在時の分岐を書いた
+- 二重実行防止（idempotent）を入れた
+- 外部アセットの多重ロードを防いだ
+- `onDispose` で後始末を実装した
+- docs に利用例を追加した
+
+## Back links
+- [MDGarden - Home](?page=index.md)
+- [MDGarden - Plug-ins](?page=content%2Fplugins.md)
+
+</template>
+
+<template data-page="content/plugins.md" data-page-target="main" data-title="MDGarden - Plug-ins">
+---
+title: "MDGarden - Plug-ins"
+lastModified: "2026-03-06T16:10:00+09:00"
+indexing: true
+---
+
+# Plug-ins
+MDGarden は plugin で機能を拡張できます。  
+標準の表示機能に加えて、目次・数式・グラフ・編集支援などを必要に応じて追加する設計です。
+
+## 有効化の基本
+
+`md-garden` 側で `data-plugins` を指定します。
+
+```html
+&lt;md-garden
+  id="main"
+  src="index.md"
+  data-plugins="toc,highlight,math,graph,chart,js-run,js-demo,author-mode"&gt;
+&lt;/md-garden&gt;
+```
+
+- 既定 plugin は `toc` と `author-mode`
+- `auto-indexer` は `author-mode` の後方互換 alias
+- `data-inline-spa="true"` の場合は、`inline-spa` が自動的に追加されます
+
+## 組み込み plugin の使い方
+
+### `toc`
+
+見出し（`h2`,`h3`）から目次を生成します。表示先は `.toc` 要素です。
+
+```md
+nav{.toc}
+
+## Section A
+## Section B
+### Section B-1
+```
+
+### `highlight`
+
+コードブロックをハイライトします。テーマは `data-highlight-style` で指定できます。
+
+```html
+&lt;md-garden
+  id="main"
+  src="index.md"
+  data-plugins="highlight"
+  data-highlight-style="github"&gt;
+&lt;/md-garden&gt;
+```
+
+````md
+```js
+const hello = "world";
+console.log(hello);
+```
+````
+
+### `math`
+
+数式レンダリング（MathJax）を有効化します。インライン数式と `math` コードブロックを扱えます。
+
+````md
+This is inline math: $E = mc^2$
+
+```math
+\int_a^b f(x)\,dx
+```
+````
+
+### `graph`
+
+`graph` コードブロック内の JSON を c3 グラフとして描画します。
+
+````md
+```graph
+{
+  "data": {
+    "columns": [
+      ["sales", 30, 200, 100, 400]
+    ]
+  }
+}
+```
+````
+
+### `chart`
+
+`chart` コードブロックを Mermaid として描画します。
+
+````md
+```chart
+flowchart TD
+  A[Start] --&gt; B{Ready?}
+  B --&gt;|Yes| C[Run]
+  B --&gt;|No| D[Wait]
+```
+````
+
+### `js-run`　*experimental*
+
+`js-run` コードブロックを sandbox iframe 内で実行します。  
+実行はブラウザ内のみで、ネットワーク API は無効化され、タイムアウトと出力上限が適用されます。
+`js:run` も互換 alias として利用できます。
+初期表示は `Code` タブで、`Run` ボタン押下時に実行され `Result` タブへ切り替わります。
+`// libs: mathjs, decimal` の directive で許可ライブラリを指定できます。
+`config.json` の `plugins.js-run` で `allowList/trustedOrigins/libraries` を上書き可能です。
+利用ライブラリはコード先頭の directive で指定します（allowlist 方式）。
+詳細仕様は [js_sandbox_plugins](?page=content%2Fjs_sandbox_plugins.md) を参照してください。
+
+````md
+```js-run
+// libs: mathjs, decimal
+console.log("hello from sandbox");
+const sum = api.math.sum([1, 2, 3]);
+const precise = new api.Decimal("0.1").plus("0.2").toString();
+return { sum, precise };
+```
+````
+
+### `js-demo` *experimental*
+
+`js-demo` コードブロックを demo 用 sandbox iframe で実行します。  
+`Run` 押下時に実行され、`Result` タブで描画結果とログを確認できます。
+`js:demo` も互換 alias として利用できます。
+`config.json` の `plugins.js-demo` でも `allowList/trustedOrigins/libraries` を上書き可能です。
+利用ライブラリはコード先頭の directive で指定します（allowlist 方式）。
+詳細仕様は [js_sandbox_plugins](?page=content%2Fjs_sandbox_plugins.md) を参照してください。
+
+
+````md
+```js-demo
+// libs: d3, mathjs
+const radius = api.math.round(api.math.pi * 15, 0);
+const svg = api.d3.select(api.mount).append("svg")
+  .attr("width", api.width)
+  .attr("height", api.height);
+svg.append("circle")
+  .attr("cx", 100)
+  .attr("cy", 100)
+  .attr("r", radius)
+  .attr("fill", "#60a5fa");
+return { radius };
+```
+````
+
+### `inline-spa`
+
+inline mode で `?page=` 遷移を扱う plugin です。`data-inline-spa="true"` で自動追加されます。
+
+```html
+&lt;md-garden
+  id="main"
+  data-inline-spa="true"
+  data-inline-spa-param="page"
+  data-inline-default-page="home.md"&gt;
+&lt;/md-garden&gt;
+```
+
+### `author-mode`
+
+Author Mode の UI と機能（sitemap / local editor / Offline Wiki export）を提供します。  
+詳細設定は [Author Mode](?page=content%2Fauthor_mode.md) と [author_mode_plugin](?page=content%2Fauthor_mode_plugin.md) を参照してください。
+
+```html
+&lt;mdg-author viewer-id="main"&gt;&lt;/mdg-author&gt;
+&lt;md-garden id="main" src="index.md" data-plugins="toc,author-mode"&gt;&lt;/md-garden&gt;
+```
+
+埋め込み表示の例:
+
+```md
+list{.auto-indexer-page-list sort-key="lastModified,path" sort-order="desc"}
+backlinks{.auto-indexer-backlinks sort-key="lastModified,path" sort-order="desc"}
+```
+
+## 開発者向け
+
+plugin のライフサイクル、イベント、最小実装例、デバッグ方針は [Plugin Dev Guide](?page=content%2Fplugin_dev_guide.md) に分離しています。
+
+## Back links
+- [MDGarden - Home](?page=index.md)
+- [MDGarden - Getting Started](?page=content%2Fgetting_started.md)
+- [MDGarden - Plugin Dev Guide](?page=content%2Fplugin_dev_guide.md)
+- [MDGarden - Single File Wiki/inline mode](?page=content%2Finline_mode.md)
+
+</template>
+
+<template data-page="content/what_is_it.md" data-page-target="main" data-title="MDGarden - What is it?">
+---
+title: "MDGarden - What is it?"
+lastModified: "2026-03-06T16:55:00+09:00"
+indexing: true
+---
+
+# What is it?
+MDGardenはブラウザ上で動作するMarkdownベースの軽量ドキュメントビュアー／Wikiエンジンです。  
+静的なファイルのみで構成され、標準的なMarkdownをデータファイルとして使用します。
+公開サーバ上では高機能のMarkdownビューアーとして動作し、
+ローカルサーバではパーソナルナレッジベース／Wikiエンジンとして動作します。
+
+## Document Viewer
+MDGardenは、公開サーバでは静的なMarkdownファイルをリッチでインタラクティブなページに変換する高機能なドキュメントビューアーとして動作します。
+
+### Dynamic Routing on Markdown 
+Markdown 内に記述された相対リンクを解釈し、ブラウザのリロードを伴わない高速なページ遷移を実現します。フォルダ構造がそのまま Wiki の構造として機能するため、複雑なルーティング設定を必要とせず、リンクを辿るだけで膨大なドキュメントを自由に探索できます。
+
+### Rich Content & Plugin Extensibility
+標準的な Markdown 記法をベースとしながら、プラグインシステムにより表現力を自在に拡張できます。
+
+- **数式・図表**: LaTeX による数式表示や、Mermaid 等によるグラフ・チャートの埋め込み。
+- **インタラクティブ**: コードサンドボックスの統合による、実行可能なサンプルコードの提示。
+
+Markdown のシンプルさを保ったまま、技術文書や研究ノートに必要なさまざまな表現を実現します。
+
+### Static File Architecture
+DBやサーバサイドスクリプトを一切持たない純粋な静的ファイル構成であるため、動的システム特有の脆弱性（SQLインジェクション等）が構造的に存在しません。GitHub Pages や S3 などのシンプルな静的ホスティング環境で、最高レベルのセキュリティと可用性を維持します。
+
+
+## Wiki Engine
+MDGardenは、ローカルサーバ（localhost/127.0.0.1）では簡易編集やインデックス機能を備えたWikiエンジン／パーソナルナレッジベースとして動作します。また、プロジェクト全体をサーバレスで動作するシングルファイルWikiとして書き出すことができます。
+
+### Indexing via Reading
+一般的な Wiki や SSG と異なり、このシステムにはビルドという概念がありません。ブラウザが Markdown をフェッチして表示する際、その場でリンクを抽出し、既存の sitemap.json との差分を計算してバックリンク情報を更新します。閲覧することによってインデックスが記録・更新される仕組みになっています。
+
+### Content Editing and Export
+ローカル環境ではFile System Access APIを使って、ブラウザ上からMarkdownを直接編集する機能やプロジェクト全体を1つのHTMLとして書き出す機能を提供します。その際、ブラウザの制限により保存処理はローカルに対してのみ行われ、ブラウザとOS間のネイティブな機能だけで完結します。サーバ上では動的なプロセスは一切走らないため悪意のある第三者がファイルを改ざんするリスクは極めて小さくなります[^1]。
+[^1]:通信系路上でのインジェクションや同一ブラウザ上の別プロセスからの介入などの可能性は避けられないためリスクはゼロにはなりません。
+
+### Local-First Security & Permissions
+セキュリティとデータの整合性を守るため、環境に応じて動作モードを自動的に切り替えます。
+
+|環境 (Context)|モード|保存/更新|備考|
+|---|---|---|---|
+|localhost (127.0.0.1)|Author|有効|パーソナルナレッジベース|
+|Public URL (Deploy)|Reader|無効|マルチファイル Wiki|
+|file:// (Serverless)|Reader|手動|シングルファイル Wiki|
+
+
+## 主要コンセプト
+MDGarden の中心は次の2モードです。
+
+- `inline mode`: 1つのHTMLにコンテンツを内包する配布向けモード
+- `include mode`: 複数 Markdown を分割管理する運用向けモード
+
+どちらも `md-garden` コンポーネントを軸に動き、構成や用途に応じて同じ資産を再利用できます。
+
+## 想定ユーザーとユースケース
+
+- 個人ナレッジベースを静的に管理したい開発者
+- 小規模チームで手軽にドキュメントサイトを公開したい運用者
+- オフライン配布可能なマニュアルを作りたい制作者
+
+とくに「Markdownのまま保守したいが、見た目と導線は整えたい」というケースと相性が良いです。
+
+
+## 全体アーキテクチャ（概要）
+
+- `md-garden`: レンダリング本体（表示・遷移・状態管理）
+- `template[data-target]` / `template[data-page]`: inline コンテンツ定義
+- `plugin`: イベント駆動で表示や運用を拡張
+- `author-mode-plugin`: ローカル編集・sitemap・Offline Export を補助
+
+この分離により、基礎表示と運用機能を段階的に導入できます。
+
+## 次に読むページ
+
+- はじめて使う場合: [Getting Started](?page=content%2Fgetting_started.md)
+- 単一ファイル配布をしたい場合: [Sigle File Wiki/inline mode](?page=content%2Finline_mode.md)
+- 複数ページ運用をしたい場合: [Multi File Wiki/include mode](?page=content%2Finclude_mode.md)
+- 運用時の安全性を確認したい場合: [Security](?page=content%2Fsecurity.md)
+
+## Back links
+- [MDGarden - Home](?page=index.md)
+
+</template>
+
+<template data-page="index.md" data-page-target="main" data-title="MDGarden - Home">
+---
+title: "MDGarden - Home"
+lastModified: "2026-03-08T16:00:00+09:00"
+indexing: true
+---
+
+# MDGarden 
+A lightweight, portable, markdown-based wiki engine that runs entirely in the browser.
+
+&gt; A life is like a garden. 
+&gt; Perfect moments can be had, but not preserved, except in memory. 
+&gt; LLAP - Leonard Nimoy
+
+## Source
+https://github.com/lizard-isana/mdgarden
+
+
+## Document
+### 日本語
+- [What is it?](?page=content%2Fwhat_is_it.md)
+- [Getting started](?page=content%2Fgetting_started.md)
+  - [Single File Wiki/inline mode](?page=content%2Finline_mode.md)
+  - [Multi File Wiki/include mode](?page=content%2Finclude_mode.md)
+  - [Options](?page=content%2Foptions.md)
+  - [Plug-ins](?page=content%2Fplugins.md)
+    - [JS Sandbox Plugins](?page=content%2Fjs_sandbox_plugins.md)
+  - [Author Mode](?page=content%2Fauthor_mode.md)
+- [Jorro](?page=content%2Fjorro.md)
+- [API](?page=content%2Fapi.md)
+- [Plugin Dev Guide](?page=content%2Fplugin_dev_guide.md)
+- [Copyrights/Credits](?page=content%2Fcredits.md)
+- [Markdown Cheat Sheet](?page=content%2Fmarkdown.md)
+
+## License
+©2026 Isana Kashiwai ([MIT license](https://github.com/lizard-isana/mdgarden/blob/main/LICENSE))
+
+
+</template>
+
+<template data-target="header">
+[MDGarden](?page=index.md){.header_title}
+
+- [What is it?](?page=what_is_it.md)
+- [Getting started](?page=getting_started.md)
+- [Sigle File Wiki/inline mode](?page=inline_mode.md)
+- [Multi File Wiki/include mode](?page=include_mode.md)
+- [Plug-ins](?page=plugins.md)
+- [Author Mode](?page=author_mode.md)
+- [Jorro](?page=jorro.md)
+- [API](?page=api.md)
+- [Copyrights/Credits](?page=credits.md)
+- [Markdown Cheat Sheet](?page=markdown.md)
+
+&lt;div class="hamburger"&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;/div&gt;
+
+&lt;style&gt;
+  header &gt; md-garden &gt; section{
+    max-width:initial;
+    width:100%;
+    padding:10px;
+    display: flex;
+    position:relative;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    background: rgba(255, 255, 255, 0.9);
+    height: 60px;
+  }
+    header &gt; md-garden &gt; section p{
+      display:block;
+      margin-bottom:initial;
+    }
+  header &gt; md-garden &gt; .hamburger a,
+  header &gt; md-garden &gt; .hamburger a:visited{
+    color: #fff;
+  }
+  .header_title{
+    display: inline-block;
+    font-size: 22px;
+    font-weight: 100;
+    margin-left: 64px;
+    font-weight: 100;
+    text-decoration:none !important;
+    margin-left: 60px;
+  }
+  .hamburger{
+    position:absolute;
+    left:10px;
+    top:10px;
+    width: 44px;
+    height: 44px;
+    z-index: 1000;
+    cursor: pointer;
+  }
+  .hamburger&gt;span{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    width: 30px;
+    height: 1.5px;
+    background: #999;
+    -webkit-transition: 200ms ease-in-out;
+    transition: 200ms ease-in-out;
+  }
+  .hamburger&gt;span:nth-child(1) {
+    top: 10px;
+  }
+  .hamburger&gt;span:nth-child(2),
+  .hamburger&gt;span:nth-child(3){
+    top: 20px;
+  }
+  .hamburger&gt;span:nth-child(4) {
+    top: 30px;
+  }
+  header section.open .hamburger&gt;span:nth-child(1) {
+    transform: translateY(-6px);
+    opacity: 0;
+  }
+  header section.open .hamburger&gt;span:nth-child(2) {
+    transform: rotate(-45deg);
+  }
+  header section.open .hamburger&gt;span:nth-child(3) {
+    transform: rotate(45deg);
+  }
+  header section.open .hamburger&gt;span:nth-child(4) {
+    transform: translateY(6px);
+    opacity: 0;
+  }
+  header section ul{
+    z-index: 100;
+    display: none;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    position: absolute;
+    overflow: scroll;
+    margin: 0;
+    padding: 20px;
+    padding-top: 80px;
+    padding-left: 30px;
+    padding-bottom: 60px;
+    padding-bottom: 60px;
+    width: 100vw;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    /* background-color: rgba(0,0,0,0.7); */
+    opacity: 0;
+    backdrop-filter: blur(12px);
+  }
+  header section ul li{
+    grid-column:1/2;
+    grid-row:1/2;
+    width:fit-content;
+    font-size:1rem;
+    line-height:2;
+  }
+  header section ul li::before{
+    content: none;
+  }
+  header section ul a:hover {
+    border-bottom:1px solid #fff;
+  }
+  header section ul a:visited {
+    color :#999;
+  }
+  header section ul li::after{
+    content:none;
+  }
+  header section.open ul{
+    position:fixed;
+    opacity:1;
+    display:flex;
+    animation: fade-in .2s cubic-bezier(0, 0, 0.2, 1) 0s forwards;
+  }
+  header section.close ul{
+    position:fixed;
+    opacity:1;
+    display:flex;
+    animation: fade-out .2s cubic-bezier(0, 0, 0.2, 1) 0s forwards;
+  }
+  @keyframes fade-in {
+    0%{
+      opacity: 0;
+    }
+    100%{
+      opacity: 1;
+    }
+  }
+  @keyframes fade-out {
+    0%{
+      opacity: 1;
+    }
+    100%{
+      opacity: 0;
+    }
+  }
+&lt;/style&gt;
+
+&lt;script&gt;
+  var hamburger = document.querySelector(".hamburger");
+  hamburger.addEventListener('click',(e)=&gt;{
+    var hamburger = e.currentTarget;
+    var section = hamburger.closest('section');
+    if(section.classList.contains("open")){
+      section.classList.add("close");
+      section.classList.remove("open")
+      window.setTimeout(()=&gt;{
+        section.classList.remove("close")
+      },500)
+    }else{
+      section.classList.add("open");
+    }
+  })
+  var link = document.querySelectorAll("header ul li a");
+  link.forEach((element,index)=&gt;{
+    element.addEventListener('click',(e)=&gt;{
+      var section = e.currentTarget.closest('section');
+      section.classList.toggle("open");
+    })
+  })
+&lt;/script&gt;
+
+</template>
+
+<template data-target="footer">
+Powered by [MDGarden](https://github.com/lizard-isana/mdgarden) © Isana Kashiwai{.footer}
+<style>
+.footer{
+  text-align:right;
+  color:#bbb;
+  font-size:10px;
+  padding: 5px;
+}
+.footer a{
+  color:#bbb;
+  text-decoration:none;
+}
+.footer a:hover{
+  text-decoration:underline;
+}
+</style>
+</template>
+</body>
+</html>

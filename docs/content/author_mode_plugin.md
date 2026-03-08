@@ -41,7 +41,7 @@ indexing: true
     },
     "offline_export": {
       "enabled": true,
-      "file_name": "offline-wiki.html",
+      "file_name": "bundle.html",
       "query_param": "page",
       "default_page": "index.md"
     }
@@ -78,6 +78,7 @@ indexing: true
 `<mdg-author ...>` は Author パネルとして以下を提供します。
 
 - `保存`: sitemap 保存
+- `INDEX保存`: 検索用インデックス（`search-index.json`）を保存（search plugin有効時のみ表示）
 - `書き出し`: include モードサイトを single-file HTML に export
 - `ステータス`: ステータスを表示
 - `編集`: local editor（`author_mode.local_editor.enabled=true` のとき）
@@ -142,7 +143,7 @@ indexing: true
 `offline_export` の主なオプション:
 
 - `enabled`: export機能を有効化（既定: `true`）
-- `file_name`: export時の既定ファイル名（既定: `offline-wiki.html`）
+- `file_name`: export時の既定ファイル名（既定: `bundle.html`）
 - `query_param`: Offline Wiki のページ遷移クエリ（既定: `page`）
 - `default_page`: 初期表示ページ（未指定時は現在ページ→`index.md`→先頭の順に自動決定）
 
@@ -172,6 +173,7 @@ indexing: true
 - `resetRuntimeSettings()`
 - `getSitemap(option)`
 - `saveSitemap(option)`
+- `saveSearchIndex(option)` (`option.fileName` / `option.file_name`)
 - `openLocalEditor()`
 - `saveLocalEditor(markdown, option)` (`option.autoReload` / `option.reload` で呼び出し時に上書き可)
 - `exportOfflineWiki(option)` (`option.fileName` / `option.queryParam` / `option.defaultPage` / `option.viewerId`)
@@ -183,7 +185,8 @@ indexing: true
 const api = MDGarden.main.authorMode;
 const opened = await api.openLocalEditor();
 await api.saveLocalEditor(opened.content);
-await api.exportOfflineWiki({ fileName: "offline-wiki.html" });
+await api.saveSearchIndex({ fileName: "search-index.json" });
+await api.exportOfflineWiki({ fileName: "bundle.html" });
 ```
 
 ## 注意事項

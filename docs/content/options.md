@@ -72,6 +72,7 @@ indexing: true
 - `js-run`
 - `js-demo`
 - `inline-spa`
+- `search`
 - `author-mode`
 - `auto-indexer`（`author-mode` の互換alias）
 
@@ -104,7 +105,7 @@ indexing: true
 
 ### `plugins` キー（plugin個別設定）
 
-`plugins` はオブジェクトです。現行で設定キーを解釈するのは `js-run` と `js-demo` です。
+`plugins` はオブジェクトです。現行で設定キーを解釈するのは `js-run` / `js-demo` / `search` です。
 
 ```json
 {
@@ -140,6 +141,13 @@ indexing: true
 | `global` | `string` | 必須 | 参照するグローバル名 |
 | `urls` | `string` or `string[]` | 必須 | 読み込みURL（`https` かつ trusted origin のみ有効） |
 
+`plugins.search` のキー:
+
+| キー | 型 | 既定値 | 説明 |
+|---|---|---|---|
+| `index_path` (`indexPath`) | `string` | `"search-index.json"` | 検索インデックスJSONの参照先。存在すれば優先利用 |
+| `sitemap_path` (`sitemapPath`) | `string` | `"sitemap.json"` | `index_path` が無い/読めない場合のフォールバック参照先 |
+
 ### `author_mode` キー
 
 Author Mode 系は `author_mode` 配下で指定します。後方互換として一部トップレベルキーも解釈されます。
@@ -157,7 +165,7 @@ Author Mode 系は `author_mode` 配下で指定します。後方互換とし�
 | `author_mode.local_editor.enabled` | `boolean` | `false` | Local Editor有効化 |
 | `author_mode.local_editor.auto_reload` | `boolean` | `true` | 保存後の自動再読込 |
 | `author_mode.offline_export.enabled` | `boolean` | `true` | Offline Wiki export有効化 |
-| `author_mode.offline_export.file_name` | `string` | `"offline-wiki.html"` | 出力ファイル名 |
+| `author_mode.offline_export.file_name` | `string` | `"bundle.html"` | 出力ファイル名 |
 | `author_mode.offline_export.query_param` | `string` | `"page"` | 出力wikiのクエリパラメータ名 |
 | `author_mode.offline_export.default_page` | `string` | `""` | 既定ページ |
 | `author_mode.offline_export.viewer_id` | `string` | `""` | 出力対象viewer上書き |
@@ -217,7 +225,7 @@ Author Mode 系は `author_mode` 配下で指定します。後方互換とし�
     },
     "offline_export": {
       "enabled": true,
-      "file_name": "offline-wiki.html",
+      "file_name": "bundle.html",
       "query_param": "page"
     }
   }

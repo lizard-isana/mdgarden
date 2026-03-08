@@ -7,11 +7,42 @@
   <title>MDGarden: Markdown Viewer Component</title>
   <link rel="stylesheet" href="./assets/css/default.css">
   <script src="./assets/js/mdgarden.min.js"></script>
-
+  <style>
+    header{
+      display: grid;
+      grid-template-columns: auto 1fr;
+      position: relative;
+    }
+    mdg-search.mdg-search-host{
+      justify-self: end;
+      max-width: 50%; 
+      position: absolute;
+      top: 5px;
+    }
+    mdg-search.mdg-search-host .bar{
+      grid-template-columns: 1fr auto;
+    }
+    mdg-search.mdg-search-host .clear{
+      display: none;
+    }
+    mdg-search.mdg-search-host .input{
+      grid-column: 2/3;
+      grid-row: 1/2;
+    }
+    mdg-search.mdg-search-host .status{
+      grid-column: 1/2;
+      grid-row: 1/2;
+      min-width: 30px;
+    }
+    mdg-search.mdg-search-host .panel{
+      background-color: transparent;
+      padding: 10px;
+    }
+  
+  </style>
 </head>
 <body>
 <mdg-author viewer-id="main" file-name="sitemap.json" auto-hide="true"></mdg-author>
-
 <header>
   <md-garden
     id="header"
@@ -22,7 +53,8 @@
     data-execute-script="true"
     data-plugins="toc",
     data-highlight-style="github"
-    ></md-garden>
+  ></md-garden>
+  <mdg-search viewer-id="main"></mdg-search>
 </header>
 <main>
   <md-garden
