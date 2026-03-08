@@ -527,7 +527,9 @@ const escapeHtmlAttribute = (value) => {
 };
 
 const escapeTemplateText = (value) => {
-  return String(value == null ? "" : value).replace(/<\/template/gi, "<\\/template");
+  return String(value == null ? "" : value)
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 };
 
 const toInlineWikiHref = (queryParam, normalizedPath) => {
