@@ -12,16 +12,16 @@
 <header>
   <md-garden data-execute-script="true" data-highlight-style="github" data-html="true" data-link-target="main" data-plugins="toc" data-sanitize="false" data-spa="false" id="header"><section><p><a href="?main=index.md" class="header_title" data-mdgarden-target="index.md" data-mdgarden-bound="true">MDGarden</a></p>
 <ul>
-<li><a href="?main=what_is_it.md" data-mdgarden-target="what_is_it.md" data-mdgarden-bound="true">What is it?</a></li>
-<li><a href="?main=getting_started.md" data-mdgarden-target="getting_started.md" data-mdgarden-bound="true">Getting started</a></li>
-<li><a href="?main=inline_mode.md" data-mdgarden-target="inline_mode.md" data-mdgarden-bound="true">Sigle File Wiki/inline mode</a></li>
-<li><a href="?main=include_mode.md" data-mdgarden-target="include_mode.md" data-mdgarden-bound="true">Multi File Wiki/include mode</a></li>
-<li><a href="?main=plugins.md" data-mdgarden-target="plugins.md" data-mdgarden-bound="true">Plug-ins</a></li>
-<li><a href="?main=author_mode.md" data-mdgarden-target="author_mode.md" data-mdgarden-bound="true">Author Mode</a></li>
-<li><a href="?main=jorro.md" data-mdgarden-target="jorro.md" data-mdgarden-bound="true">Jorro</a></li>
-<li><a href="?main=api.md" data-mdgarden-target="api.md" data-mdgarden-bound="true">API</a></li>
-<li><a href="?main=credits.md" data-mdgarden-target="credits.md" data-mdgarden-bound="true">Copyrights/Credits</a></li>
-<li><a href="?main=markdown.md" data-mdgarden-target="markdown.md" data-mdgarden-bound="true">Markdown Cheat Sheet</a></li>
+<li><a href="./content/what_is_it.md">What is it?</a></li>
+<li><a href="./content/getting_started.md">Getting started</a></li>
+<li><a href="./content/inline_mode.md">Sigle File Wiki/inline mode</a></li>
+<li><a href="./content/include_mode.md">Multi File Wiki/include mode</a></li>
+<li><a href="./content/plugins.md">Plug-ins</a></li>
+<li><a href="./content/author_mode.md">Author Mode</a></li>
+<li><a href="./content/jorro.md">Jorro</a></li>
+<li><a href="./content/api.md">API</a></li>
+<li><a href="./content/credits.md">Copyrights/Credits</a></li>
+<li><a href="./content/markdown.md">Markdown Cheat Sheet</a></li>
 </ul>
 <div class="hamburger"><span></span><span></span><span></span><span></span></div>
 <style>
@@ -193,7 +193,7 @@
   })
 </script>
 </section></md-garden>
-  <mdg-search viewer-id="main" class="mdg-search-host" data-ready="14">
+  <mdg-search viewer-id="main" class="mdg-search-host" data-ready="15">
 <style>
 .mdg-search-host {
   display: block;
@@ -306,7 +306,7 @@
   <div class="bar">
     <input class="input" data-part="input" type="search" placeholder="Search pages..." spellcheck="false" autocomplete="off">
     <button class="clear" data-action="clear" type="button">Clear</button>
-    <span class="status" data-part="status" aria-hidden="true" data-ready="14"></span>
+    <span class="status" data-part="status" aria-hidden="true" data-ready="15"></span>
   </div>
   <div class="results" data-part="results" hidden="">
     <ul class="list" data-part="list"></ul>
@@ -316,40 +316,122 @@
       </mdg-search>
 </header>
 <main>
-  <md-garden data-allow-parent="true" data-allowed-dirs="content" data-allowed-files="index.md,404.md" data-execute-script="false" data-frontmatter="true" data-highlight-style="github" data-html="true" data-inline-default-page="index.md" data-inline-spa="true" data-inline-spa-param="page" data-link-resolution="relative" data-plugins="toc,graph,chart,math,highlight,js-run,js-demo" data-query-path-mode="split" data-sanitize="false" id="main"><section><h1>MDGarden</h1>
-<p>A lightweight, portable, markdown-based wiki engine that runs entirely in the browser.</p>
-<blockquote>
-<p>A life is like a garden.<br>
-Perfect moments can be had, but not preserved, except in memory.<br>
-LLAP - Leonard Nimoy</p>
-</blockquote>
-<h2 id="58267a45">Source</h2>
-<p><a href="https://github.com/lizard-isana/mdgarden">https://github.com/lizard-isana/mdgarden</a></p>
-<h2 id="211fe820">Document</h2>
-<h3 id="7eee1eb4">日本語</h3>
+  <md-garden data-allow-parent="true" data-allowed-dirs="content" data-allowed-files="index.md,404.md" data-execute-script="false" data-frontmatter="true" data-highlight-style="github" data-html="true" data-inline-default-page="content/search_plugin.md" data-inline-spa="true" data-inline-spa-param="page" data-link-resolution="relative" data-plugins="toc,graph,chart,math,highlight,js-run,js-demo" data-query-path-mode="split" data-sanitize="false" id="main"><section><h1>Search Plugin</h1>
+<p>このドキュメントは、現在の実装（<code>src/assets/js/plugins/search-plugin.js</code>）に基づいて、<code>search</code> plugin の仕様と使い方をまとめたものです。</p>
+<h2 id="d2d35b80">概要</h2>
+<p><code>search</code> plugin は <code>sitemap.json</code> を元に Markdown ページをインデックス化し、<code>mdg-search</code> コンポーネント経由で全文検索を提供します。</p>
 <ul>
-<li><a href="?main=what_is_it.md&amp;dir=content" data-mdgarden-target="content/what_is_it.md" data-mdgarden-bound="true">What is it?</a></li>
-<li><a href="?main=getting_started.md&amp;dir=content" data-mdgarden-target="content/getting_started.md" data-mdgarden-bound="true">Getting started</a>
+<li>検索 UI は <code>mdg-search</code>（ライトDOM）</li>
+<li>検索対象は <code>include</code> / <code>inline(embedded)</code> の両モードに対応</li>
+<li><code>include</code> モードでは <code>search-index.json</code> を優先利用</li>
+<li><code>search-index.json</code> が無い場合は <code>sitemap.json</code> から各 Markdown を読んでフォールバック構築</li>
+</ul>
+<h2 id="3143423d">有効化</h2>
+<h3 id="d7722395">1. plugin を有効化</h3>
+<pre class="code"><code class="language-html hljs" data-language="html" data-mdgarden-highlight="true" data-mdgarden-highlighted="true" data-mdgarden-line-numbered="true"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-tag">&lt;<span class="hljs-name">md-garden</span></span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2">  <span class="hljs-attr">id</span>=<span class="hljs-string">"main"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3">  <span class="hljs-attr">src</span>=<span class="hljs-string">"index.md"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4">  <span class="hljs-attr">data-plugins</span>=<span class="hljs-string">"toc,search,author-mode"</span>&gt;</td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="5"><div class="hljs-ln-n" data-line-number="5"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="5"><span class="hljs-tag">&lt;/<span class="hljs-name">md-garden</span>&gt;</span></td></tr></tbody></table></code></pre>
+<h3 id="9eb239ec">2. 検索 UI を配置</h3>
+<pre class="code"><code class="language-html hljs" data-language="html" data-mdgarden-highlight="true" data-mdgarden-highlighted="true" data-mdgarden-line-numbered="true"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-tag">&lt;<span class="hljs-name">mdg-search</span> <span class="hljs-attr">viewer-id</span>=<span class="hljs-string">"main"</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-name">mdg-search</span>&gt;</span></td></tr></tbody></table></code></pre>
+<p>補足:</p>
 <ul>
-<li><a href="?main=inline_mode.md&amp;dir=content" data-mdgarden-target="content/inline_mode.md" data-mdgarden-bound="true">Single File Wiki/inline mode</a></li>
-<li><a href="?main=include_mode.md&amp;dir=content" data-mdgarden-target="content/include_mode.md" data-mdgarden-bound="true">Multi File Wiki/include mode</a></li>
-<li><a href="?main=options.md&amp;dir=content" data-mdgarden-target="content/options.md" data-mdgarden-bound="true">Options</a></li>
-<li><a href="?main=plugins.md&amp;dir=content" data-mdgarden-target="content/plugins.md" data-mdgarden-bound="true">Plug-ins</a>
+<li><code>viewer-id</code> / <code>viewer</code> 属性で対象 viewer を指定（省略時は <code>main</code>）</li>
+<li><code>mdg-search</code> が存在する場合、<code>search</code> 未指定でも自動登録されます</li>
+<li><code>data-inline-spa="true"</code> の場合は <code>search</code> が自動追加されます</li>
+</ul>
+<h2 id="7b849ada"><code>mdg-search</code> コンポーネント</h2>
+<p>利用可能属性:</p>
 <ul>
-<li><a href="?main=js_sandbox_plugins.md&amp;dir=content" data-mdgarden-target="content/js_sandbox_plugins.md" data-mdgarden-bound="true">JS Sandbox Plugins</a></li>
+<li><code>viewer-id</code> (<code>viewer</code>): 対象 <code>md-garden</code> の id</li>
+<li><code>placeholder</code>: 入力プレースホルダー（既定: <code>Search pages...</code>）</li>
+<li><code>max-results</code>: 表示件数上限（既定: <code>24</code>）</li>
+</ul>
+<p>状態:</p>
+<ul>
+<li>ready件数はテキスト表示ではなく <code>data-ready</code> 属性に反映</li>
+<li>インデックス構築中は <code>indexing...</code></li>
+<li>API未接続時は <code>unavailable</code></li>
+<li>検索時は <code>一致件数/総件数</code></li>
+</ul>
+<p>挙動:</p>
+<ul>
+<li>クエリ空文字時は結果一覧を非表示</li>
+<li>結果クリック時は入力・結果をクリアして遷移</li>
+<li>遷移時は viewport を先頭へ戻します</li>
+</ul>
+<h2 id="ec3f34c">インデックス構築方式</h2>
+<h3 id="148d015d">inline（embedded）モード</h3>
+<ul>
+<li><code>&lt;template data-page="..."&gt;</code> 等の埋め込み Markdown を走査してインデックス化</li>
+<li>Front Matter / コードブロック / 記法を除去したテキストを検索対象化</li>
+</ul>
+<h3 id="419810af">include モード</h3>
+<ol>
+<li><code>plugins.search.index_path</code>（既定: <code>search-index.json</code>）を取得</li>
+<li>読み込み成功し <code>pages</code> が有効ならそれを採用</li>
+<li>失敗時は <code>plugins.search.sitemap_path</code>（既定: <code>sitemap.json</code>）へフォールバック</li>
+<li>sitemap の <code>pages</code> を基に各 Markdown を読み、検索エントリを生成</li>
+</ol>
+<p>補足:</p>
+<ul>
+<li>インデックスは初期化時と <code>content_loaded/content_reloaded</code> 時に更新</li>
+<li>署名（signature）一致時は再構築をスキップし、不要な再読み込みを抑制</li>
+</ul>
+<h2 id="3731139e">検索ロジック</h2>
+<ul>
+<li>クエリは小文字化 + 空白正規化</li>
+<li>トークンは AND 条件（全トークン一致必須）</li>
+<li>スコアは <code>title/page</code> の完全一致・前方一致・部分一致と、最初の一致位置で加点</li>
+<li>同点時は <code>page</code> の辞書順</li>
+</ul>
+<h2 id="65683a55">設定（<code>config.json</code>）</h2>
+<pre class="code"><code class="language-json hljs" data-language="json" data-mdgarden-highlight="true" data-mdgarden-highlighted="true" data-mdgarden-line-numbered="true"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-punctuation">{</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2">  <span class="hljs-attr">"plugins"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3">    <span class="hljs-attr">"search"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4">      <span class="hljs-attr">"index_path"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"search-index.json"</span><span class="hljs-punctuation">,</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="5"><div class="hljs-ln-n" data-line-number="5"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="5">      <span class="hljs-attr">"sitemap_path"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"sitemap.json"</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="6"><div class="hljs-ln-n" data-line-number="6"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="6">    <span class="hljs-punctuation">}</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="7"><div class="hljs-ln-n" data-line-number="7"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="7">  <span class="hljs-punctuation">}</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="8"><div class="hljs-ln-n" data-line-number="8"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="8"><span class="hljs-punctuation">}</span></td></tr></tbody></table></code></pre>
+<ul>
+<li><code>index_path</code> (<code>indexPath</code>): 事前生成インデックス JSON のパス</li>
+<li><code>sitemap_path</code> (<code>sitemapPath</code>): フォールバック用 sitemap パス</li>
+</ul>
+<h2 id="dc523d25">Author Mode 連携（INDEX保存）</h2>
+<p><code>author-mode</code> と <code>search</code> を同時有効化すると、<code>mdg-author</code> に <code>INDEX保存</code> が表示されます。</p>
+<ul>
+<li>表示条件: search API が有効</li>
+<li>活性条件: <code>AUTHOR_MODE</code> かつ <code>dirty=true</code></li>
+<li>実行 API: <code>window.MDGarden[viewerId].authorMode.saveSearchIndex(option?)</code></li>
+</ul>
+<p>主な出力:</p>
+<ul>
+<li>既定ファイル名: <code>search-index.json</code></li>
+<li>形式: <code>version</code>, <code>generatedAt</code>, <code>source</code>, <code>pages</code></li>
+</ul>
+<h2 id="c09a08d5"><code>search-index.json</code> 形式</h2>
+<pre class="code"><code class="language-json hljs" data-language="json" data-mdgarden-highlight="true" data-mdgarden-highlighted="true" data-mdgarden-line-numbered="true"><table class="hljs-ln"><tbody><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="1"><div class="hljs-ln-n" data-line-number="1"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="1"><span class="hljs-punctuation">{</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="2"><div class="hljs-ln-n" data-line-number="2"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="2">  <span class="hljs-attr">"version"</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="3"><div class="hljs-ln-n" data-line-number="3"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="3">  <span class="hljs-attr">"generatedAt"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"2026-03-08T00:00:00.000Z"</span><span class="hljs-punctuation">,</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="4"><div class="hljs-ln-n" data-line-number="4"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="4">  <span class="hljs-attr">"source"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="5"><div class="hljs-ln-n" data-line-number="5"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="5">    <span class="hljs-attr">"sitemapPath"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"sitemap.json"</span><span class="hljs-punctuation">,</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="6"><div class="hljs-ln-n" data-line-number="6"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="6">    <span class="hljs-attr">"signature"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"..."</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="7"><div class="hljs-ln-n" data-line-number="7"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="7">  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="8"><div class="hljs-ln-n" data-line-number="8"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="8">  <span class="hljs-attr">"pages"</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="9"><div class="hljs-ln-n" data-line-number="9"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="9">    <span class="hljs-punctuation">{</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="10"><div class="hljs-ln-n" data-line-number="10"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="10">      <span class="hljs-attr">"p"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"content/getting_started.md"</span><span class="hljs-punctuation">,</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="11"><div class="hljs-ln-n" data-line-number="11"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="11">      <span class="hljs-attr">"t"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"Getting Started"</span><span class="hljs-punctuation">,</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="12"><div class="hljs-ln-n" data-line-number="12"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="12">      <span class="hljs-attr">"s"</span><span class="hljs-punctuation">:</span> <span class="hljs-string">"searchable text..."</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="13"><div class="hljs-ln-n" data-line-number="13"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="13">    <span class="hljs-punctuation">}</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="14"><div class="hljs-ln-n" data-line-number="14"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="14">  <span class="hljs-punctuation">]</span></td></tr><tr><td class="hljs-ln-line hljs-ln-numbers" data-line-number="15"><div class="hljs-ln-n" data-line-number="15"></div></td><td class="hljs-ln-line hljs-ln-code" data-line-number="15"><span class="hljs-punctuation">}</span></td></tr></tbody></table></code></pre>
+<ul>
+<li><code>p</code>: page path</li>
+<li><code>t</code>: title</li>
+<li><code>s</code>: 前処理済み検索テキスト</li>
+</ul>
+<p><code>search</code> plugin 側は短縮キー（<code>p/t/s</code>）と通常キー（<code>page/title/text</code>）の両方を読めます。</p>
+<h2 id="c451f333">パフォーマンス指針</h2>
+<ul>
+<li>ページ数が多いサイトは <code>search-index.json</code> を優先運用</li>
+<li><code>s</code> は検索に不要な情報を省いて軽量化</li>
+<li><code>INDEX保存</code> を更新フローに入れて、公開物とインデックスを同期</li>
+</ul>
+<h2 id="c300e988">トラブルシュート</h2>
+<ul>
+<li>常に <code>unavailable</code>:
+<ul>
+<li><code>search</code> plugin が未有効、または <code>viewer-id</code> が不一致</li>
 </ul>
 </li>
-<li><a href="?main=author_mode.md&amp;dir=content" data-mdgarden-target="content/author_mode.md" data-mdgarden-bound="true">Author Mode</a></li>
+<li>include モードで初回が重い:
+<ul>
+<li><code>search-index.json</code> が無く、sitemap フォールバックで全 Markdown を読んでいる</li>
 </ul>
 </li>
-<li><a href="?main=jorro.md&amp;dir=content" data-mdgarden-target="content/jorro.md" data-mdgarden-bound="true">Jorro</a></li>
-<li><a href="?main=api.md&amp;dir=content" data-mdgarden-target="content/api.md" data-mdgarden-bound="true">API</a></li>
-<li><a href="?main=plugin_dev_guide.md&amp;dir=content" data-mdgarden-target="content/plugin_dev_guide.md" data-mdgarden-bound="true">Plugin Dev Guide</a></li>
-<li><a href="?main=credits.md&amp;dir=content" data-mdgarden-target="content/credits.md" data-mdgarden-bound="true">Copyrights/Credits</a></li>
-<li><a href="?main=markdown.md&amp;dir=content" data-mdgarden-target="content/markdown.md" data-mdgarden-bound="true">Markdown Cheat Sheet</a></li>
+<li>結果が少ない/出ない:
+<ul>
+<li><code>max-results</code> 設定、<code>indexing: false</code> ページ、または <code>s</code> の生成内容を確認</li>
 </ul>
-<h2 id="98d5cd85">License</h2>
-<p>©2026 Isana Kashiwai (<a href="https://github.com/lizard-isana/mdgarden/blob/main/LICENSE">MIT license</a>)</p>
+</li>
+</ul>
 </section></md-garden>
 </main>
 
@@ -377,7 +459,7 @@ LLAP - Leonard Nimoy</p>
 
 <script data-jorro-hot-reload="">(function(){if(globalThis.__JORRO_HOT_RELOAD_ACTIVE__){return;}Object.defineProperty(globalThis,"__JORRO_HOT_RELOAD_ACTIVE__",{value:true,writable:false,configurable:false});var sse=new EventSource("/__jorro/events");sse.addEventListener("reload",function(){location.reload();});})();</script>
 
-<div class="mermaidTooltip" style="opacity: 0;"></div><svg id="MJX-SVG-global-cache" style="display: none;"><defs><path id="MJX-TEX-LO-222B" d="M114 -798Q132 -824 165 -824H167Q195 -824 223 -764T275 -600T320 -391T362 -164Q365 -143 367 -133Q439 292 523 655T645 1127Q651 1145 655 1157T672 1201T699 1257T733 1306T777 1346T828 1360Q884 1360 912 1325T944 1245Q944 1220 932 1205T909 1186T887 1183Q866 1183 849 1198T832 1239Q832 1287 885 1296L882 1300Q879 1303 874 1307T866 1313Q851 1323 833 1323Q819 1323 807 1311T775 1255T736 1139T689 936T633 628Q574 293 510 -5T410 -437T355 -629Q278 -862 165 -862Q125 -862 92 -831T55 -746Q55 -711 74 -698T112 -685Q133 -685 150 -700T167 -741Q167 -789 114 -798Z"></path><path id="MJX-TEX-N-31" d="M213 578L200 573Q186 568 160 563T102 556H83V602H102Q149 604 189 617T245 641T273 663Q275 666 285 666Q294 666 302 660V361L303 61Q310 54 315 52T339 48T401 46H427V0H416Q395 3 257 3Q121 3 100 0H88V46H114Q136 46 152 46T177 47T193 50T201 52T207 57T213 61V578Z"></path><path id="MJX-TEX-N-30" d="M96 585Q152 666 249 666Q297 666 345 640T423 548Q460 465 460 320Q460 165 417 83Q397 41 362 16T301 -15T250 -22Q224 -22 198 -16T137 16T82 83Q39 165 39 320Q39 494 96 585ZM321 597Q291 629 250 629Q208 629 178 597Q153 571 145 525T137 333Q137 175 145 125T181 46Q209 16 250 16Q290 16 318 46Q347 76 354 130T362 333Q362 478 354 524T321 597Z"></path><path id="MJX-TEX-I-1D465" d="M52 289Q59 331 106 386T222 442Q257 442 286 424T329 379Q371 442 430 442Q467 442 494 420T522 361Q522 332 508 314T481 292T458 288Q439 288 427 299T415 328Q415 374 465 391Q454 404 425 404Q412 404 406 402Q368 386 350 336Q290 115 290 78Q290 50 306 38T341 26Q378 26 414 59T463 140Q466 150 469 151T485 153H489Q504 153 504 145Q504 144 502 134Q486 77 440 33T333 -11Q263 -11 227 52Q186 -10 133 -10H127Q78 -10 57 16T35 71Q35 103 54 123T99 143Q142 143 142 101Q142 81 130 66T107 46T94 41L91 40Q91 39 97 36T113 29T132 26Q168 26 194 71Q203 87 217 139T245 247T261 313Q266 340 266 352Q266 380 251 392T217 404Q177 404 142 372T93 290Q91 281 88 280T72 278H58Q52 284 52 289Z"></path><path id="MJX-TEX-N-32" d="M109 429Q82 429 66 447T50 491Q50 562 103 614T235 666Q326 666 387 610T449 465Q449 422 429 383T381 315T301 241Q265 210 201 149L142 93L218 92Q375 92 385 97Q392 99 409 186V189H449V186Q448 183 436 95T421 3V0H50V19V31Q50 38 56 46T86 81Q115 113 136 137Q145 147 170 174T204 211T233 244T261 278T284 308T305 340T320 369T333 401T340 431T343 464Q343 527 309 573T212 619Q179 619 154 602T119 569T109 550Q109 549 114 549Q132 549 151 535T170 489Q170 464 154 447T109 429Z"></path><path id="MJX-TEX-I-1D451" d="M366 683Q367 683 438 688T511 694Q523 694 523 686Q523 679 450 384T375 83T374 68Q374 26 402 26Q411 27 422 35Q443 55 463 131Q469 151 473 152Q475 153 483 153H487H491Q506 153 506 145Q506 140 503 129Q490 79 473 48T445 8T417 -8Q409 -10 393 -10Q359 -10 336 5T306 36L300 51Q299 52 296 50Q294 48 292 46Q233 -10 172 -10Q117 -10 75 30T33 157Q33 205 53 255T101 341Q148 398 195 420T280 442Q336 442 364 400Q369 394 369 396Q370 400 396 505T424 616Q424 629 417 632T378 637H357Q351 643 351 645T353 664Q358 683 366 683ZM352 326Q329 405 277 405Q242 405 210 374T160 293Q131 214 119 129Q119 126 119 118T118 106Q118 61 136 44T179 26Q233 26 290 98L298 109L352 326Z"></path><path id="MJX-TEX-N-3D" d="M56 347Q56 360 70 367H707Q722 359 722 347Q722 336 708 328L390 327H72Q56 332 56 347ZM56 153Q56 168 72 173H708Q722 163 722 153Q722 140 707 133H70Q56 140 56 153Z"></path><path id="MJX-TEX-N-33" d="M127 463Q100 463 85 480T69 524Q69 579 117 622T233 665Q268 665 277 664Q351 652 390 611T430 522Q430 470 396 421T302 350L299 348Q299 347 308 345T337 336T375 315Q457 262 457 175Q457 96 395 37T238 -22Q158 -22 100 21T42 130Q42 158 60 175T105 193Q133 193 151 175T169 130Q169 119 166 110T159 94T148 82T136 74T126 70T118 67L114 66Q165 21 238 21Q293 21 321 74Q338 107 338 175V195Q338 290 274 322Q259 328 213 329L171 330L168 332Q166 335 166 348Q166 366 174 366Q202 366 232 371Q266 376 294 413T322 525V533Q322 590 287 612Q265 626 240 626Q208 626 181 615T143 592T132 580H135Q138 579 143 578T153 573T165 566T175 555T183 540T186 520Q186 498 172 481T127 463Z"></path></defs></svg><div class="glasp-extension-toaster" style="display: block; width: 320px; margin: unset; padding: unset; border: unset; border-radius: unset; outline: unset; background-color: unset; box-shadow: unset; position: fixed; top: 40px; right: 24px; z-index: 9999;"></div>
+<svg id="MJX-SVG-global-cache" style="display: none;"><defs></defs></svg><div class="glasp-extension-toaster" style="display: block; width: 320px; margin: unset; padding: unset; border: unset; border-radius: unset; outline: unset; background-color: unset; box-shadow: unset; position: fixed; top: 40px; right: 24px; z-index: 9999;"></div>
 
 <template data-target="main">Loading...</template>
 
@@ -439,6 +521,7 @@ viewer.setMarkdown("# Temporary page");
 - `resetRuntimeSettings()`
 - `getSitemap(option?)`
 - `saveSitemap(option?)`
+- `saveSearchIndex(option?)`
 - `openLocalEditor()`
 - `saveLocalEditor(markdown, option?)`
 - `exportOfflineWiki(option?)`
@@ -451,6 +534,7 @@ const author = window.MDGarden.main.authorMode;
 const status = await author.getStatus();
 const opened = await author.openLocalEditor();
 await author.saveLocalEditor(opened.content, { autoReload: true });
+await author.saveSearchIndex({ fileName: "search-index.json" });
 await author.exportOfflineWiki({ fileName: "bundle.html" });
 ```
 
@@ -536,7 +620,7 @@ UI 連携では dataset と `getStatus()` を併用すると安定します。
 <template data-page="content/author_mode.md" data-page-target="main" data-title="MDGarden - Author Mode">
 ---
 title: "MDGarden - Author Mode"
-lastModified: "2026-03-06T13:30:00+09:00"
+lastModified: "2026-03-09T20:15:00+09:00"
 indexing: true
 ---
 
@@ -559,15 +643,54 @@ Author Mode は次の条件で有効になります。
 - `local_editor`: 現在ページの Markdown を直接編集してローカル保存
 - `offline_export`: include 構成を Offline Wiki（単一HTML）として書き出し
 
-詳細仕様は [author_mode_plugin](?page=content%2Fauthor_mode_plugin.md) を参照してください。
+## Search Plugin 連携
+
+Author Mode 自体は検索機能を持ちませんが、`search` plugin と連携して検索インデックスの運用を支援します。
+
+- `search` plugin が有効なとき、`mdg-author` に `INDEX保存` ボタンを表示
+- `AUTHOR_MODE` かつ `dirty=true` のときだけ `INDEX保存` を実行可能
+- `INDEX保存` は `search-index.json` を生成し、公開時の検索初期化コストを削減
+
+詳細な検索仕様は [Search Plugin](?page=content%2Fsearch_plugin.md) を参照してください。
+
+## 事前設定（推奨）
+
+`config.json` で `author_mode` を設定します。
+
+```json
+{
+  "author_mode": {
+    "enabled": true,
+    "deploy": ["https://example.com/"],
+    "auto_indexer": {
+      "enabled": true,
+      "mode": "include-only",
+      "strict": true,
+      "sitemap_path": "sitemap.json",
+      "db_prefix": "mdgarden_auto_indexer_docs"
+    },
+    "local_editor": {
+      "enabled": true,
+      "auto_reload": true
+    },
+    "offline_export": {
+      "enabled": true,
+      "file_name": "bundle.html",
+      "query_param": "page",
+      "default_page": "index.md"
+    }
+  }
+}
+```
 
 ## 想定ワークフロー
 
 1. include mode でページを開く
 2. 必要な Markdown を編集（local editor も可）
 3. sitemap の差分を確認して保存
-4. 必要に応じて Offline Wiki を書き出す
-5. 最終確認後に Git へ反映して公開
+4. 検索を使う構成では `INDEX保存` で `search-index.json` も更新
+5. 必要に応じて Offline Wiki を書き出す
+6. 最終確認後に Git へ反映して公開
 
 編集・索引・配布を1つの流れで扱えるのが Author Mode の利点です。
 
@@ -581,6 +704,23 @@ Auto Indexer は、レンダリングされたページ情報から sitemap を�
 - 本文ハッシュ比較（notify-only）により、`lastModified` 不変の本文変更を警告して更新漏れを検知
 
 運用では、`lastModified` の記載ルールをチームで統一しておくと不整合を減らせます。
+
+### Front Matter の要件（auto_indexer）
+
+対象ページには `lastModified` を入れてください。
+
+```yaml
+---
+title: "ページタイトル"
+lastModified: "2026-03-01T12:00:00Z"
+indexing: true
+---
+```
+
+- `lastModified` は RFC3339（タイムゾーン必須）
+- 不正または未設定時は更新停止し、dirty を維持
+- 本文の SHA-256 ハッシュ比較（notify-only）を行い、`lastModified` が同じまま本文だけ変化した場合は `dirty=true` と警告を出して更新を促します
+- `indexing: false` の場合は既存エントリを削除
 
 ### ページへの埋め込み（List / Backlinks）
 
@@ -955,8 +1095,8 @@ include mode の遷移はクエリパラメータで管理されます。
 
 ## Back links
 - [MDGarden - Home](?page=index.md)
-- [MDGarden - Getting Started](?page=content%2Fgetting_started.md)
 - [MDGarden - What is it?](?page=content%2Fwhat_is_it.md)
+- [MDGarden - Getting Started](?page=content%2Fgetting_started.md)
 - [MDGarden - Single File Wiki/inline mode](?page=content%2Finline_mode.md)
 
 </template>
@@ -1071,8 +1211,8 @@ MDGarden では include mode で運用し、Author Mode の `offline_export` で
 
 ## Back links
 - [MDGarden - Home](?page=index.md)
-- [MDGarden - Getting Started](?page=content%2Fgetting_started.md)
 - [MDGarden - What is it?](?page=content%2Fwhat_is_it.md)
+- [MDGarden - Getting Started](?page=content%2Fgetting_started.md)
 
 </template>
 
@@ -1368,7 +1508,7 @@ return { radius };
 <template data-page="content/markdown.md" data-page-target="main" data-title="MDGarden - Markdown + Plugin Extension Sample">
 ---
 title: "MDGarden - Markdown + Plugin Extension Sample"
-lastModified: "2026-03-06T13:00:00+09:00"
+lastModified: "2026-03-08T00:30:00+09:00"
 indexing: true
 ---
 
@@ -1508,16 +1648,17 @@ graph TD
 
 ## 1６. Page List (Author Mode/Auto Indexer)
 
+- [MDGarden - Author Mode](?page=content%2Fauthor_mode.md)
 - [MDGarden - Home](?page=index.md)
+- [MDGarden - What is it?](?page=content%2Fwhat_is_it.md)
+- [MDGarden - Search Plugin](?page=content%2Fsearch_plugin.md)
 - [MDGarden - Options Reference](?page=content%2Foptions.md)
+- [MDGarden - Markdown + Plugin Extension Sample](?page=content%2Fmarkdown.md)
 - [MDGarden - JS Sandbox Plugins](?page=content%2Fjs_sandbox_plugins.md)
 - [MDGarden - Getting Started](?page=content%2Fgetting_started.md)
-- [MDGarden - What is it?](?page=content%2Fwhat_is_it.md)
 - [MDGarden - Plugin Dev Guide](?page=content%2Fplugin_dev_guide.md)
 - [MDGarden - Plug-ins](?page=content%2Fplugins.md)
 - [MDGarden - Single File Wiki/inline mode](?page=content%2Finline_mode.md)
-- [MDGarden - Author Mode](?page=content%2Fauthor_mode.md)
-- [MDGarden - Markdown + Plugin Extension Sample](?page=content%2Fmarkdown.md)
 - [MDGarden - Jorro](?page=content%2Fjorro.md)
 - [MDGarden - Multi File Wiki/include mode](?page=content%2Finclude_mode.md)
 - [MDGarden - API](?page=content%2Fapi.md)
@@ -1958,6 +2099,7 @@ indexing: true
 - `js-run`
 - `js-demo`
 - `inline-spa`
+- `search`
 - `author-mode`
 - `auto-indexer`（`author-mode` の互換alias）
 
@@ -1990,7 +2132,7 @@ indexing: true
 
 ### `plugins` キー（plugin個別設定）
 
-`plugins` はオブジェクトです。現行で設定キーを解釈するのは `js-run` と `js-demo` です。
+`plugins` はオブジェクトです。現行で設定キーを解釈するのは `js-run` / `js-demo` / `search` です。
 
 ```json
 {
@@ -2025,6 +2167,13 @@ indexing: true
 |---|---|---|---|
 | `global` | `string` | 必須 | 参照するグローバル名 |
 | `urls` | `string` or `string[]` | 必須 | 読み込みURL（`https` かつ trusted origin のみ有効） |
+
+`plugins.search` のキー:
+
+| キー | 型 | 既定値 | 説明 |
+|---|---|---|---|
+| `index_path` (`indexPath`) | `string` | `"search-index.json"` | 検索インデックスJSONの参照先。存在すれば優先利用 |
+| `sitemap_path` (`sitemapPath`) | `string` | `"sitemap.json"` | `index_path` が無い/読めない場合のフォールバック参照先 |
 
 ### `author_mode` キー
 
@@ -2520,10 +2669,172 @@ plugin のライフサイクル、イベント、最小実装例、デバッグ�
 
 </template>
 
+<template data-page="content/search_plugin.md" data-page-target="main" data-title="MDGarden - Search Plugin">
+---
+title: "MDGarden - Search Plugin"
+lastModified: "2026-03-09T00:02:00+09:00"
+indexing: true
+---
+# Search Plugin
+
+このドキュメントは、現在の実装（`src/assets/js/plugins/search-plugin.js`）に基づいて、`search` plugin の仕様と使い方をまとめたものです。
+
+## 概要
+
+`search` plugin は `sitemap.json` を元に Markdown ページをインデックス化し、`mdg-search` コンポーネント経由で全文検索を提供します。
+
+- 検索 UI は `mdg-search`（ライトDOM）
+- 検索対象は `include` / `inline(embedded)` の両モードに対応
+- `include` モードでは `search-index.json` を優先利用
+- `search-index.json` が無い場合は `sitemap.json` から各 Markdown を読んでフォールバック構築
+
+## 有効化
+
+### 1. plugin を有効化
+
+```html
+&lt;md-garden
+  id="main"
+  src="index.md"
+  data-plugins="toc,search,author-mode"&gt;
+&lt;/md-garden&gt;
+```
+
+### 2. 検索 UI を配置
+
+```html
+&lt;mdg-search viewer-id="main"&gt;&lt;/mdg-search&gt;
+```
+
+補足:
+
+- `viewer-id` / `viewer` 属性で対象 viewer を指定（省略時は `main`）
+- `mdg-search` が存在する場合、`search` 未指定でも自動登録されます
+- `data-inline-spa="true"` の場合は `search` が自動追加されます
+
+## `mdg-search` コンポーネント
+
+利用可能属性:
+
+- `viewer-id` (`viewer`): 対象 `md-garden` の id
+- `placeholder`: 入力プレースホルダー（既定: `Search pages...`）
+- `max-results`: 表示件数上限（既定: `24`）
+
+状態:
+
+- ready件数はテキスト表示ではなく `data-ready` 属性に反映
+- インデックス構築中は `indexing...`
+- API未接続時は `unavailable`
+- 検索時は `一致件数/総件数`
+
+挙動:
+
+- クエリ空文字時は結果一覧を非表示
+- 結果クリック時は入力・結果をクリアして遷移
+- 遷移時は viewport を先頭へ戻します
+
+## インデックス構築方式
+
+### inline（embedded）モード
+
+- `&lt;template data-page="..."&gt;` 等の埋め込み Markdown を走査してインデックス化
+- Front Matter / コードブロック / 記法を除去したテキストを検索対象化
+
+### include モード
+
+1. `plugins.search.index_path`（既定: `search-index.json`）を取得
+2. 読み込み成功し `pages` が有効ならそれを採用
+3. 失敗時は `plugins.search.sitemap_path`（既定: `sitemap.json`）へフォールバック
+4. sitemap の `pages` を基に各 Markdown を読み、検索エントリを生成
+
+補足:
+
+- インデックスは初期化時と `content_loaded/content_reloaded` 時に更新
+- 署名（signature）一致時は再構築をスキップし、不要な再読み込みを抑制
+
+## 検索ロジック
+
+- クエリは小文字化 + 空白正規化
+- トークンは AND 条件（全トークン一致必須）
+- スコアは `title/page` の完全一致・前方一致・部分一致と、最初の一致位置で加点
+- 同点時は `page` の辞書順
+
+## 設定（`config.json`）
+
+```json
+{
+  "plugins": {
+    "search": {
+      "index_path": "search-index.json",
+      "sitemap_path": "sitemap.json"
+    }
+  }
+}
+```
+
+- `index_path` (`indexPath`): 事前生成インデックス JSON のパス
+- `sitemap_path` (`sitemapPath`): フォールバック用 sitemap パス
+
+## Author Mode 連携（INDEX保存）
+
+`author-mode` と `search` を同時有効化すると、`mdg-author` に `INDEX保存` が表示されます。
+
+- 表示条件: search API が有効
+- 活性条件: `AUTHOR_MODE` かつ `dirty=true`
+- 実行 API: `window.MDGarden[viewerId].authorMode.saveSearchIndex(option?)`
+
+主な出力:
+
+- 既定ファイル名: `search-index.json`
+- 形式: `version`, `generatedAt`, `source`, `pages`
+
+## `search-index.json` 形式
+
+```json
+{
+  "version": 1,
+  "generatedAt": "2026-03-08T00:00:00.000Z",
+  "source": {
+    "sitemapPath": "sitemap.json",
+    "signature": "..."
+  },
+  "pages": [
+    {
+      "p": "content/getting_started.md",
+      "t": "Getting Started",
+      "s": "searchable text..."
+    }
+  ]
+}
+```
+
+- `p`: page path
+- `t`: title
+- `s`: 前処理済み検索テキスト
+
+`search` plugin 側は短縮キー（`p/t/s`）と通常キー（`page/title/text`）の両方を読めます。
+
+## パフォーマンス指針
+
+- ページ数が多いサイトは `search-index.json` を優先運用
+- `s` は検索に不要な情報を省いて軽量化
+- `INDEX保存` を更新フローに入れて、公開物とインデックスを同期
+
+## トラブルシュート
+
+- 常に `unavailable`:
+  - `search` plugin が未有効、または `viewer-id` が不一致
+- include モードで初回が重い:
+  - `search-index.json` が無く、sitemap フォールバックで全 Markdown を読んでいる
+- 結果が少ない/出ない:
+  - `max-results` 設定、`indexing: false` ページ、または `s` の生成内容を確認
+
+</template>
+
 <template data-page="content/what_is_it.md" data-page-target="main" data-title="MDGarden - What is it?">
 ---
 title: "MDGarden - What is it?"
-lastModified: "2026-03-06T16:55:00+09:00"
+lastModified: "2026-03-09T00:30:00+09:00"
 indexing: true
 ---
 
@@ -2612,7 +2923,7 @@ MDGarden の中心は次の2モードです。
 <template data-page="index.md" data-page-target="main" data-title="MDGarden - Home">
 ---
 title: "MDGarden - Home"
-lastModified: "2026-03-08T16:00:00+09:00"
+lastModified: "2026-03-09T00:30:00+09:00"
 indexing: true
 ---
 
@@ -2635,7 +2946,8 @@ https://github.com/lizard-isana/mdgarden
   - [Multi File Wiki/include mode](?page=content%2Finclude_mode.md)
   - [Options](?page=content%2Foptions.md)
   - [Plug-ins](?page=content%2Fplugins.md)
-    - [JS Sandbox Plugins](?page=content%2Fjs_sandbox_plugins.md)
+    - [JS Sandbox Plugin](?page=content%2Fjs_sandbox_plugins.md)
+    - [Search Plugin](?page=content%2Fsearch_plugin.md)
   - [Author Mode](?page=content%2Fauthor_mode.md)
 - [Jorro](?page=content%2Fjorro.md)
 - [API](?page=content%2Fapi.md)
@@ -2652,16 +2964,16 @@ https://github.com/lizard-isana/mdgarden
 <template data-target="header">
 [MDGarden](?page=index.md){.header_title}
 
-- [What is it?](?page=what_is_it.md)
-- [Getting started](?page=getting_started.md)
-- [Sigle File Wiki/inline mode](?page=inline_mode.md)
-- [Multi File Wiki/include mode](?page=include_mode.md)
-- [Plug-ins](?page=plugins.md)
-- [Author Mode](?page=author_mode.md)
-- [Jorro](?page=jorro.md)
-- [API](?page=api.md)
-- [Copyrights/Credits](?page=credits.md)
-- [Markdown Cheat Sheet](?page=markdown.md)
+- [What is it?](?page=content%2Fwhat_is_it.md)
+- [Getting started](?page=content%2Fgetting_started.md)
+- [Sigle File Wiki/inline mode](?page=content%2Finline_mode.md)
+- [Multi File Wiki/include mode](?page=content%2Finclude_mode.md)
+- [Plug-ins](?page=content%2Fplugins.md)
+- [Author Mode](?page=content%2Fauthor_mode.md)
+- [Jorro](?page=content%2Fjorro.md)
+- [API](?page=content%2Fapi.md)
+- [Copyrights/Credits](?page=content%2Fcredits.md)
+- [Markdown Cheat Sheet](?page=content%2Fmarkdown.md)
 
 &lt;div class="hamburger"&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;span&gt;&lt;/span&gt;&lt;/div&gt;
 

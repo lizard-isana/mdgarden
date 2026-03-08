@@ -1,6 +1,6 @@
 ---
 title: "MDGarden - Search Plugin"
-lastModified: "2026-03-09T00:00:30+09:00"
+lastModified: "2026-03-09T00:02:00+09:00"
 indexing: true
 ---
 # Search Plugin
@@ -9,7 +9,7 @@ indexing: true
 
 ## 概要
 
-`search` plugin は Markdown ページをインデックス化し、`mdg-search` コンポーネント経由で全文検索を提供します。
+`search` plugin は `sitemap.json` を元に Markdown ページをインデックス化し、`mdg-search` コンポーネント経由で全文検索を提供します。
 
 - 検索 UI は `mdg-search`（ライトDOM）
 - 検索対象は `include` / `inline(embedded)` の両モードに対応

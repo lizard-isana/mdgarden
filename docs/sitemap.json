@@ -2,7 +2,7 @@
   "version": "1.0",
   "ownerHash": "",
   "salt": "",
-  "lastUpdated": "2026-03-08T15:59:29.510Z",
+  "lastUpdated": "2026-03-08T17:00:56.584Z",
   "pages": {
     "content/api.md": {
       "title": "MDGarden - API",
@@ -150,7 +150,7 @@
     },
     "content/search_plugin.md": {
       "title": "MDGarden - Search Plugin",
-      "lastModified": "2026-03-08T15:00:30.000Z",
+      "lastModified": "2026-03-08T15:02:00.000Z",
       "indexing": true,
       "links": [],
       "backlinks": [
