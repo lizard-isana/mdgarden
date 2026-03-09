@@ -2,7 +2,7 @@
   "version": "1.0",
   "ownerHash": "",
   "salt": "",
-  "lastUpdated": "2026-03-08T17:00:56.584Z",
+  "lastUpdated": "2026-03-08T17:27:17.275Z",
   "pages": {
     "content/api.md": {
       "title": "MDGarden - API",
@@ -81,7 +81,7 @@
     },
     "content/jorro.md": {
       "title": "MDGarden - Jorro",
-      "lastModified": "2026-03-06T03:00:00.000Z",
+      "lastModified": "2026-03-08T17:00:00.000Z",
       "indexing": true,
       "links": [],
       "backlinks": [
@@ -174,7 +174,7 @@
     },
     "index.md": {
       "title": "MDGarden - Home",
-      "lastModified": "2026-03-08T15:30:00.000Z",
+      "lastModified": "2026-03-08T17:30:00.000Z",
       "indexing": true,
       "links": [
         "content/api.md",

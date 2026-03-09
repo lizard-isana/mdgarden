@@ -1,6 +1,6 @@
 ---
 title: "MDGarden - Home"
-lastModified: "2026-03-09T00:30:00+09:00"
+lastModified: "2026-03-09T02:30:00+09:00"
 indexing: true
 ---
 
@@ -26,7 +26,7 @@ https://github.com/lizard-isana/mdgarden
     - [JS Sandbox Plugin](./content/js_sandbox_plugins.md)
     - [Search Plugin](./content/search_plugin.md)
   - [Author Mode](./content/author_mode.md)
-- [Jorro](./content/jorro.md)
+- [MDGarden + Jorro](./content/jorro.md)
 - [API](./content/api.md)
 - [Plugin Dev Guide](./content/plugin_dev_guide.md)
 - [Copyrights/Credits](./content/credits.md)

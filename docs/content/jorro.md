@@ -1,10 +1,10 @@
 ---
 title: "MDGarden - Jorro"
-lastModified: "2026-03-06T12:00:00+09:00"
+lastModified: "2026-03-09T02:00:00+09:00"
 indexing: true
 ---
 
-# Jorro
+# MDGarden　+　Jorro
 Jorro は、MDGarden と同時に使うことを意図して設計されたローカルホスト専用のミニマム Web サーバです。 
 `127.0.0.1` のみで待ち受ける設計で、実行ファイルを置いたディレクトリをドキュメントルートとして配信します。
 
