@@ -1661,6 +1661,7 @@ const defineAutoIndexerAuthorPanelElement = () => {
   font-size: 12px;
   flex: 1 1 280px;
   min-width: 220px;
+  line-height: 1.25;
 }
 .actions {
   display: flex;
