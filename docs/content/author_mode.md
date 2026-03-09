@@ -46,6 +46,7 @@ Author Mode 自体は検索機能を持ちませんが、`search` plugin と連�
       "enabled": true,
       "mode": "include-only",
       "strict": true,
+      "frontmatter_fallback": false,
       "sitemap_path": "sitemap.json",
       "db_prefix": "mdgarden_auto_indexer_docs"
     },
@@ -79,6 +80,7 @@ Author Mode 自体は検索機能を持ちませんが、`search` plugin と連�
 Auto Indexer は、レンダリングされたページ情報から sitemap を組み立てます。
 
 - Front Matter の `lastModified` を基準に更新判定
+- `frontmatter_fallback=true` の場合、`lastModified` 欠損時に HTTP `Last-Modified` を補完
 - `indexing: false` のページは sitemap から除外
 - `strict=true` の場合、`lastModified` が過去方向に戻る更新を拒否
 - 本文ハッシュ比較（notify-only）により、`lastModified` 不変の本文変更を警告して更新漏れを検知
@@ -99,6 +101,7 @@ indexing: true
 
 - `lastModified` は RFC3339（タイムゾーン必須）
   -  2026-01-01T12:00:00Z (UTC)、2026-01-01T12:00:00+09:00（JST）
+- `title` 未指定時は既定で `"Untitled"`（`frontmatter_fallback=true` の場合は描画rootの先頭見出しを補完）
 - 不正または未設定時は更新停止し、dirty を維持
 - 本文の SHA-256 ハッシュ比較（notify-only）を行い、`lastModified` が同じまま本文だけ変化した場合は `dirty=true` と警告を出して更新を促します
 - `indexing: false` の場合は既存エントリを削除

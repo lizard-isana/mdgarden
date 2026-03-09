@@ -105,13 +105,17 @@ const normalizeDbName = (prefix, viewId) => {
 const normalizeAutoIndexerOption = (rawOption, viewId) => {
   const option = isObject(rawOption) ? rawOption : {};
   const mode = toTrimmedString(option.mode, REQUIRED_INCLUDE_MODE);
+  const frontmatterFallbackRaw = option.frontmatter_fallback !== undefined
+    ? option.frontmatter_fallback
+    : option.frontmatterFallback;
   return {
     enabled: boolFrom(option.enabled, false),
     strict: boolFrom(option.strict, true),
     mode: mode === REQUIRED_INCLUDE_MODE ? REQUIRED_INCLUDE_MODE : REQUIRED_INCLUDE_MODE,
     sitemapPath: toTrimmedString(option.sitemap_path || option.sitemapPath, DEFAULT_SITEMAP_PATH) || DEFAULT_SITEMAP_PATH,
     dbName: normalizeDbName(option.db_prefix || option.dbPrefix || DEFAULT_DB_PREFIX, viewId),
-    pbkdf2Iterations: toPositiveInt(option.pbkdf2_iterations || option.pbkdf2Iterations, DEFAULT_PBKDF2_ITERATIONS)
+    pbkdf2Iterations: toPositiveInt(option.pbkdf2_iterations || option.pbkdf2Iterations, DEFAULT_PBKDF2_ITERATIONS),
+    frontmatterFallback: boolFrom(frontmatterFallbackRaw, false)
   };
 };
 
@@ -450,12 +454,12 @@ const sanitizeTitle = (title) => {
   return safe.slice(0, LIMITS.MAX_TITLE_LENGTH);
 };
 
-const extractRenderedTitle = (root) => {
+const extractFirstRenderedHeadingTitle = (root) => {
   if (!isElementNode(root)) {
     return "";
   }
-  const h1 = root.querySelector("h1");
-  return h1 ? toTrimmedString(h1.textContent || "", "") : "";
+  const heading = root.querySelector("h1, h2, h3, h4, h5, h6");
+  return heading ? toTrimmedString(heading.textContent || "", "") : "";
 };
 
 const parseFrontmatter = (context) => {
@@ -463,6 +467,23 @@ const parseFrontmatter = (context) => {
     return null;
   }
   return context.frontmatter;
+};
+
+const hasFrontmatterValue = (frontmatter, key) => {
+  if (!isObject(frontmatter) || typeof key !== "string" || !key) {
+    return false;
+  }
+  if (!Object.prototype.hasOwnProperty.call(frontmatter, key)) {
+    return false;
+  }
+  const value = frontmatter[key];
+  if (value === undefined || value === null) {
+    return false;
+  }
+  if (typeof value === "string" && value.trim() === "") {
+    return false;
+  }
+  return true;
 };
 
 const getEpoch = (value) => {
@@ -489,6 +510,18 @@ const normalizeRfc3339ToUtc = (value) => {
     return "";
   }
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/.test(source)) {
+    return "";
+  }
+  const parsed = Date.parse(source);
+  if (!Number.isFinite(parsed)) {
+    return "";
+  }
+  return new Date(parsed).toISOString();
+};
+
+const normalizeHttpDateToUtc = (value) => {
+  const source = toTrimmedString(value, "");
+  if (!source) {
     return "";
   }
   const parsed = Date.parse(source);
@@ -893,6 +926,7 @@ const buildRuntimeStateDetail = (runtime) => {
   const inlineExportReady = runtime && runtime.inlineExportReady === true;
   const runtimeSettings = buildRuntimeSettingsState(runtime);
   const currentMarkdownPath = runtime ? toTrimmedString(runtime.currentMarkdownPath, "") : "";
+  const currentPageLastModified = runtime ? toTrimmedString(runtime.currentPageLastModified, "") : "";
   return {
     mode: runtime && runtime.mode ? runtime.mode : RUNTIME_MODES.READER,
     startupState: runtime && runtime.startupState ? runtime.startupState : STARTUP_STATES.NORMAL,
@@ -905,7 +939,8 @@ const buildRuntimeStateDetail = (runtime) => {
     inlineExportEnabled: inlineExportEnabled,
     inlineExportReady: inlineExportReady,
     runtimeSettings: runtimeSettings,
-    currentMarkdownPath: currentMarkdownPath
+    currentMarkdownPath: currentMarkdownPath,
+    currentPageLastModified: currentPageLastModified
   };
 };
 
@@ -1129,7 +1164,8 @@ const defineAutoIndexerAuthorPanelElement = () => {
             "data-local-editor-ready",
             "data-export-enabled",
             "data-export-ready",
-            "data-current-path"
+            "data-current-path",
+            "data-current-last-modified"
           ]
         });
       }
@@ -1150,6 +1186,7 @@ const defineAutoIndexerAuthorPanelElement = () => {
       state.inlineExportEnabled = root.dataset.exportEnabled === "true";
       state.inlineExportReady = root.dataset.exportReady === "true";
       state.currentMarkdownPath = toTrimmedString(root.dataset.currentPath, "");
+      state.currentPageLastModified = toTrimmedString(root.dataset.currentLastModified, "");
       return state;
     }
 
@@ -1244,6 +1281,7 @@ const defineAutoIndexerAuthorPanelElement = () => {
         : null;
       const hasRuntimeOverride = runtimeSettings && runtimeSettings.hasOverride === true;
       const currentMarkdownPath = toTrimmedString(safeState.currentMarkdownPath, "");
+      const currentPageLastModified = toTrimmedString(safeState.currentPageLastModified, "");
       const keepVisibleForEditor = isAuthor && localEditorEnabled;
       const hiddenByAutoHide = this.isAutoHideEnabled() && !dirty && startupState === STARTUP_STATES.NORMAL && !keepVisibleForEditor;
       const visible = (isAuthor || this.isReaderVisible() || onboardingActive) && !hiddenByAutoHide;
@@ -1271,6 +1309,9 @@ const defineAutoIndexerAuthorPanelElement = () => {
       this.initializeButton.title = "AUTHOR MODE 認証簡素化のため初期化は不要です。";
       const parts = [];
       parts.push(currentMarkdownPath || "(path unknown)");
+      if (currentPageLastModified) {
+        parts.push(`lastModified: ${currentPageLastModified}`);
+      }
       if (dirty) {
         parts.push("sitemap changed");
       }
@@ -2847,6 +2888,11 @@ const applyDocumentState = (runtime) => {
   } else {
     delete root.dataset.currentPath;
   }
+  if (runtime.currentPageLastModified) {
+    root.dataset.currentLastModified = runtime.currentPageLastModified;
+  } else {
+    delete root.dataset.currentLastModified;
+  }
   if (runtime.mode === RUNTIME_MODES.AUTHOR) {
     root.dataset.author = "true";
   } else {
@@ -3081,6 +3127,21 @@ const resolveCurrentMarkdownPath = (runtime) => {
   return normalizedFromSrc || "";
 };
 
+const syncCurrentPageLastModified = async (runtime) => {
+  if (!runtime) {
+    return "";
+  }
+  const currentPath = toTrimmedString(runtime.currentMarkdownPath, "");
+  if (!currentPath || !runtime.db) {
+    runtime.currentPageLastModified = "";
+    return "";
+  }
+  const page = await getPageByUrl(runtime.db, currentPath);
+  const lastModified = normalizeRfc3339ToUtc(page && page.lastModified);
+  runtime.currentPageLastModified = lastModified || "";
+  return runtime.currentPageLastModified;
+};
+
 const resolveMarkdownSourcePath = (runtime, normalizedPath) => {
   const safePath = toTrimmedString(normalizedPath, "");
   if (!safePath) {
@@ -3139,20 +3200,32 @@ const sha256Hex = async (text) => {
   }
 };
 
-const computeCurrentMarkdownHash = async (runtime, normalizedPath) => {
+const fetchCurrentMarkdownSnapshot = async (runtime, normalizedPath) => {
   const sourcePath = resolveMarkdownSourcePath(runtime, normalizedPath);
   if (!sourcePath) {
-    return "";
+    return {
+      contentHash: "",
+      lastModified: ""
+    };
   }
   try {
     const response = await fetch(sourcePath, { cache: "no-store" });
     if (!response.ok) {
-      return "";
+      return {
+        contentHash: "",
+        lastModified: ""
+      };
     }
     const markdown = await response.text();
-    return normalizeContentHash(await sha256Hex(normalizeMarkdownForHash(markdown)));
+    return {
+      contentHash: normalizeContentHash(await sha256Hex(normalizeMarkdownForHash(markdown))),
+      lastModified: normalizeHttpDateToUtc(response.headers ? response.headers.get("last-modified") : "")
+    };
   } catch (error) {
-    return "";
+    return {
+      contentHash: "",
+      lastModified: ""
+    };
   }
 };
 
@@ -3259,16 +3332,36 @@ const upsertPageFromView = async (runtime, payload) => {
     return;
   }
 
-  const lastModified = normalizeRfc3339ToUtc(frontmatter.lastModified);
+  const shouldUseFallback = runtime.option.frontmatterFallback === true;
+  const hasFrontmatterLastModified = hasFrontmatterValue(frontmatter, "lastModified");
+  let markdownSnapshot = null;
+  const getMarkdownSnapshot = async () => {
+    if (markdownSnapshot) {
+      return markdownSnapshot;
+    }
+    markdownSnapshot = await fetchCurrentMarkdownSnapshot(runtime, normalizedPath);
+    return markdownSnapshot;
+  };
+
+  let lastModified = normalizeRfc3339ToUtc(frontmatter.lastModified);
+  if (!lastModified && shouldUseFallback && !hasFrontmatterLastModified) {
+    const snapshot = await getMarkdownSnapshot();
+    lastModified = normalizeRfc3339ToUtc(snapshot.lastModified);
+  }
   if (!lastModified) {
     await setRuntimeError(runtime, `Invalid or missing lastModified: ${normalizedPath}`);
     await setDirtyState(runtime, true);
     return;
   }
 
-  const titleCandidate = toTrimmedString(frontmatter.title || "", "") || extractRenderedTitle(root);
+  const frontmatterTitle = toTrimmedString(frontmatter.title, "");
+  const titleCandidate = frontmatterTitle || (
+    shouldUseFallback
+      ? extractFirstRenderedHeadingTitle(root)
+      : ""
+  );
   const links = extractLinks(runtime, root, normalizedPath);
-  const contentHash = await computeCurrentMarkdownHash(runtime, normalizedPath);
+  const contentHash = (await getMarkdownSnapshot()).contentHash;
   const page = {
     url: normalizedPath,
     title: sanitizeTitle(titleCandidate),
@@ -3550,6 +3643,7 @@ const openLocalEditor = async (runtime) => {
   }
   const content = await response.text();
   runtime.currentMarkdownPath = normalizedPath;
+  await syncCurrentPageLastModified(runtime);
   applyDocumentState(runtime);
   return {
     ok: true,
@@ -4355,6 +4449,7 @@ const getSitemap = async (runtime, option = {}) => {
 const getStatus = async (runtime) => {
   runtime.canInitializeOwner = canInitializeOwnerInCurrentEnvironment(runtime);
   runtime.currentMarkdownPath = resolveCurrentMarkdownPath(runtime);
+  await syncCurrentPageLastModified(runtime);
   runtime.localEditorReady = isLocalEditorAvailable(runtime);
   runtime.inlineExportReady = isInlineWikiExportAvailable(runtime);
   const runtimeSettings = buildRuntimeSettingsState(runtime);
@@ -4376,12 +4471,14 @@ const getStatus = async (runtime) => {
       inlineExportEnabled: runtime.inlineExportOption && runtime.inlineExportOption.enabled === true,
       inlineExportReady: runtime.inlineExportReady === true,
       currentMarkdownPath: runtime.currentMarkdownPath || "",
+      currentPageLastModified: runtime.currentPageLastModified || "",
       runtimeSettings: runtimeSettings
     };
   }
   await syncRuntimeFromStorage(runtime);
   evaluateMode(runtime);
   runtime.currentMarkdownPath = resolveCurrentMarkdownPath(runtime);
+  await syncCurrentPageLastModified(runtime);
   runtime.localEditorReady = isLocalEditorAvailable(runtime);
   runtime.inlineExportReady = isInlineWikiExportAvailable(runtime);
   const syncedRuntimeSettings = buildRuntimeSettingsState(runtime);
@@ -4402,6 +4499,7 @@ const getStatus = async (runtime) => {
     inlineExportEnabled: runtime.inlineExportOption && runtime.inlineExportOption.enabled === true,
     inlineExportReady: runtime.inlineExportReady === true,
     currentMarkdownPath: runtime.currentMarkdownPath || "",
+    currentPageLastModified: runtime.currentPageLastModified || "",
     runtimeSettings: syncedRuntimeSettings
   };
 };
@@ -4608,6 +4706,7 @@ const createAuthorModePlugin = () => {
     localEditorReady: false,
     inlineExportReady: false,
     currentMarkdownPath: "",
+    currentPageLastModified: "",
     fileHandle: null,
     searchIndexFileHandle: null,
     lastKnownRevision: 0,
@@ -4633,6 +4732,7 @@ const createAuthorModePlugin = () => {
         baseSnapshot.option.enabled === nextOption.enabled &&
         baseSnapshot.option.strict === nextOption.strict &&
         baseSnapshot.option.mode === nextOption.mode &&
+        baseSnapshot.option.frontmatterFallback === nextOption.frontmatterFallback &&
         baseSnapshot.option.sitemapPath === nextOption.sitemapPath &&
         baseSnapshot.option.dbName === nextOption.dbName &&
         baseSnapshot.option.pbkdf2Iterations === nextOption.pbkdf2Iterations &&
@@ -4654,6 +4754,7 @@ const createAuthorModePlugin = () => {
       runtime.db = null;
       runtime.fileHandle = null;
       runtime.searchIndexFileHandle = null;
+      runtime.currentPageLastModified = "";
       runtime.initialized = false;
     }
     return bootstrap(runtime, viewer);
@@ -4662,6 +4763,7 @@ const createAuthorModePlugin = () => {
   const handleContentEvent = async (payload) => {
     await runBootstrap();
     runtime.currentMarkdownPath = resolveCurrentMarkdownPath(runtime);
+    await syncCurrentPageLastModified(runtime);
     runtime.localEditorReady = isLocalEditorAvailable(runtime);
     applyDocumentState(runtime);
     renderPageListEmbeds(runtime, payload);
@@ -4675,6 +4777,8 @@ const createAuthorModePlugin = () => {
       return;
     }
     await upsertPageFromView(runtime, payload);
+    await syncCurrentPageLastModified(runtime);
+    applyDocumentState(runtime);
   };
 
   return {

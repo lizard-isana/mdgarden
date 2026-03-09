@@ -32,6 +32,7 @@ indexing: true
       "enabled": true,
       "mode": "include-only",
       "strict": true,
+      "frontmatter_fallback": false,
       "sitemap_path": "sitemap.json",
       "db_prefix": "mdgarden_auto_indexer_docs"
     },
@@ -69,6 +70,8 @@ indexing: true
 ```
 
 - `lastModified` は RFC3339（タイムゾーン必須）
+- `frontmatter_fallback=true` の場合、`lastModified` 欠損時に HTTP `Last-Modified` を補完
+- `title` 未指定時は既定で `"Untitled"`（`frontmatter_fallback=true` の場合は描画rootの先頭見出しを補完）
 - 不正または未設定時は更新停止し、dirty を維持
 - 本文の SHA-256 ハッシュ比較（notify-only）を行い、`lastModified` が同じまま本文だけ変化した場合は `dirty=true` と警告を出して更新を促します
 - `indexing: false` の場合は既存エントリを削除

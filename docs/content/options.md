@@ -158,6 +158,7 @@ Author Mode 系は `author_mode` 配下で指定します。後方互換とし�
 | `author_mode.deploy` | `string[]` or `string` | `[]` | 本番URL判定に使うデプロイ先 |
 | `author_mode.auto_indexer.enabled` | `boolean` | `false` | Auto Indexer有効化 |
 | `author_mode.auto_indexer.strict` | `boolean` | `true` | 厳格モード |
+| `author_mode.auto_indexer.frontmatter_fallback` | `boolean` | `false` | Front Matter 欠損時に `Last-Modified` / 先頭見出しで補完 |
 | `author_mode.auto_indexer.mode` | `string` | `"include-only"` | 現在は `include-only` のみ有効 |
 | `author_mode.auto_indexer.sitemap_path` | `string` | `"sitemap.json"` | sitemap パス |
 | `author_mode.auto_indexer.db_prefix` | `string` | `"mdgarden_auto_indexer"` | IndexedDB名の接頭辞 |
@@ -217,6 +218,7 @@ Author Mode 系は `author_mode` 配下で指定します。後方互換とし�
       "enabled": false,
       "mode": "include-only",
       "strict": true,
+      "frontmatter_fallback": false,
       "sitemap_path": "sitemap.json"
     },
     "local_editor": {
