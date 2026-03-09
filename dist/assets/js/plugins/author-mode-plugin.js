@@ -1503,6 +1503,10 @@ const defineAutoIndexerAuthorPanelElement = () => {
     }
 
     async onEditClick() {
+      if (this.editorVisible) {
+        this.setEditorVisible(false);
+        return;
+      }
       const api = this.getApi();
       if (!api || typeof api.openLocalEditor !== "function") {
         this.writeError("local editor API is unavailable.");
@@ -1572,7 +1576,9 @@ const defineAutoIndexerAuthorPanelElement = () => {
         return;
       }
       this.settingsDetails.open = !this.settingsDetails.open;
-      this.settingsButton.setAttribute("aria-expanded", this.settingsDetails.open ? "true" : "false");
+      if (this.settingsButton) {
+        this.settingsButton.setAttribute("aria-expanded", this.settingsDetails.open ? "true" : "false");
+      }
     }
 
     async onSettingsApplyClick() {
