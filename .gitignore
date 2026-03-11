@@ -3,6 +3,7 @@ node_modules/
 
 # editor specific files
 .vscode/
+.windsurf
 
 # macos specific files
 .DS_Store
