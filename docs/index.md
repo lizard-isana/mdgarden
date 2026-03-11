@@ -5,7 +5,7 @@ indexing: true
 ---
 
 # MDGarden 
-A lightweight, portable, markdown-based wiki engine that runs entirely in the browser.
+A complete, zero-backend Markdown Wiki engine and document viewer that runs entirely in the browser.
 
 > A life is like a garden. 
 > Perfect moments can be had, but not preserved, except in memory. 
@@ -17,20 +17,20 @@ https://github.com/lizard-isana/mdgarden
 
 ## Document
 ### 日本語
-- [What is it?](./content/what_is_it.md)
-- [Getting started](./content/getting_started.md)
-  - [Single File Wiki/inline mode](./content/inline_mode.md)
-  - [Multi File Wiki/include mode](./content/include_mode.md)
-  - [Options](./content/options.md)
-  - [Plug-ins](./content/plugins.md)
-    - [JS Sandbox Plugin](./content/js_sandbox_plugins.md)
-    - [Search Plugin](./content/search_plugin.md)
-  - [Author Mode](./content/author_mode.md)
-- [MDGarden + Jorro](./content/jorro.md)
-- [API](./content/api.md)
-- [Plugin Dev Guide](./content/plugin_dev_guide.md)
-- [Copyrights/Credits](./content/credits.md)
-- [Markdown Cheat Sheet](./content/markdown.md)
+- [What is it?](./ja/what_is_it.md)
+- [Getting started](./ja/getting_started.md)
+  - [Single File Wiki/inline mode](./ja/inline_mode.md)
+  - [Multi File Wiki/include mode](./ja/include_mode.md)
+  - [Options](./ja/options.md)
+  - [Plug-ins](./ja/plugins.md)
+    - [JS Sandbox Plugin](./ja/js_sandbox_plugins.md)
+    - [Search Plugin](./ja/search_plugin.md)
+  - [Author Mode](./ja/author_mode.md)
+- [MDGarden + Jorro](./ja/jorro.md)
+- [API](./ja/api.md)
+- [Plugin Dev Guide](./ja/plugin_dev_guide.md)
+- [Copyrights/Credits](./ja/credits.md)
+- [Markdown Cheat Sheet](./ja/markdown.md)
 
 ## License
 ©2026 Isana Kashiwai ([MIT license](https://github.com/lizard-isana/mdgarden/blob/main/LICENSE))

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,92 +9,82 @@
   <link rel="stylesheet" href="./assets/css/default.css">
   <script src="./assets/js/mdgarden.min.js"></script>
   <style>
-    header{
+    header {
       display: grid;
       grid-template-columns: auto 1fr;
       position: relative;
     }
-    mdg-search.mdg-search-host{
+
+    mdg-search.mdg-search-host {
       justify-self: end;
-      max-width: 50%; 
+      max-width: 50%;
       position: absolute;
       top: 5px;
     }
-    mdg-search.mdg-search-host .bar{
+
+    mdg-search.mdg-search-host .bar {
       grid-template-columns: 1fr auto;
     }
-    mdg-search.mdg-search-host .clear{
+
+    mdg-search.mdg-search-host .clear {
       display: none;
     }
-    mdg-search.mdg-search-host .input{
+
+    mdg-search.mdg-search-host .input {
       grid-column: 2/3;
       grid-row: 1/2;
     }
-    mdg-search.mdg-search-host .status{
+
+    mdg-search.mdg-search-host .status {
       grid-column: 1/2;
       grid-row: 1/2;
       min-width: 30px;
     }
-    mdg-search.mdg-search-host .panel{
+
+    mdg-search.mdg-search-host .panel {
       background-color: transparent;
       padding: 10px;
     }
-  
   </style>
 </head>
+
 <body>
-<mdg-author viewer-id="main" file-name="sitemap.json" auto-hide="true"></mdg-author>
-<header>
-  <md-garden
-    id="header"
-    src="header.md"
-    data-link-target="main"
-    data-html="true"
-    data-sanitize="false"
-    data-execute-script="true"
-    data-plugins="toc",
-    data-highlight-style="github"
-  ></md-garden>
-  <mdg-search viewer-id="main"></mdg-search>
-</header>
-<main>
-  <md-garden
-    src="index.md"
-    id="main"
-    data-html="true"
-    data-sanitize="false"
-    data-allowed-dirs="content"
-    data-allowed-files="index.md,404.md"
-    data-link-resolution="relative"
-    data-allow-parent="true"
-    data-query-path-mode="split"
-    data-plugins="toc,author-mode,graph,chart,math,highlight,js-run,js-demo",
-    data-highlight-style="github"
-    ></md-garden>
-</main>
+  <mdg-author viewer-id="main" file-name="sitemap.json" auto-hide="true"></mdg-author>
+  <header>
+    <md-garden id="header" src="header.md" data-link-target="main" data-html="true" data-sanitize="false"
+      data-execute-script="true" data-plugins="toc" , data-highlight-style="github"></md-garden>
+    <mdg-search viewer-id="main"></mdg-search>
+  </header>
+  <main>
+    <md-garden src="index.md" id="main" data-html="true" data-sanitize="false" data-allowed-dirs="ja,en"
+      data-allowed-files="index.md,404.md" data-link-resolution="relative" data-allow-parent="true"
+      data-query-path-mode="split" data-plugins="toc,author-mode,graph,chart,math,highlight,js-run,js-demo" ,
+      data-highlight-style="github"></md-garden>
+  </main>
 
-<footer>
-  <md-garden id="footer"  data-html="true"></md-garden>
-</footer>
-
-
-<template data-target="footer">
+  <footer>
+    <md-garden id="footer" data-html="true" data-sanitize="false"></md-garden>
+  </footer>
+  <template data-target="footer">
 Powered by [MDGarden](https://github.com/lizard-isana/mdgarden) &copy; Isana Kashiwai{.footer}
 <style>
-.footer{
-  text-align:right;
-  color:#bbb;
-  font-size:10px;
+.footer {
+  text-align: right;
+  color: #bbb;
+  font-size: 10px;
   padding: 5px;
 }
-.footer a{
-  color:#bbb;
-  text-decoration:none;
+
+.footer a {
+  color: #bbb;
+  text-decoration: none;
 }
-.footer a:hover{
-  text-decoration:underline;
+
+.footer a:hover {
+  text-decoration: underline;
 }
 </style>
-</template>
+  </template>
 </body>
+
 </html>
