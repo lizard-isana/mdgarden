@@ -1,197 +1,77 @@
 {
   "version": "1.0",
-  "ownerHash": "",
-  "salt": "",
-  "lastUpdated": "2026-03-08T17:27:17.275Z",
+  "ownerHash": "BGKDA+4PAltmBiCVeljRxdryJWeNI2+QWLiHen+stQs=",
+  "salt": "KohWSrrQE+XuD9O3dD8C2g==",
+  "lastUpdated": "2026-03-11T00:17:52.725Z",
   "pages": {
-    "content/api.md": {
-      "title": "MDGarden - API",
-      "lastModified": "2026-03-06T00:00:00.000Z",
+    "log_20260103T214539.md": {
+      "title": "2026.01.04",
+      "lastModified": "2026-02-16T03:21:56.000Z",
       "indexing": true,
       "links": [],
-      "backlinks": [
-        "index.md"
-      ]
+      "backlinks": []
     },
-    "content/author_mode.md": {
-      "title": "MDGarden - Author Mode",
-      "lastModified": "2026-03-09T11:15:00.000Z",
-      "indexing": true,
-      "links": [
-        "content/search_plugin.md"
-      ],
-      "backlinks": [
-        "content/getting_started.md",
-        "content/inline_mode.md",
-        "content/plugins.md",
-        "index.md"
-      ]
-    },
-    "content/credits.md": {
-      "title": "MDGarden - Credits",
-      "lastModified": "2026-03-05T15:40:00.000Z",
+    "log_20260111T120000.md": {
+      "title": "2026.01.10",
+      "lastModified": "2026-03-10T03:00:00.000Z",
       "indexing": true,
       "links": [],
-      "backlinks": [
-        "index.md"
-      ]
+      "backlinks": []
     },
-    "content/getting_started.md": {
-      "title": "MDGarden - Getting Started",
-      "lastModified": "2026-03-06T19:00:00.000Z",
-      "indexing": true,
-      "links": [
-        "content/author_mode.md",
-        "content/include_mode.md",
-        "content/inline_mode.md",
-        "content/jorro.md",
-        "content/plugins.md"
-      ],
-      "backlinks": [
-        "content/what_is_it.md",
-        "index.md"
-      ]
-    },
-    "content/include_mode.md": {
-      "title": "MDGarden - Multi File Wiki/include mode",
-      "lastModified": "2026-03-06T00:00:00.000Z",
+    "log_20260118T120000.md": {
+      "title": "2026.01.18",
+      "lastModified": "2026-01-23T08:32:59.000Z",
       "indexing": true,
       "links": [],
-      "backlinks": [
-        "content/getting_started.md",
-        "content/inline_mode.md",
-        "content/what_is_it.md",
-        "index.md"
-      ]
+      "backlinks": []
     },
-    "content/inline_mode.md": {
-      "title": "MDGarden - Single File Wiki/inline mode",
-      "lastModified": "2026-03-06T04:30:00.000Z",
-      "indexing": true,
-      "links": [
-        "content/author_mode.md",
-        "content/include_mode.md",
-        "content/plugins.md"
-      ],
-      "backlinks": [
-        "content/getting_started.md",
-        "content/what_is_it.md",
-        "index.md"
-      ]
-    },
-    "content/jorro.md": {
-      "title": "MDGarden - Jorro",
-      "lastModified": "2026-03-08T17:00:00.000Z",
+    "log_20260126T120000.md": {
+      "title": "2026.01.25",
+      "lastModified": "2026-01-26T03:00:00.000Z",
       "indexing": true,
       "links": [],
-      "backlinks": [
-        "content/getting_started.md",
-        "index.md"
-      ]
+      "backlinks": []
     },
-    "content/js_sandbox_plugins.md": {
-      "title": "MDGarden - JS Sandbox Plugins",
-      "lastModified": "2026-03-07T14:10:00.000Z",
+    "log_20260201T025907.md": {
+      "title": "2026.02.01",
+      "lastModified": "2026-02-01T03:00:00.000Z",
       "indexing": true,
       "links": [],
-      "backlinks": [
-        "content/plugins.md",
-        "index.md"
-      ]
+      "backlinks": []
     },
-    "content/markdown.md": {
-      "title": "MDGarden - Markdown + Plugin Extension Sample",
-      "lastModified": "2026-03-07T15:30:00.000Z",
-      "indexing": true,
-      "links": [
-        "content/index.md"
-      ],
-      "backlinks": [
-        "index.md"
-      ]
-    },
-    "content/options.md": {
-      "title": "MDGarden - Options Reference",
-      "lastModified": "2026-03-08T03:30:00.000Z",
+    "log_20260208T203000.md": {
+      "title": "2026.02.08",
+      "lastModified": "2026-02-08T03:00:00.000Z",
       "indexing": true,
       "links": [],
-      "backlinks": [
-        "index.md"
-      ]
+      "backlinks": []
     },
-    "content/plugin_dev_guide.md": {
-      "title": "MDGarden - Plugin Dev Guide",
-      "lastModified": "2026-03-06T07:35:00.000Z",
-      "indexing": true,
-      "links": [
-        "content/plugins.md"
-      ],
-      "backlinks": [
-        "content/plugins.md",
-        "index.md"
-      ]
-    },
-    "content/plugins.md": {
-      "title": "MDGarden - Plug-ins",
-      "lastModified": "2026-03-06T07:10:00.000Z",
-      "indexing": true,
-      "links": [
-        "content/author_mode_plugin.md",
-        "content/author_mode.md",
-        "content/js_sandbox_plugins.md",
-        "content/plugin_dev_guide.md"
-      ],
-      "backlinks": [
-        "content/getting_started.md",
-        "content/inline_mode.md",
-        "content/plugin_dev_guide.md",
-        "index.md"
-      ]
-    },
-    "content/search_plugin.md": {
-      "title": "MDGarden - Search Plugin",
-      "lastModified": "2026-03-08T15:02:00.000Z",
+    "log_20260215T093816.md": {
+      "title": "2026.02.15",
+      "lastModified": "2026-02-15T03:00:00.000Z",
       "indexing": true,
       "links": [],
-      "backlinks": [
-        "content/author_mode.md",
-        "index.md"
-      ]
+      "backlinks": []
     },
-    "content/what_is_it.md": {
-      "title": "MDGarden - What is it?",
-      "lastModified": "2026-03-08T15:30:00.000Z",
+    "log_20260223T120000.md": {
+      "title": "2026.02.23",
+      "lastModified": "2026-02-23T12:00:00.000Z",
       "indexing": true,
-      "links": [
-        "content/getting_started.md",
-        "content/include_mode.md",
-        "content/inline_mode.md",
-        "content/security.md"
-      ],
-      "backlinks": [
-        "index.md"
-      ]
+      "links": [],
+      "backlinks": []
     },
-    "index.md": {
-      "title": "MDGarden - Home",
-      "lastModified": "2026-03-08T17:30:00.000Z",
+    "log_20260301T120000.md": {
+      "title": "2026.03.01",
+      "lastModified": "2026-03-03T16:54:00.000Z",
       "indexing": true,
-      "links": [
-        "content/api.md",
-        "content/author_mode.md",
-        "content/credits.md",
-        "content/getting_started.md",
-        "content/include_mode.md",
-        "content/inline_mode.md",
-        "content/jorro.md",
-        "content/js_sandbox_plugins.md",
-        "content/markdown.md",
-        "content/options.md",
-        "content/plugin_dev_guide.md",
-        "content/plugins.md",
-        "content/search_plugin.md",
-        "content/what_is_it.md"
-      ],
+      "links": [],
+      "backlinks": []
+    },
+    "log_20260308T120000.md": {
+      "title": "2026.03.09",
+      "lastModified": "2026-03-10T08:40:00.000Z",
+      "indexing": true,
+      "links": [],
       "backlinks": []
     }
   }

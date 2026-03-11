@@ -1671,7 +1671,7 @@ const defineAutoIndexerAuthorPanelElement = () => {
 }
 .settings-details {
   background: #f6f6f6;
-  margin-top: 5px;
+  /* margin-top: 5px; */
 }
 .settings-summary {
   list-style: none;

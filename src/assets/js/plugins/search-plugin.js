@@ -634,6 +634,7 @@ const defineSearchElement = () => {
   font-size: 13px;
   color: #0f172a;
   background: #ffffff;
+  line-height: 1.25;
 }
 .mdg-search-host .clear {
   appearance: none;
