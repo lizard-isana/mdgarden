@@ -13,3 +13,5 @@ text/
 
 jorro.app/
 jorro-config.json
+
+vitest.config.js
