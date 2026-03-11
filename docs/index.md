@@ -1,6 +1,6 @@
 ---
 title: "MDGarden - Home"
-lastModified: "2026-03-09T02:30:00+09:00"
+lastModified: "2026-03-12T01:23:00+09:00"
 indexing: true
 ---
 
@@ -16,6 +16,22 @@ https://github.com/lizard-isana/mdgarden
 
 
 ## Document
+### English
+- [What is it?](./en/what_is_it.md)
+- [Getting started](./en/getting_started.md)
+  - [Single File Wiki/inline mode](./en/inline_mode.md)
+  - [Multi File Wiki/include mode](./en/include_mode.md)
+  - [Options](./en/options.md)
+  - [Plug-ins](./en/plugins.md)
+    - [JS Sandbox Plugin](./en/js_sandbox_plugins.md)
+    - [Search Plugin](./en/search_plugin.md)
+  - [Author Mode](./en/author_mode.md)
+- [MDGarden + Jorro](./en/jorro.md)
+- [API](./en/api.md)
+- [Plugin Dev Guide](./en/plugin_dev_guide.md)
+- [Copyrights/Credits](./en/credits.md)
+- [Markdown Cheat Sheet](./en/markdown.md)
+
 ### 日本語
 - [What is it?](./ja/what_is_it.md)
 - [Getting started](./ja/getting_started.md)
