@@ -4039,15 +4039,31 @@ ${escapeTemplateText(rewritten)}
     ? layoutClone.innerHTML.trim()
     : allViewers.map((item) => buildMdGardenTagHtml(copyViewerAttributesForOfflineExport(item))).join("\n\n");
 
-  return `<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
+  const headClone = document.head ? document.head.cloneNode(true) : null;
+  if (headClone) {
+    const titleEl = headClone.querySelector("title");
+    if (titleEl) {
+      titleEl.textContent = title;
+    } else {
+      const newTitle = document.createElement("title");
+      newTitle.textContent = title;
+      headClone.appendChild(newTitle);
+    }
+  }
+
+  const headHtml = headClone
+    ? headClone.innerHTML.trim()
+    : `<meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtmlAttribute(title)}</title>
   <link rel="stylesheet" href="./assets/css/default.css">
-  <script src="./assets/js/mdgarden.min.js"></script>
+  <script src="./assets/js/mdgarden.min.js"></script>`;
+
+  return `<!DOCTYPE html>
+<html lang="ja">
+<head>
+${headHtml}
 </head>
 <body>
 ${bodyHtml}

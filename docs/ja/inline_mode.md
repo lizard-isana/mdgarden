@@ -91,10 +91,9 @@ inline mode は配布が簡単な一方、HTML内に script を入れると攻�
 
 ## Author Mode からの書き出し
 
-MDGarden では include mode で運用し、Author Mode の `offline_export` で inline 形式（Offline Wiki）へ書き出す使い方ができます。  
-この方法を使うと、日常運用は分割管理のまま、配布時だけ単一HTMLを生成できます。
+MDGarden では include mode で運用し、Author Mode の `offline_export` で inline 形式（Offline Wiki）へ書き出す使い方ができます。この方法を使うと、日常運用は分割管理のまま、配布時だけ単一HTMLを生成できます。
 
-- 運用: include mode + auto_indexer
+- 運用: include mode + author mode
 - 配布: Author Mode の「書き出し」ボタンで Offline Wiki 生成
 - 生成物: `?page=` 遷移を含む単一HTML（viewer構成も同梱可能）
 - 詳しくは [Author Mode](author_mode.md) を参照してください

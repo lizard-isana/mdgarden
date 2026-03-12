@@ -6,9 +6,14 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MDGarden: Markdown Viewer Component</title>
+
   <link rel="stylesheet" href="./assets/css/default.css">
   <script src="./assets/js/mdgarden.min.js"></script>
-  <style>
+<!-- 
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lizard-isana/mdgarden@0.1.0/dist/assets/css/default.css">
+  <script src="https://cdn.jsdelivr.net/gh/lizard-isana/mdgarden@0.1.0/dist/assets/js/mdgarden.min.js"></script>
+ -->
+<style>
     header {
       display: grid;
       grid-template-columns: auto 1fr;
@@ -65,7 +70,7 @@
   <footer>
     <md-garden id="footer" data-html="true" data-sanitize="false"></md-garden>
   </footer>
-  <template data-target="footer">
+<template data-target="footer">
 Powered by [MDGarden](https://github.com/lizard-isana/mdgarden) &copy; Isana Kashiwai{.footer}
 <style>
 .footer {
@@ -84,7 +89,7 @@ Powered by [MDGarden](https://github.com/lizard-isana/mdgarden) &copy; Isana Kas
   text-decoration: underline;
 }
 </style>
-  </template>
+</template>
 </body>
 
 </html>

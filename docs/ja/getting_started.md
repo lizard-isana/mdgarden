@@ -21,7 +21,6 @@ indexing: true
 
 - `index.html`
 - `index.md`
-- `assets/js/mdgarden.min.js`（必要なCSS/JS一式）
 
 `index.html` の最小例:
 
@@ -31,8 +30,8 @@ indexing: true
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./assets/css/default.css">
-  <script src="./assets/js/mdgarden.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lizard-isana/mdgarden@0.1.0/dist/assets/css/default.css">
+  <script src="https://cdn.jsdelivr.net/gh/lizard-isana/mdgarden@0.1.0/dist/assets/js/mdgarden.min.js"></script>
 </head>
 <body>
   <md-garden id="main" src="index.md"></md-garden>
@@ -69,6 +68,10 @@ This is your first page.
 ```
 
 必要に応じて `index.html` 側で `data-config="config.json"` を指定します。
+
+```html
+<md-garden src="index.md" data-config="config.json"></md-garden>
+``` 
 
 ## ローカルでの確認
 

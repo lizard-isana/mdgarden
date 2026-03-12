@@ -1,9 +1,9 @@
 {
   "version": 1,
-  "generatedAt": "2026-03-11T16:59:42.743Z",
+  "generatedAt": "2026-03-12T00:15:12.991Z",
   "source": {
     "sitemapPath": "sitemap.json",
-    "signature": "sha256-ed54b827e43997afe56d27bbb15930a4735c4052fe05358687f3da13d7721b79"
+    "signature": "sha256-367b13f0356971dbea2ed3ba87e47468ad7300918fb3c2ec1d2fc8a016a33b79"
   },
   "pages": [
     {
@@ -74,7 +74,7 @@
     {
       "p": "index.md",
       "t": "MDGarden - Home",
-      "s": "MDGarden A complete, zero backend Markdown Wiki engine and document viewer that runs entirely in the browser. A life is like a garden. Perfect moments can be had, but not preserved, except in memory. LLAP Leonard Nimoy Source https://github.com/lizard isana/mdgarden Document 日本語 What is it? Getting started Single File Wiki/inline mode Multi File Wiki/include mode Options Plug ins JS Sandbox Plugin Search Plugin Author Mode MDGarden + Jorro API Plugin Dev Guide Copyrights/Credits Markdown Cheat Sheet English What is it? Getting started Single File Wiki/inline mode Multi File Wiki/include mode Options Plug ins JS Sandbox Plugin Search Plugin Author Mode MDGarden + Jorro API Plugin Dev Guide Copyrights/Credits Markdown Cheat Sheet License ©2026 Isana Kashiwai (MIT license)"
+      "s": "MDGarden A complete, zero backend Markdown Wiki engine and document viewer that runs entirely in the browser. A life is like a garden. Perfect moments can be had, but not preserved, except in memory. LLAP Leonard Nimoy Source https://github.com/lizard isana/mdgarden Document 日本語 English License ©2026 Isana Kashiwai (MIT license)"
     },
     {
       "p": "ja/getting_started.md",

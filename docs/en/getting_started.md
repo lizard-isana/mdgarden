@@ -31,8 +31,8 @@ Minimal example of `index.html`:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./assets/css/default.css">
-  <script src="./assets/js/mdgarden.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lizard-isana/mdgarden@0.1.0/dist/assets/css/default.css">
+  <script src="https://cdn.jsdelivr.net/gh/lizard-isana/mdgarden@0.1.0/dist/assets/js/mdgarden.min.js"></script>
 </head>
 <body>
   <md-garden id="main" src="index.md"></md-garden>
